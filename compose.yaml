@@ -1,0 +1,62 @@
+# Istari — Docker Compose
+#
+# Two services: the app (API + built SPA, same origin) and PostgreSQL.
+# Both bind to loopback only. Put a reverse proxy in front for anything
+# beyond localhost; never publish the db port off-box.
+#
+#   make db-up        start only Postgres (local development)
+#   make docker-up    build + start app and db
+#
+# Volumes persist data across restarts. Backups land in the `istari-backups`
+# volume (see `make backup` / `make restore`).
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: istari
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
+      POSTGRES_DB: istari
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - istari-pgdata:/var/lib/postgresql
+      - ./deploy/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U istari -d istari"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: istari:latest
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://istari:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/istari
+      BIND_HOST: 0.0.0.0
+      PORT: "8000"
+    ports:
+      - "127.0.0.1:${PORT:-8000}:8000"
+    volumes:
+      - istari-backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+volumes:
+  istari-pgdata:
+  istari-backups:

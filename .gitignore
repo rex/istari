@@ -1,0 +1,40 @@
+# Tooling
+.task_state_history/
+
+# Secrets — never committed. `.env.example` is the documented template.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# Backups contain learning history and the owner password hash.
+backups/
+*.dump
+*.sql.gz
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+backend/static/
+playwright-report/
+test-results/
+.vite/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp

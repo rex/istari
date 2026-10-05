@@ -1,0 +1,83 @@
+# Pre-commit hooks — the independent enforcement backstop.
+#
+# Runs on `git commit`. The architecture + version gates here mirror
+# `make validate`, so a commit cannot bypass them even if `make
+# validate` was skipped. This is the third enforcement layer, alongside
+# the Makefile gates and the Stop hook.
+#
+#   One-time setup per clone:   pre-commit install
+#   Refresh pinned versions:    pre-commit autoupdate
+#
+# The `rev:` pins below are real releases; run `pre-commit autoupdate`
+# to move them forward. The repo-native gates under `local` have no
+# pins that can go stale.
+
+# Generated lockfiles are tool-owned: exempt from secret-scanning, size
+# caps, and whitespace rewriting (their hashes false-positive
+# detect-secrets, and rewriting them corrupts tool state).
+exclude: '(^|/)(uv\.lock|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb?|Cargo\.lock|poetry\.lock|Gemfile\.lock|composer\.lock|Package\.resolved|Podfile\.lock|flake\.lock|go\.sum|gradle\.lockfile)$'
+
+repos:
+  # ── Hygiene + private-key detection (pure Python, no toolchain) ──────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: check-yaml
+      - id: check-json
+      - id: detect-private-key
+
+  # ── Secret scanning — two scanners, because each catches what the other
+  # misses. detect-secrets' KeywordDetector is the only rule that catches a
+  # literal password; scripts/secret_filters.py drops a keyword hit only when
+  # its value is provably a reference (op://, Jinja, an ENV_NAME, a 1Password
+  # item title), so references stop training everyone to wave findings
+  # through. A repo with a .secrets.baseline records the filter in the
+  # baseline's filters_used instead (`detect-secrets scan --baseline
+  # .secrets.baseline --filter file://scripts/secret_filters.py::is_reference_not_secret`).
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--filter', 'file://scripts/secret_filters.py::is_reference_not_secret']
+
+  # gitleaks' provider rules (GitHub/AWS/1Password tokens, private keys, JWTs)
+  # on staged changes. pre-commit bootstraps the Go toolchain it builds with.
+  # .gitleaks.toml extends the defaults and skips only .secrets.baseline.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+
+  # ── Shell-script linting — pip-packaged shellcheck, no system dep ───
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+
+  # ── Repo-native gates — mirror `make validate`; no remote pins ──────
+  - repo: local
+    hooks:
+      - id: check-architecture
+        name: architecture line limits (VIBE.yaml)
+        entry: scripts/check_architecture.py
+        language: script
+        pass_filenames: false
+        always_run: true
+      - id: check-module-rules
+        name: module shape — max public functions (VIBE.yaml)
+        entry: scripts/check_module_rules.py
+        language: script
+        pass_filenames: false
+        always_run: true
+      - id: check-version-bumped
+        name: VERSION bumped + CHANGELOG entry
+        entry: scripts/check_version_bumped.py
+        language: script
+        pass_filenames: false
+        always_run: true
