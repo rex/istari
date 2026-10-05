@@ -17,7 +17,7 @@ PACK = mini_pack()
 def _question(key: str) -> Any:
     questions = PACK["questions"]
     assert isinstance(questions, list)
-    return next(q for q in questions if q["key"] == key)
+    return next(q for q in questions if q["slug"] == key)
 
 
 def _correct(key: str) -> list[str]:

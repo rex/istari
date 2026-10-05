@@ -2,9 +2,9 @@
    Runs the same CLI an operator would, against TEST_DATABASE_URL (never the dev db). */
 
 import { execFileSync } from "node:child_process";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const backend = path.resolve(__dirname, "../../../backend");
+const backend = fileURLToPath(new URL("../../../backend", import.meta.url));
 
 // `make e2e` derives this from the backend settings (TEST_DATABASE_URL, or
 // DATABASE_URL with `_test` appended). No DSN literal lives here on purpose.

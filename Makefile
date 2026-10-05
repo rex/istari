@@ -216,7 +216,7 @@ start:
 ## lint: ruff check + ruff format --check + import-linter; eslint + prettier --check
 lint:
 	@echo "$(CYAN)Linting backend...$(RESET)"
-	@$(UV) ruff check app tests && $(UV) ruff format --check app tests && $(UV) lint-imports
+	@cd $(BACKEND) && uv run ruff check app tests && uv run ruff format --check app tests && uv run lint-imports
 	@echo "$(CYAN)Linting frontend...$(RESET)"
 	@$(PNPM) run lint
 	@echo "$(GREEN)Lint clean.$(RESET)"
@@ -253,8 +253,8 @@ check-architecture:
 ## fix: Auto-fix lint issues and format everything
 fix:
 	@echo "$(CYAN)Auto-fixing...$(RESET)"
-	@$(UV) ruff check --fix app tests && $(UV) ruff format app tests
-	@$(PNPM) run format && $(PNPM) exec eslint . --fix
+	@cd $(BACKEND) && uv run ruff check --fix app tests && uv run ruff format app tests
+	@cd $(FRONTEND) && pnpm run format && pnpm exec eslint . --fix
 	@echo "$(GREEN)Done.$(RESET)"
 
 ## test: Backend (pytest, needs `make db-up`) + frontend (vitest) — VIBE tests.mode=required
@@ -274,7 +274,7 @@ test-frontend:
 ## e2e: Playwright against a built app on 127.0.0.1:$(PORT) (see frontend/playwright.config.ts)
 e2e: build
 	@echo "$(CYAN)End-to-end tests (Playwright)...$(RESET)"
-	@E2E_DATABASE_URL="$$($(UV) python -c 'from app.config import settings; print(settings.test_database_url)')" \
+	@export E2E_DATABASE_URL="$$($(UV) python -c 'from app.config import settings; print(settings.test_database_url)')" && \
 		$(PNPM) run test:e2e
 
 # ─── Docker ───────────────────────────────────────────────────────────

@@ -69,20 +69,20 @@ def validate_pack(pack: ContentPackSpec) -> ValidationReport:
     all_items: list[ItemBase] = [*pack.lessons, *pack.questions, *pack.flashcards, *pack.labs]
     seen_keys: set[str] = set()
     for item in all_items:
-        if item.key in seen_keys:
-            report.errors.append(Issue("duplicate_key", "item key used twice", item.key))
-        seen_keys.add(item.key)
+        if item.slug in seen_keys:
+            report.errors.append(Issue("duplicate_key", "item slug used twice", item.slug))
+        seen_keys.add(item.slug)
         for code in item.objectives:
             if code not in objective_codes:
                 report.errors.append(
-                    Issue("unknown_objective", f"objective {code} is not in this pack", item.key)
+                    Issue("unknown_objective", f"objective {code} is not in this pack", item.slug)
                 )
         if item.provenance.authored_by == "ai" and item.review_status == "human_reviewed":
             report.warnings.append(
                 Issue(
                     "provenance",
                     "AI-authored item marked human_reviewed — confirm a human actually reviewed it",
-                    item.key,
+                    item.slug,
                 )
             )
 
@@ -91,9 +91,9 @@ def validate_pack(pack: ContentPackSpec) -> ValidationReport:
         key = _normalise(question.stem_md)
         if key in stems:
             report.warnings.append(
-                Issue("duplicate_stem", f"stem duplicates {stems[key]}", question.key)
+                Issue("duplicate_stem", f"stem duplicates {stems[key]}", question.slug)
             )
-        stems[key] = question.key
+        stems[key] = question.slug
 
     return report
 

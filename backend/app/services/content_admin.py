@@ -85,7 +85,7 @@ def _validate_item(kind: str, key: str, payload: dict[str, object]) -> ItemBase:
     if spec_type is None:
         raise ValidationError(f"unknown item kind {kind}")
     data = dict(payload)
-    data["key"] = key
+    data["slug"] = key
     try:
         return spec_type.model_validate(data)
     except ValueError as exc:

@@ -26,6 +26,7 @@ from app.services.progress_activity import (
     assessment_session_count,
     card_counts,
     confident_mistakes,
+    lesson_counts,
 )
 from app.services.progress_queries import (
     ObjectiveCounts,
@@ -107,8 +108,9 @@ async def build_progress(
         counts[code].families_seen = len(families)
     totals.families_seen = len(families_total)
     totals.questions_total = sum(c.questions_total for c in counts.values())
-    totals.lessons_total = sum(c.lessons_total for c in counts.values())
-    totals.lessons_completed = sum(c.lessons_completed for c in counts.values())
+    # A lesson teaching several objectives is counted once here, not once per objective.
+    lesson_totals, lessons_by_domain = await lesson_counts(db, exam_version_id=exam.id)
+    totals.lessons_total, totals.lessons_completed = lesson_totals
 
     familiar = set(settings.familiar_objective_codes)
     domains: list[DomainProgress] = []
@@ -133,8 +135,8 @@ async def build_progress(
                 first_attempts=first_attempts,
                 first_correct=first_correct,
                 first_accuracy=_ratio(first_correct, first_attempts),
-                lessons_total=sum(o.lessons_total for o in objectives),
-                lessons_completed=sum(o.lessons_completed for o in objectives),
+                lessons_total=lessons_by_domain.get(domain.code, (0, 0))[0],
+                lessons_completed=lessons_by_domain.get(domain.code, (0, 0))[1],
             )
         )
     weak = sorted(

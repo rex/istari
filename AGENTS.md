@@ -4,25 +4,29 @@
      CLAUDE.md and GEMINI.md are symlinks to this file. Keep under 150 lines. -->
 
 ## 1. Project snapshot
-- **What**: <one sentence>
-- **Runtime**: <language + versions + frameworks>
-- **Infra**: <Terraform / Ansible / Helm / etc.>
-- **Owner**: #<channel>. On-call: `docs/oncall.md`
-- **Non-goals**: <what this service will NOT do>
+- **What**: Istari is a single-owner certification-training web app: lessons, scenario practice graded server-side, FSRS-scheduled review cards, an explainable daily plan and honest progress evidence. Ships with an AWS SAA-C03 starter pack (`content/packs/`).
+- **Runtime**: Python 3.13 · FastAPI · SQLAlchemy 2 async + asyncpg · Alembic · py-fsrs · argon2-cffi (`backend/`); React 19 · TypeScript 5.9 · Vite 8 · TanStack Router/Query · zustand (`frontend/`); PostgreSQL 18.
+- **Infra**: `compose.yaml` (db + app) and a hardened `Dockerfile`. No cloud resources, no AWS credentials. `docs/deployment.md` names no hosts.
+- **Owner**: Pierce (@rex). Work is tracked in Rivendell (GitHub issues on rex/istari); nothing else.
+- **Non-goals**: multi-user accounts, public deployment, readiness percentages or pass predictions, provisioning anything in AWS, runtime LLM content generation.
 
 ## 2. Setup
 
 ```bash
-# Replace per stack (lang-* skill fills these in at bootstrap time)
-make setup
+cp .env.example .env            # set POSTGRES_PASSWORD before the first db-up
+make install                    # uv sync (backend) + pnpm install (frontend)
+make db-up db-migrate seed      # Postgres on 127.0.0.1:5433, schema, content packs
+make bootstrap-owner USERNAME=<you>   # prompts for the password; no default exists
+make dev                        # API :8000 + Vite :5173
 ```
 
 ## 3. Commands the agent MUST run before declaring done
 
 - `make lint`
 - `make typecheck`
-- `make test`  (if testing is enabled in `VIBE.yaml`)
-- `make check-architecture`  (if declared)
+- `make test`  (required: pytest against `<DATABASE_URL>_test` + vitest)
+- `make e2e`  when a page or flow changed (Playwright: desktop, mobile, ultrawide)
+- `make validate`  (architecture, module shape, version gate; pre-commit mirrors it)
 - `make check-skeleton` — skeleton-owned files (`scripts/`, `.claude/{hooks,commands,agents,rules}`) match the installed agentic-skeleton; if behind, `make sync-skeleton`, then commit + push
 - If `infra/**` changed: `terraform fmt -recursive infra/ && terraform validate`
 - If `ansible/**` changed: `ansible-lint ansible/ && ansible-playbook --syntax-check`
@@ -30,14 +34,15 @@ make setup
 ## 4. Repo layout
 
 ```
-app/           Application code (flat, layered by concern — see CONVENTIONS.md)
-tests/         Mirrors source layout
-infra/         Terraform + Ansible (if applicable)
-specs/         Spec-driven dev artifacts — read specs/<active>/ first
-docs/adr/      Architectural decisions (MADR) — read README.md index
-agent_docs/    On-demand deep-dive (not auto-loaded)
-scripts/       Repo tooling (gates, version bumps, scripts/mcp/ credential helper)
-.claude/       Subagents, slash commands, rules, hooks, MCP config
+backend/app/       routes → services → adapters/db + domain (import-linter enforces the layers)
+backend/alembic/   Migrations: autogenerate, then review. Pass REV_ID=<slug> (see §9)
+backend/tests/     unit/ (pure domain) + integration/ (real Postgres, migrated per session)
+frontend/src/      pages/, components/{layout,ui,feature}, queries/ (one module per resource), lib/, styles/
+frontend/tests/    unit/ + component/ (Vitest, RTL), e2e/ (Playwright)
+content/packs/     pack.json per pack; schema in docs/content-schema.md
+docs/              architecture.md, content-schema.md, deployment.md, adr/
+scripts/           Gates, bump_version.py, backup.sh / restore.sh
+.claude/           Hooks, rules, commands, MCP config
 ```
 
 ## 5. Code style (non-negotiable)
@@ -66,9 +71,17 @@ change gets a corresponding test update.
 
 ## 9. Things agents get wrong here
 
-<!-- Update whenever an agent makes the same mistake twice. Start empty. -->
+<!-- Update whenever an agent makes the same mistake twice. -->
 
-- (none yet)
+- The PostToolUse auto-lint hook runs `ruff --fix` after every edit and deletes imports that are not used *yet*. Write the usage first, add the import second.
+- `DATABASE_URL` is required (no default DSN with a password in code). `TEST_DATABASE_URL` defaults to it with `_test` appended. The e2e target derives `E2E_DATABASE_URL` from the backend settings; do not hard-code a DSN in TypeScript.
+- `detect-secrets` runs in pre-commit: no literal passwords even in tests (`conftest` generates one per run), and Alembic revision ids must not be hex (`make db-revision MSG=... REV_ID=0002_<slug>`).
+- `bash-guard` blocks `DROP DATABASE`. Empty a database with `alembic downgrade base`, never with SQL.
+- Module-shape gate: at most 8 public top-level defs per file. In TS, `export const`/`export function` count, `export type`/`interface` do not. Split by resource (see `frontend/src/queries/`).
+- `pytest-asyncio` needs `asyncio_default_test_loop_scope = "session"` (set) because the engine fixture is session-scoped.
+- Pin `typescript@5`: typescript-eslint rejects TS 7. Vite 8 resolves tsconfig paths natively (`resolve.tsconfigPaths`).
+- React Compiler lint rules are on: per-item state lives in a keyed child (`QuestionRunner`), derived lists replace effect-synced state, refs are not read during render.
+- Content: item slugs and option ids are permanent once shipped (answers reference them). Change text by re-importing (new revision); never rename. The pack field is `slug`, not `key`: gitleaks reads `"key": "<value>"` as a credential.
 
 ## 10. Workflow
 
@@ -95,8 +108,8 @@ This repo was bootstrapped with:
 - `agentic-skeleton` (collaboration container — this file's shape — plus
   universal contracts: VIBE.yaml core schema, .env standard, /api/health
   contract, flat layout, line limits, Pushover)
-- `lang-<stack>` (code-style patterns + stack-specific implementation
-  of the contracts)
+- `lang-python`, `lang-react-spa`, `lang-docker` (code-style patterns +
+  stack-specific implementation of the contracts)
 
 Add new durable rules to the RIGHT skill, not to this file. Transient context
 goes in `TASK_STATE.md`; never here.

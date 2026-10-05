@@ -54,7 +54,9 @@ class Provenance(StrictModel):
 class ItemBase(StrictModel):
     """Fields every content item carries regardless of kind."""
 
-    key: Key
+    # The item's permanent identifier within its pack. Named `slug`, not `key`, because
+    # secret scanners read `"key": "<value>"` as a credential.
+    slug: Key
     objectives: list[ObjectiveCode] = Field(min_length=1)
     sources: list[SourceRef] = Field(min_length=1)
     provenance: Provenance

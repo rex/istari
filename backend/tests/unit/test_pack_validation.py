@@ -58,7 +58,7 @@ def test_question_consistency_rules(mutate: object) -> None:
 def test_cross_reference_errors() -> None:
     pack = mini_pack()
     _questions(pack)[0]["objectives"] = ["9.9"]
-    _questions(pack)[1]["key"] = "q-3"
+    _questions(pack)[1]["slug"] = "q-3"
     domains = pack["domains"]
     assert isinstance(domains, list)
     domains[0]["weight_percent"] = 50

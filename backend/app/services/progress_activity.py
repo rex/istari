@@ -11,9 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.adapters.db.models import (
     Answer,
     ContentItem,
+    ContentItemObjective,
     ContentPack,
     ContentRevision,
+    Domain,
     ItemProgress,
+    Objective,
     ReviewCard,
     ReviewEvent,
 )
@@ -93,3 +96,49 @@ async def confident_mistakes(
         .limit(limit)
     )
     return [(a, i, r, bool(c)) for a, i, r, c in rows.all()]
+
+
+async def lesson_counts(
+    db: AsyncSession, *, exam_version_id: int
+) -> tuple[tuple[int, int], dict[str, tuple[int, int]]]:
+    """Distinct lessons as (total, completed): overall, then per domain code.
+
+    A lesson that teaches several objectives is counted once, never once per objective,
+    so the summary cannot claim more lessons than the pack contains.
+    """
+    per_lesson = (
+        select(
+            Domain.code.label("domain"),
+            ContentItem.id.label("item_id"),
+            func.bool_or(ItemProgress.completed_at.is_not(None)).label("done"),
+        )
+        .join(ContentItemObjective, ContentItemObjective.item_id == ContentItem.id)
+        .join(Objective, Objective.id == ContentItemObjective.objective_id)
+        .join(Domain, Domain.id == Objective.domain_id)
+        .join(ContentPack, ContentPack.id == ContentItem.pack_id)
+        .outerjoin(ItemProgress, ItemProgress.item_id == ContentItem.id)
+        .where(
+            ContentPack.exam_version_id == exam_version_id,
+            ContentItem.kind == "lesson",
+            ContentItem.status == "active",
+        )
+        .group_by(Domain.code, ContentItem.id)
+        .subquery()
+    )
+    by_domain_rows = await db.execute(
+        select(
+            per_lesson.c.domain,
+            func.count(per_lesson.c.item_id),
+            func.sum(case((per_lesson.c.done, 1), else_=0)),
+        ).group_by(per_lesson.c.domain)
+    )
+    by_domain = {str(code): (int(total), int(done or 0)) for code, total, done in by_domain_rows}
+    total, completed = (
+        await db.execute(
+            select(
+                func.count(func.distinct(per_lesson.c.item_id)),
+                func.count(func.distinct(case((per_lesson.c.done, per_lesson.c.item_id)))),
+            )
+        )
+    ).one()
+    return (int(total or 0), int(completed or 0)), by_domain

@@ -14,15 +14,18 @@ async function login(page: Page) {
   await page.getByLabel("Username").fill(E2E_USERNAME);
   await page.getByLabel("Password").fill(E2E_PASSWORD);
   await page.getByRole("button", { name: "Enter" }).click();
-  // First visit lands on onboarding; complete it once.
-  if (
-    page.url().includes("/onboarding") ||
-    (await page
-      .getByRole("heading", { name: "Set up your track" })
-      .isVisible()
-      .catch(() => false))
-  ) {
+  await page.waitForURL((url) => !url.pathname.endsWith("/login"));
+  // The first login must complete onboarding. Ask the API rather than race the
+  // router's redirect from "/" to "/onboarding".
+  const me = (await (await page.request.get("/api/me")).json()) as {
+    onboarding_required: boolean;
+  };
+  if (me.onboarding_required) {
+    await page.goto("/onboarding");
     await page.getByRole("button", { name: "Start studying" }).click();
+    await page.waitForURL(/\/$/);
+  } else {
+    await page.goto("/");
   }
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }
@@ -43,7 +46,12 @@ test.describe("core study loop", () => {
       await page.getByRole("button", { name: "Abandon it" }).click();
       await page.goto("/");
     }
-    await page.getByRole("button", { name: "I have five minutes" }).click();
+    // With a fresh pack the plan rightly leads with due flashcards, so start the
+    // five-question practice session explicitly from the Practice page.
+    await page.goto("/practice");
+    await page.locator('label[for="minutes-5"]').click();
+    await expect(page.locator("#minutes-5")).toBeChecked();
+    await page.getByRole("button", { name: "Start practice" }).click();
     await expect(page).toHaveURL(/\/practice\/\d+$/);
 
     for (let i = 1; i <= 5; i += 1) {
@@ -79,7 +87,7 @@ test.describe("core study loop", () => {
 
     await page.goto("/progress");
     await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
-    await expect(page.getByText("First-attempt accuracy")).toBeVisible();
+    await expect(page.getByText("First-attempt accuracy", { exact: true })).toBeVisible();
     await expect(page.getByText(/not exam evidence/i).first()).toBeVisible();
     await shot(page, "progress", project);
   });

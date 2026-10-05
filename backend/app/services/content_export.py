@@ -51,7 +51,7 @@ async def export_pack(db: AsyncSession, slug: str) -> ContentPackSpec:
     items: dict[str, list[dict[str, object]]] = {v: [] for v in _PLURAL.values()}
     for item, rev in rows.all():
         body: dict[str, object] = {
-            "key": item.item_key,
+            "slug": item.item_key,
             "objectives": list(rev.objective_codes),
             "sources": list(rev.sources),
             "provenance": dict(rev.provenance),

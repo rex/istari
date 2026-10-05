@@ -25,7 +25,7 @@ def _question(
 ) -> dict[str, object]:
     option_ids = [f"o{i}" for i in range(1, options + 1)]
     return {
-        "key": key,
+        "slug": key,
         "objectives": [objective],
         "sources": [SOURCE],
         "provenance": PROVENANCE,
@@ -91,7 +91,7 @@ def mini_pack() -> dict[str, object]:
         ],
         "lessons": [
             {
-                "key": "lesson-one",
+                "slug": "lesson-one",
                 "objectives": ["1.1"],
                 "sources": [SOURCE],
                 "provenance": PROVENANCE,
@@ -103,7 +103,7 @@ def mini_pack() -> dict[str, object]:
                 "checks": [{"prompt_md": "Why?", "answer_md": "Because."}],
             },
             {
-                "key": "lesson-two",
+                "slug": "lesson-two",
                 "objectives": ["2.1"],
                 "sources": [SOURCE],
                 "provenance": PROVENANCE,
@@ -126,7 +126,7 @@ def mini_pack() -> dict[str, object]:
         ],
         "flashcards": [
             {
-                "key": f"fc-{i}",
+                "slug": f"fc-{i}",
                 "objectives": ["1.1" if i < 3 else "2.1"],
                 "sources": [SOURCE],
                 "provenance": PROVENANCE,
@@ -138,7 +138,7 @@ def mini_pack() -> dict[str, object]:
         ],
         "labs": [
             {
-                "key": "lab-one",
+                "slug": "lab-one",
                 "objectives": ["1.2"],
                 "sources": [SOURCE],
                 "provenance": PROVENANCE,
@@ -162,5 +162,5 @@ def pack_with_changed_question() -> dict[str, object]:
     questions = pack["questions"]
     assert isinstance(questions, list)
     questions[0]["stem_md"] = "Scenario for q-1, reworded: which option satisfies the constraint?"
-    pack["questions"] = [q for q in questions if q["key"] != "q-8"]
+    pack["questions"] = [q for q in questions if q["slug"] != "q-8"]
     return pack

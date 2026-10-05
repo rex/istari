@@ -1,7 +1,7 @@
 """Import a validated pack: idempotent, revision-aware, never touches user data.
 
 Semantics
-- Items are matched by (pack slug, item key). A changed body becomes a new
+- Items are matched by (pack slug, item slug). A changed body becomes a new
   revision; the old revision stays (answers reference it). Unchanged bodies
   are no-ops.
 - Items present in the database but missing from the pack are *retired*, not
@@ -65,7 +65,7 @@ class ImportReport:
 def _item_content(item: ItemBase) -> dict[str, object]:
     """Everything except identity/metadata — the body that gets versioned."""
     data = item.model_dump(mode="json")
-    for meta in ("key", "objectives", "sources", "provenance", "review_status", "tags"):
+    for meta in ("slug", "objectives", "sources", "provenance", "review_status", "tags"):
         data.pop(meta, None)
     return data
 
@@ -88,7 +88,7 @@ async def import_pack(
         seen_keys: set[str] = set()
         for kind, attr in _KINDS:
             for item_spec in getattr(spec, attr):
-                seen_keys.add(item_spec.key)
+                seen_keys.add(item_spec.slug)
                 await _import_item(db, pack, kind, item_spec, objectives, report, now)
         await _retire_missing(db, pack, seen_keys, report)
         await db.flush()
@@ -151,25 +151,25 @@ async def _import_item(
     report: ImportReport,
     now: datetime,
 ) -> None:
-    family_key = item_spec.family_key if isinstance(item_spec, QuestionSpec) else item_spec.key
+    family_key = item_spec.family_key if isinstance(item_spec, QuestionSpec) else item_spec.slug
     digest = content_hash(item_spec)
     item = await db.scalar(
         select(ContentItem).where(
-            ContentItem.pack_id == pack.id, ContentItem.item_key == item_spec.key
+            ContentItem.pack_id == pack.id, ContentItem.item_key == item_spec.slug
         )
     )
     if item is None:
         item = ContentItem(
-            pack_id=pack.id, item_key=item_spec.key, kind=kind, family_key=family_key
+            pack_id=pack.id, item_key=item_spec.slug, kind=kind, family_key=family_key
         )
         db.add(item)
         await db.flush()
         await _add_revision(db, item, 1, item_spec, digest)
-        report.created.append(item_spec.key)
+        report.created.append(item_spec.slug)
     else:
         if item.kind != kind:
             raise ConflictError(
-                f"item {item_spec.key} changes kind {item.kind} -> {kind}; use a new key"
+                f"item {item_spec.slug} changes kind {item.kind} -> {kind}; use a new slug"
             )
         current = await db.scalar(
             select(ContentRevision).where(
@@ -180,14 +180,14 @@ async def _import_item(
         if item.status == "retired":
             item.status = "active"
         if current is not None and current.content_hash == digest:
-            report.unchanged.append(item_spec.key)
+            report.unchanged.append(item_spec.slug)
         else:
             next_revision = (current.revision + 1) if current is not None else 1
             if current is not None:
                 current.is_current = False
                 await db.flush()
             await _add_revision(db, item, next_revision, item_spec, digest)
-            report.updated.append(item_spec.key)
+            report.updated.append(item_spec.slug)
     await _sync_objectives(db, item, item_spec.objectives, objectives)
     if isinstance(item_spec, FlashcardSpec):
         await _sync_flashcard_card(db, item, item_spec, now)
