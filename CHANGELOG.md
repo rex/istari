@@ -30,6 +30,14 @@ version bumps).
 
 ---
 
+## [0.7.0] — 2026-10-08 — Agent: Claude Fable 5.1
+### Fixed
+- `backend/app/corpus/` is in the repository at last. The ignore rule `corpus/` was meant
+  for the derived corpus at the repo root but, unanchored, it also matched the source
+  package, so every clean checkout from v0.4.0 to v0.6.0 failed to import `app.corpus`
+  (the first Gitea CI run failed typecheck on exactly that). The rules are anchored now
+  (`/corpus/`, `/content/private/`); the derived material stays ignored.
+
 ## [0.6.0] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Added
 - `scripts/entrypoint.sh` is the container command: `alembic upgrade head`, the pack

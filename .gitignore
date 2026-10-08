@@ -17,8 +17,10 @@ backups/
 
 # Private corpus and packs derived from purchased course material (docs/corpus.md).
 # This repository is public; nothing converted from those sources is ever committed.
-corpus/
-content/private/
+# Anchored to the repo root: an unanchored `corpus/` also matched the source package
+# backend/app/corpus/, which went uncommitted from v0.4.0 to v0.6.0.
+/corpus/
+/content/private/
 
 # Python
 .venv/
