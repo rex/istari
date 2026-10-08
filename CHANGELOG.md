@@ -30,6 +30,10 @@ version bumps).
 
 ---
 
+## [0.8.0] — 2026-10-08 — Agent: Claude Fable 5.1
+### Changed
+- Frontend build stage installs pnpm with npm; node:26 images no longer bundle corepack, which failed the first image build on the lab's CI with exit 127
+
 ## [0.7.0] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Fixed
 - `backend/app/corpus/` is in the repository at last. The ignore rule `corpus/` was meant

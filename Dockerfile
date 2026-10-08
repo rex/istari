@@ -13,7 +13,9 @@ FROM node:26-slim AS frontend
 # Build stamp shown in every page's footer (see backend/app/buildinfo.py).
 ARG GIT_COMMIT=unknown
 ENV PNPM_HOME=/pnpm PATH="/pnpm:$PATH" CI=true GIT_COMMIT=$GIT_COMMIT
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+# Same pnpm as package.json's "packageManager". node:26 images no longer bundle corepack
+# (the CI build failed with exit 127 on it), so npm installs the pinned version.
+RUN npm install -g pnpm@10.33.0
 WORKDIR /web
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
