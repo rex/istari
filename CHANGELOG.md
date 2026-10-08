@@ -30,6 +30,10 @@ version bumps).
 
 ---
 
+## [0.5.1] — 2026-10-08 — Agent: Claude Fable 5.1
+### Changed
+- Handoff notes: corpus ingest totals, roadmap issues #29-#39
+
 ## [0.5.0] — 2026-10-07 — Agent: Claude Fable 5.1
 ### Added
 - Watch: the video courses on the learning share, inside Istari. `LEARNING_ROOT` and

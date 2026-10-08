@@ -12,10 +12,12 @@
 V1 is implemented; v0.3.0 added the build badge; v0.4.0 the private corpus tooling
 (`docs/corpus.md`); v0.5.0 the Watch area (video courses from the learning share with
 synced subtitles, resume and a transcript panel; `LEARNING_ROOT` in `.env`). All gates
-are green (see §6). Next: #26 (related-in-Istari rail beside the player, Ready). Waiting
-on Pierce: reviewing the AI-authored pack items, and yes/no on the content pipeline
-(#13), the task engine (#8), the context cards (#27) and Whisper transcription (#28).
-Do NOT rename item slugs or option ids in `content/packs/**/pack.json`, and never commit
+are green (see §6). Next: #26 (related-in-Istari rail beside the player, Ready). The
+roadmap on top of Watch and the corpus is filed as rex/istari#29 with sub-issues #30–#39
+(all Inbox; recommended order: #30 transcript search, #31 mistake-to-clip, #32 lecture
+to objective mapping, #33 timestamped notes). Waiting on Pierce: promoting any of those,
+reviewing the AI-authored pack items, and yes/no on #13, #8, #27, #28, #39. Do NOT
+rename item slugs or option ids in `content/packs/**/pack.json`, and never commit
 anything under `corpus/` or `content/private/`.
 
 ## Standing user directives
@@ -85,14 +87,22 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 6. Handoff note (fill when ending a session)
 
+2026-10-08, 02:15 (Claude Fable 5.1): session closing. v0.5.0 is on `main` (f3b0ae5).
+The whole-dataset corpus ingest finished with no conversion failures: 204 resources,
+12,167 Markdown files, ~31M words under `corpus/` (Cloud/AWS 25.2M words, Kubernetes/
+General 5.0M, Terraform 683k; CKA/CKAD/CKS nearly empty for lack of subtitles). Watch was
+smoke-tested against the real share (streaming, captions, transcript, progress saves).
+Roadmap filed as #29 with #30–#39 in Inbox. Nothing is running in the background; the
+dev database is migrated to `0002_course_progress`; `.env` does not yet set
+`LEARNING_ROOT`, so Watch shows "not configured" until Pierce adds it.
+
 2026-10-07, late (Claude Fable 5.1): v0.5.0, Watch (#23, #24, #25). Backend: catalog
 scan in a thread, Range streaming via FileResponse, SRT→WebVTT, `course_progress` with
 migration `0002_course_progress`, path safety by catalogue membership. Frontend: Watch,
 course and player pages, transcript panel, shortcuts. Gates: pytest 98 passed, vitest 25
 passed, Playwright 9 passed, ruff/mypy/import-linter/tsc/eslint/prettier clean. Test
 timings were inflated by a machine load average near 85 from other processes, not by the
-suite. The whole-dataset corpus ingest was still running in the background at handoff
-(log in the session scratchpad; results under `corpus/`).
+suite.
 
 2026-10-07, later (Claude Fable 5.1): v0.4.0, private corpus tooling (#21). Real-share
 results: Digital Cloud SAA-C03 course → 312 files / 236k words in 18 s; DVA-C01 practice

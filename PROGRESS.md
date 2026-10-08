@@ -7,7 +7,7 @@
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
 - **Active TASK_STATE**: `TASK_STATE.md` (phase 10: Watch follow-ups; #26 is next; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-07 (Claude Fable 5.1, v0.4.0 private corpus tooling and v0.5.0 Watch: video courses from the learning share with synced subtitles)
+- **Last session**: 2026-10-08 (Claude Fable 5.1, v0.4.0 private corpus tooling, v0.5.0 Watch, full-dataset corpus ingest done, roadmap filed as rex/istari#29–#39)
 
 ## Last three decisions
 
