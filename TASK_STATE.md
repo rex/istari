@@ -91,7 +91,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 1. Pierce: open the deployed app, log in with the owner login kept in the vault (`app-istari`), run a five-question session, open Watch (the first scan of the share takes a few minutes and the page polls until it fills), review pack items on the Content page.
 2. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 3. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
-4. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41). Lab side: the static DNS record render waits on homelab-ansible#71 (external-dns serves the name meanwhile).
+4. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41).
 5. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
 6. Local dev still works as before: set `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner.
 
@@ -110,9 +110,10 @@ courses from the read-only share mount in about 40 seconds; DNS answers on both 
 Lab side (private repos): inventory `stacks/istari.yml` (0.23.0), isengard 0.184.0,
 homelab-ansible 0.344.0 (the Learning export now also allows the ring node), palantir
 0.33.2; CNPG role and database `istari`; vault items `db-postgres-istari` and
-`app-istari`. Pending: homelab-ansible#71 blocks the static DNS record converge
-(external-dns serves the name meanwhile); #41 (e2e in CI) is in Inbox. Nothing runs in
-the background.
+`app-istari`. homelab-ansible#71 (the DNS playbook's check mode died on apps with nothing
+pending) was fixed the same morning (homelab-ansible 0.345.0) and `make deploy-dns`
+converged with nothing to add: the istari host record was already on both Pi-holes through
+external-dns. #41 (e2e in CI) is in Inbox. Nothing runs in the background.
 
 2026-10-08, 02:15 (Claude Fable 5.1): session closing. v0.5.0 is on `main` (f3b0ae5).
 The whole-dataset corpus ingest finished with no conversion failures: 204 resources,

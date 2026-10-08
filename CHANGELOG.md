@@ -30,6 +30,10 @@ version bumps).
 
 ---
 
+## [0.8.2] — 2026-10-08 — Agent: Claude Fable 5.1
+### Changed
+- Handoff: homelab-ansible#71 fixed and the static DNS record converged (already present through external-dns); nothing is pending on the lab side
+
 ## [0.8.1] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Changed
 - Handoff for the homelab deployment (#40): the GitHub-to-mirror-to-Flux chain, what was verified, the lab-side versions; AGENTS.md gotchas for anchored ignore rules, editor-expanded unicode escapes and the GitHub-first mirror
