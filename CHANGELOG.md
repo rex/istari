@@ -30,9 +30,16 @@ version bumps).
 
 ---
 
-## [0.8.0] — 2026-10-08 — Agent: Claude Fable 5.1
+## [0.8.1] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Changed
-- Frontend build stage installs pnpm with npm; node:26 images no longer bundle corepack, which failed the first image build on the lab's CI with exit 127
+- Handoff for the homelab deployment (#40): the GitHub-to-mirror-to-Flux chain, what was verified, the lab-side versions; AGENTS.md gotchas for anchored ignore rules, editor-expanded unicode escapes and the GitHub-first mirror
+
+## [0.8.0] — 2026-10-08 — Agent: Claude Fable 5.1
+### Fixed
+- The image's frontend stage installs the pinned pnpm with `npm install -g` instead of
+  corepack: `node:26-slim` no longer bundles corepack, so the first image build on the
+  lab's CI stopped with `corepack: not found` (exit 127). Verified by building the stage
+  locally.
 
 ## [0.7.0] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Fixed

@@ -86,6 +86,9 @@ change gets a corresponding test update.
 - React Compiler lint rules are on: per-item state lives in a keyed child (`QuestionRunner`), derived lists replace effect-synced state, refs are not read during render.
 - `app` is importable only with `backend/` as the working directory (`[tool.uv] package = false`). A background job or a script run from elsewhere must use `uv run --directory backend python -m app.cli …`.
 - Content: item slugs and option ids are permanent once shipped (answers reference them). Change text by re-importing (new revision); never rename. The pack field is `slug`, not `key`: gitleaks reads `"key": "<value>"` as a credential.
+- `.gitignore` rules for generated directories are anchored (`/corpus/`, `/content/private/`). An unanchored `corpus/` hid `backend/app/corpus/` from git, ruff and mypy for three releases; after adding an ignore rule, run `git check-ignore -v` against the source tree.
+- The Edit/Write tools turn `\uXXXX` escapes into the literal character (seen with `﻿` and `–`, which `RUF001` then rejects). Spell such characters as `chr(0x2013)` in Python and compare `charCodeAt` values in TypeScript.
+- Deployment is GitHub-first: the lab's Gitea repo is a pull mirror (never add it as a git remote). Gitea Actions runs `.gitea/workflows/ci.yml` when the mirror syncs and derives the registry from the server URL; the ring stack lives in the private inventory repo, and `docs/deployment.md` stays hostname-free.
 
 ## 10. Workflow
 

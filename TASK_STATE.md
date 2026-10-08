@@ -5,14 +5,18 @@
 > and context compactions.
 >
 > Spec: the implementation brief `istari-agent-kickstart.md` (Pierce's copy, not committed) · Plan: Rivendell rex/istari#1 (parent) with #2, #3, #4, #5
-> Branch: `main` · Owner (human): @rex · Last update: 2026-10-07 by Claude Fable 5.1
+> Branch: `main` · Owner (human): @rex · Last update: 2026-10-08 by Claude Fable 5.1
 
 ## 0. TL;DR for a fresh agent session
 
 V1 is implemented; v0.3.0 added the build badge; v0.4.0 the private corpus tooling
 (`docs/corpus.md`); v0.5.0 the Watch area (video courses from the learning share with
-synced subtitles, resume and a transcript panel; `LEARNING_ROOT` in `.env`). All gates
-are green (see §6). Next: #26 (related-in-Istari rail beside the player, Ready). The
+synced subtitles, resume and a transcript panel; `LEARNING_ROOT` in `.env`); v0.6.0 made
+the image deployable (entrypoint, Gitea CI) and v0.7.0 committed the corpus package the
+ignore rule had hidden. Istari runs in Pierce's homelab ring since 2026-10-08 (#40):
+GitHub is the source of truth, the lab's Gitea pull mirror builds the image, Flux rolls it
+out; the owner account comes from the vault. All gates are green (see §6). Next: #26
+(related-in-Istari rail beside the player, Ready). The
 roadmap on top of Watch and the corpus is filed as rex/istari#29 with sub-issues #30–#39
 (all Inbox; recommended order: #30 transcript search, #31 mistake-to-clip, #32 lecture
 to objective mapping, #33 timestamped notes). Waiting on Pierce: promoting any of those,
@@ -27,6 +31,7 @@ anything under `corpus/` or `content/private/`.
 - 2026-10-05: build from the kickstart brief; make reasonable, reversible decisions without stopping for routine clarifications; implement, run and test; report what works, what was tested, what remains.
 - 2026-10-05: the GitHub repo is public (rex/istari) and secrets must be actively watched (pre-commit detect-secrets + gitleaks, CI gitleaks, GitHub secret scanning + push protection).
 - Brief: do not modify homelab infrastructure, open ports, deploy publicly, run cloud commands, or provision AWS resources. Istari needs no AWS credentials.
+- 2026-10-08: "Yes, get it deployed": deploy Istari to the homelab through the lab's prescribed workflows (Arda, the inventory, Flux); this supersedes the brief's no-deploy line for that deployment only. Still no exposure beyond the lab's own ingress and no firewall, UDR or tofu changes. The lab's Gitea repo is a pull mirror of GitHub, never a second remote.
 
 ## 1. Phases
 
@@ -42,6 +47,7 @@ anything under `corpus/` or `content/private/`.
 | 8 | Private corpus from purchased courses (#21) | ✅ done | `corpus-ingest` / `corpus-udemy` work on the real share; three private packs validate and dry-run import |
 | 9 | Course player with synced subtitles (#22: #23 catalog, #24 stream, #25 transcript) | ✅ done | courses listed from `LEARNING_ROOT`, video streams with Range + WebVTT, position remembered, transcript synced |
 | 10 | Watch follow-ups: #26 related-in-Istari rail, #27 context cards (proposal), #28 Whisper for subtitle-less courses | ⏸ pending | #26 Ready; #27 and #28 wait on Pierce |
+| 11 | Homelab deployment (#40): deployable image, Gitea CI, ring stack, database, vault items, learning share mount | ✅ done | the lab ingress serves the app over TLS; `/api/health` ok; owner bootstrapped from the vault; Watch lists the share |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -66,6 +72,9 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 4. Recent decisions (append-only, newest first)
 
+- 2026-10-08 — GitHub-first deployment: the lab's Gitea repo is a pull mirror of GitHub (Pierce: a second remote drifts and doubles every push); Gitea Actions builds on mirror sync, `.gitea/workflows/ci.yml` derives the registry from the server URL so the public repo names no hosts (Claude Fable 5.1, #40).
+- 2026-10-08 — The container entrypoint owns start-up: migrate, seed the shipped packs, create the owner once from `ISTARI_OWNER_USERNAME`/`ISTARI_OWNER_PASSWORD` (`bootstrap-owner --if-missing`, never touching an existing owner), then serve (Claude Fable 5.1, #40).
+- 2026-10-08 — `.gitignore` rules for generated directories are anchored to the repo root; the unanchored `corpus/` had hidden `backend/app/corpus/` from git and the linters since v0.4.0 (Claude Fable 5.1, found by the first CI run).
 - 2026-10-07 — Purchased course material is read in place and converted into a gitignored corpus and private packs; it is a coverage map and drill source, never a fact source, and nothing derived from it is committed to the public repo (Claude Fable 5.1, #21).
 - 2026-10-07 — Imported drill questions live under an `<EXAM>-DRILL` exam version with quiz/test names as domains, so they never mix with a verified pack's objectives (Claude Fable 5.1, #21).
 - 2026-10-07 — Build stamp comes from the API (`GIT_COMMIT`/`BUILD_DATE` env, git fallback in a checkout); the SPA embeds its own commit only to detect a stale bundle (Claude Fable 5.1, #6).
@@ -79,13 +88,31 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Pierce: set `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env`, restart `make dev`, open Watch; the first scan of seven topic folders over SMB takes a few minutes and the page polls until it fills.
+1. Pierce: open the deployed app, log in with the owner login kept in the vault (`app-istari`), run a five-question session, open Watch (the first scan of the share takes a few minutes and the page polls until it fills), review pack items on the Content page.
 2. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 3. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
-4. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page; import a private drill pack with `import-pack` if wanted.
+4. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41). Lab side: the static DNS record render waits on homelab-ansible#71 (external-dns serves the name meanwhile).
 5. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
+6. Local dev still works as before: set `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-08, 04:10 (Claude Fable 5.1): Istari is deployed in the homelab ring (#40). The
+chain: GitHub `main` → the lab's Gitea pull mirror (10-minute interval, or
+`arda_gitea_mirror_sync repo=rex/istari` to sync now) → Gitea Actions
+(`.gitea/workflows/ci.yml`: the gates against a Postgres service container, then the
+image) → Flux image automation → rollout. The first CI runs found two real bugs, fixed as
+v0.7.0 (the corpus package had been gitignored since v0.4.0) and v0.8.0 (`node:26-slim`
+has no corepack). Verified at 04:05 CDT: pod 1/1 ready; `/api/health` over the lab ingress
+reports 0.8.0 / 9e20933; the entrypoint imported the SAA-C03 pack (74 items) and created
+the owner; login with the vault credentials returns 200; the Watch catalog scanned 90
+courses from the read-only share mount in about 40 seconds; DNS answers on both Pi-holes.
+Lab side (private repos): inventory `stacks/istari.yml` (0.23.0), isengard 0.184.0,
+homelab-ansible 0.344.0 (the Learning export now also allows the ring node), palantir
+0.33.2; CNPG role and database `istari`; vault items `db-postgres-istari` and
+`app-istari`. Pending: homelab-ansible#71 blocks the static DNS record converge
+(external-dns serves the name meanwhile); #41 (e2e in CI) is in Inbox. Nothing runs in
+the background.
 
 2026-10-08, 02:15 (Claude Fable 5.1): session closing. v0.5.0 is on `main` (f3b0ae5).
 The whole-dataset corpus ingest finished with no conversion failures: 204 resources,

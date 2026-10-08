@@ -6,11 +6,12 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phase 10: Watch follow-ups; #26 is next; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-08 (Claude Fable 5.1, v0.4.0 private corpus tooling, v0.5.0 Watch, full-dataset corpus ingest done, roadmap filed as rex/istari#29–#39)
+- **Active TASK_STATE**: `TASK_STATE.md` (phase 11 deployment done; #26 is next; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-08 (Claude Fable 5.1, v0.6.0 deployable image + Gitea CI, v0.7.0 corpus package fix, deployed to the homelab ring, rex/istari#40)
 
 ## Last three decisions
 
+- 2026-10-08 GitHub-first: the lab's Gitea repo is a pull mirror; CI builds on mirror sync; the container entrypoint migrates, seeds and bootstraps the owner once.
 - 2026-10-07 Watch reads the learning share in place (`LEARNING_ROOT`), serves only paths the catalog reported, and never writes to the share.
 - 2026-10-07 Purchased course material becomes a gitignored corpus and private drill packs; it is never a fact source and never committed.
 - 2026-10-07 Build stamp: the API is the source of truth (`/api/health`); the bundle embeds its own commit and warns when it differs.
