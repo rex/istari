@@ -74,6 +74,7 @@ change gets a corresponding test update.
 <!-- Update whenever an agent makes the same mistake twice. -->
 
 - The PostToolUse auto-lint hook runs `ruff --fix` after every edit and deletes imports that are not used *yet*. Write the usage first, add the import second.
+- The same hook rewrites `Literal["ok", "unhealthy"]` inside a function signature into bare names (`Literal[ok, unhealthy]`). Define literal types as module-level aliases (`HealthStatus = Literal[...]`, as `contracts/session.py` does) and annotate with the alias.
 - `DATABASE_URL` is required (no default DSN with a password in code). `TEST_DATABASE_URL` defaults to it with `_test` appended. The e2e target derives `E2E_DATABASE_URL` from the backend settings; do not hard-code a DSN in TypeScript.
 - `detect-secrets` runs in pre-commit: no literal passwords even in tests (`conftest` generates one per run), and Alembic revision ids must not be hex (`make db-revision MSG=... REV_ID=0002_<slug>`).
 - `bash-guard` blocks `DROP DATABASE`. Empty a database with `alembic downgrade base`, never with SQL.

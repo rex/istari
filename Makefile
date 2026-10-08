@@ -283,14 +283,17 @@ e2e: build
 docker-build:
 	@echo "$(CYAN)Building Docker image $(DOCKER_IMAGE)...$(RESET)"
 	docker build \
-		--build-arg APP_VERSION=$$(git describe --tags --always 2>/dev/null || echo "dev") \
-		--build-arg GITHUB_SHA=$$(git rev-parse HEAD 2>/dev/null || echo "unknown") \
+		--build-arg APP_VERSION=$$(cat VERSION) \
+		--build-arg GIT_COMMIT=$$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") \
 		--build-arg BUILD_DATE=$$(date -u +%Y-%m-%dT%H:%M:%SZ) \
 		-t $(DOCKER_IMAGE) .
 
 ## docker-up: Build and start app + db via Compose (loopback only)
 docker-up:
-	@docker compose up -d --build --wait
+	@APP_VERSION=$$(cat VERSION) \
+	GIT_COMMIT=$$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") \
+	BUILD_DATE=$$(date -u +%Y-%m-%dT%H:%M:%SZ) \
+	docker compose up -d --build --wait
 	@echo "$(GREEN)Istari is up on http://127.0.0.1:$(PORT)$(RESET)"
 	@echo "  First run: $(CYAN)docker compose exec -e ISTARI_OWNER_PASSWORD app python -m app.cli bootstrap-owner --username <you>$(RESET)"
 	@echo "  Content:   $(CYAN)docker compose exec app python -m app.cli seed$(RESET)"

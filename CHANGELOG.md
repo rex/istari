@@ -30,6 +30,34 @@ version bumps).
 
 ---
 
+## [0.3.0] — 2026-10-07 — Agent: Claude Fable 5.1
+### Added
+- Every page, the login page included, shows a build badge: version, git commit short
+  hash, image build time and the process start time ("up since"). The API is the source
+  of truth (`/api/health` now reports `version`, `commit`, `built_at`, `started_at`);
+  the SPA embeds its own commit and says so when it differs from the API's.
+- `backend/app/buildinfo.py` resolves the stamp once at startup: `GIT_COMMIT` and
+  `BUILD_DATE` from the environment, else `git rev-parse --short HEAD` in a checkout,
+  else `unknown`. The startup log line names version, commit and build time.
+- `make docker-build` / `make docker-up` pass `APP_VERSION`, `GIT_COMMIT` and
+  `BUILD_DATE` as build args; the image carries them as environment variables and OCI
+  labels (`org.opencontainers.image.{version,revision,created,source}`).
+- Tests: build-info resolution (unit), health body (integration), `BuildBadge`
+  (component, including the stale-bundle warning), badge on login and Today (e2e).
+### Changed
+- Skeleton synced to agentic-skeleton 0.50.0: `scripts/check_skills.py` and
+  `scripts/stamp_skill.py` added, provenance stamped in `VIBE.yaml`. The Makefile
+  keeps its repo-specific recipes (advisory drift, reconciled by hand).
+### Fixed
+- The very first `GET /api/me` on a fresh database created the settings row without
+  protection, so two overlapping first requests (the SPA's post-login refetch plus any
+  second tab or probe) made one of them fail with a 500. The insert now runs in a
+  savepoint and the loser reads the winner's row. Regression test added.
+- Playwright: the keyboard-shortcut test decided "abandon or start" before the
+  active-session request had answered; it now waits for that response. The login helper
+  fails loudly when its `/api/me` probe is not 200 instead of silently skipping
+  onboarding.
+
 ## [0.2.0] — 2026-10-05 — Agent: Claude Fable 5.1
 ### Added
 - `content/packs/aws-saa-c03-starter/pack.json`: 8 lessons, 40 scenario questions

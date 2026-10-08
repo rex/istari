@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { GlobalShortcuts } from "@/components/feature/GlobalShortcuts";
 import { ShortcutsHelp } from "@/components/feature/ShortcutsHelp";
 import { Brand } from "@/components/layout/Brand";
+import { BuildBadge } from "@/components/layout/BuildBadge";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
 import { useUIStore } from "@/stores/ui";
@@ -88,6 +89,9 @@ export function AppShell() {
           </Suspense>
         </ErrorBoundary>
       </main>
+      <footer className="footer">
+        <BuildBadge />
+      </footer>
       <ShortcutsHelp />
       <GlobalShortcuts />
     </div>

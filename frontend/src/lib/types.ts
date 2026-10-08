@@ -71,6 +71,15 @@ export interface MeView {
   onboarding_required: boolean;
 }
 
+export interface HealthView {
+  status: "ok" | "unhealthy";
+  reason: string | null;
+  version: string;
+  commit: string;
+  built_at: string | null;
+  started_at: string;
+}
+
 export interface PlanBlockView {
   kind: "resume" | "review" | "practice" | "lesson";
   count: number;

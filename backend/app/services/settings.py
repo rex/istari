@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ExamVersion, UserSettings
@@ -14,11 +15,24 @@ from app.domain.timeframes import resolve_timezone
 
 
 async def get_settings(db: AsyncSession) -> UserSettings:
+    """The singleton row, created on first use.
+
+    Two first requests at once (a fresh tab plus a refetch after login) must not race
+    into an IntegrityError: the insert runs in a savepoint, and when it loses, the
+    winner's row is read instead.
+    """
     row = await db.get(UserSettings, 1)
-    if row is None:
-        row = UserSettings(id=1)
-        db.add(row)
-        await db.flush()
+    if row is not None:
+        return row
+    try:
+        async with db.begin_nested():
+            db.add(UserSettings(id=1))
+            await db.flush()
+    except IntegrityError:
+        pass  # another transaction inserted it first; it is committed by now
+    row = await db.get(UserSettings, 1)
+    if row is None:  # pragma: no cover - a losing insert only fails once the winner committed
+        raise RuntimeError("user_settings singleton missing after insert")
     return row
 
 

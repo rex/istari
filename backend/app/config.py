@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     # Built SPA directory. Served at `/` when it exists (production image).
     static_dir: str = "static"
 
+    # Build stamp shown on every page. The image sets both (`make docker-build`);
+    # in development the commit comes from the git checkout and the date stays unset.
+    git_commit: str = ""
+    build_date: str = ""
+
     @model_validator(mode="after")
     def default_test_database_url(self) -> Settings:
         if not self.test_database_url:

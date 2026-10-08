@@ -10,7 +10,9 @@
 
 # ─── Stage 1: build the SPA ───────────────────────────────────────────
 FROM node:26-slim AS frontend
-ENV PNPM_HOME=/pnpm PATH="/pnpm:$PATH" CI=true
+# Build stamp shown in every page's footer (see backend/app/buildinfo.py).
+ARG GIT_COMMIT=unknown
+ENV PNPM_HOME=/pnpm PATH="/pnpm:$PATH" CI=true GIT_COMMIT=$GIT_COMMIT
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /web
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
@@ -18,10 +20,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 COPY frontend/ ./
 COPY brand/ /brand/
+COPY VERSION /VERSION
 RUN pnpm run build
 
 # ─── Stage 2: runtime ─────────────────────────────────────────────────
 FROM python:3.13-slim AS runtime
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=
+ARG APP_VERSION=dev
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -59,7 +65,15 @@ ENV CONTENT_PACKS_DIR=/content/packs \
     BACKUP_DIR=/backups \
     STATIC_DIR=/app/static \
     BIND_HOST=0.0.0.0 \
-    PORT=8000
+    PORT=8000 \
+    GIT_COMMIT=$GIT_COMMIT \
+    BUILD_DATE=$BUILD_DATE
+
+LABEL org.opencontainers.image.title="istari" \
+      org.opencontainers.image.source="https://github.com/rex/istari" \
+      org.opencontainers.image.version="$APP_VERSION" \
+      org.opencontainers.image.revision="$GIT_COMMIT" \
+      org.opencontainers.image.created="$BUILD_DATE"
 
 USER app
 EXPOSE 8000

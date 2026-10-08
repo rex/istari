@@ -75,6 +75,22 @@
 .shell--focus .main {
   max-width: 860px;
 }
+.footer {
+  padding: var(--s3) var(--gutter) calc(var(--s3) + env(safe-area-inset-bottom));
+  border-top: var(--border-soft);
+  text-align: center;
+}
+/* Version · commit · build · start. Quiet by design: it is for checking, not reading. */
+.build-badge {
+  margin: 0;
+  color: var(--ivory-dim);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.build-badge__warn {
+  color: var(--gold);
+}
 .brand {
   display: inline-flex;
   align-items: center;
@@ -161,5 +177,9 @@
   }
   .shell--focus .nav {
     display: none;
+  }
+  /* Keep the badge above the fixed tab bar. */
+  .footer {
+    padding-bottom: calc(var(--s8) + var(--s4) + env(safe-area-inset-bottom));
   }
 }

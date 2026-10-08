@@ -5,15 +5,17 @@
 > and context compactions.
 >
 > Spec: the implementation brief `istari-agent-kickstart.md` (Pierce's copy, not committed) · Plan: Rivendell rex/istari#1 (parent) with #2, #3, #4, #5
-> Branch: `main` · Owner (human): @rex · Last update: 2026-10-05 by Claude Fable 5.1
+> Branch: `main` · Owner (human): @rex · Last update: 2026-10-07 by Claude Fable 5.1
 
 ## 0. TL;DR for a fresh agent session
 
-V1 is implemented: backend, SPA, SAA-C03 starter pack, docs, backup/restore, e2e. All
-gates are green (see §6 for the exact numbers). The next human step is reviewing the
-AI-authored pack items on the Content page and approving or editing them. Do NOT rename
-item slugs or option ids in `content/packs/aws-saa-c03-starter/pack.json`: answers and
-cards reference them; change text and re-import instead.
+V1 is implemented and v0.3.0 adds the build badge on every page. All gates are green
+(see §6 for the exact numbers). Two things wait on Pierce: reviewing the AI-authored
+pack items on the Content page, and saying yes or no to the content-pipeline and
+hands-on-task proposals filed in Rivendell (rex/istari#13 and #8). CKA and CKAD packs
+are Ready (#9, #11); their task sets (#10, #12) are blocked on the task engine. Do NOT
+rename item slugs or option ids in `content/packs/**/pack.json`: answers and cards
+reference them; change text and re-import instead.
 
 ## Standing user directives
 
@@ -32,6 +34,8 @@ cards reference them; change text and re-import instead.
 | 3 | Slice 3: honest progress, content editor/import/export, lab evidence, backup/restore, a11y/responsive, regression coverage (#4) | ✅ done | Progress shows evidence not readiness; import dry-run; restore into isolated db tested; 3 viewports in e2e |
 | 4 | Deployment notes (#5) | ✅ done | `docs/deployment.md` without assumed hostnames |
 | 5 | Human review of pack content | ⏸ pending | items move from `source_checked` to `human_reviewed` or are edited |
+| 6 | Build badge: version, commit, build and start time on every page (#6) | ✅ done | `/api/health` reports the stamp; footer on every page incl. login; stale-bundle warning |
+| 7 | Content pipeline and Kubernetes tracks (#7–#20) | ⏸ pending | Pierce approves #13/#8; CKA/CKAD knowledge packs (#9, #11) are Ready now |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -56,6 +60,9 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 4. Recent decisions (append-only, newest first)
 
+- 2026-10-07 — Build stamp comes from the API (`GIT_COMMIT`/`BUILD_DATE` env, git fallback in a checkout); the SPA embeds its own commit only to detect a stale bundle (Claude Fable 5.1, #6).
+- 2026-10-07 — Settings singleton is created inside a savepoint; concurrent first requests read the winner's row (Claude Fable 5.1, e2e-found race).
+- 2026-10-07 — CKA/CKAD are performance-based: packs split into knowledge items the engine carries now and hands-on tasks that need a verifier-backed task type (Claude Fable 5.1, proposal in #8).
 - 2026-10-05 — Option ids are descriptive slugs up to 32 chars (schema widened from 16); never letters (Claude Fable 5.1, pack authoring).
 - 2026-10-05 — `DATABASE_URL` has no default; `TEST_DATABASE_URL` derives from it. The e2e DSN comes from backend settings via `make e2e` (Claude Fable 5.1, detect-secrets gate).
 - 2026-10-05 — Alembic revision ids are descriptive (`0001`), generated with `--rev-id`; `make db-revision REV_ID=` supports it (Claude Fable 5.1, detect-secrets gate).
@@ -64,11 +71,21 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review the Content page.
-2. Pierce: review pack items; approve or edit and re-import.
-3. Agent: file follow-ups in Rivendell as they surface (none open beyond content review).
+1. Pierce: decide on the content pipeline (#13 with #14–#19) and the task engine (#8); promote or close.
+2. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page.
+3. Agent (Ready now): CKA knowledge pack (#9), CKAD knowledge pack (#11), one at a time, each a versioned commit with `Closes #<n>`.
+4. Agent (after #8 lands): CKA and CKAD task sets (#10, #12).
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-07 (Claude Fable 5.1): v0.3.0. Build badge on every page (`/api/health` carries
+version, commit, built_at, started_at; Docker build args and OCI labels wired). Fixed the
+first-run settings race that the e2e run exposed, and a timing race in the keyboard e2e
+test. Skeleton synced to 0.50.0. Gates at handoff: pytest 80 passed, vitest 19 passed,
+Playwright 9 passed (desktop, mobile, ultrawide), ruff/mypy/import-linter/tsc/eslint/
+prettier clean, `make validate` clean (Makefile drift is advisory), pre-commit clean.
+Content strategy answered in chat and filed: rex/istari#7–#12 (Kubernetes tracks, two
+Ready), #13–#19 (content pipeline, Inbox), #20 (next MCQ tracks, Inbox).
 
 2026-10-05 (Claude Fable 5.1): V1 built end to end in one session. Gates at handoff:
 pytest 75 passed (includes backup→restore into `istari_restore_test` and the real-pack

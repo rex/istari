@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from httpx import AsyncClient
 
 from tests.conftest import OWNER_PASSWORD, OWNER_USERNAME
@@ -14,7 +16,12 @@ async def test_protected_routes_require_login(client: AsyncClient) -> None:
 
 async def test_health_needs_no_auth_and_reports_ok(client: AsyncClient) -> None:
     response = await client.get("/api/health")
-    assert response.status_code == 200 and response.json() == {"status": "ok"}
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok" and body["reason"] is None
+    # The build stamp is public: the login page shows it before any session exists.
+    assert body["version"].count(".") == 2 and body["commit"]
+    assert body["started_at"].endswith("+00:00") and "built_at" in body
     assert response.headers["x-request-id"]
 
 
@@ -74,3 +81,14 @@ async def test_security_headers_on_every_response(client: AsyncClient) -> None:
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
     assert "script-src 'self'" in response.headers["content-security-policy"]
+
+
+async def test_first_requests_create_settings_without_racing(auth_client: AsyncClient) -> None:
+    """The very first /api/me creates the settings row; two at once must both succeed.
+
+    Seen in e2e: the SPA's post-login refetch and a second request overlapped on a fresh
+    database and one of them returned 500 from the duplicate insert.
+    """
+    first, second = await asyncio.gather(auth_client.get("/api/me"), auth_client.get("/api/me"))
+    assert (first.status_code, second.status_code) == (200, 200), (first.text, second.text)
+    assert first.json()["onboarding_required"] is True

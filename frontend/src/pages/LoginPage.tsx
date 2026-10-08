@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Brand } from "@/components/layout/Brand";
+import { BuildBadge } from "@/components/layout/BuildBadge";
 import { Button } from "@/components/ui/Button";
 import { isApiError } from "@/lib/api";
 import { useLogin } from "@/queries/auth";
@@ -76,6 +77,9 @@ export default function LoginPage() {
           </p>
         </form>
       </div>
+      <footer className="login__footer">
+        <BuildBadge />
+      </footer>
     </main>
   );
 }

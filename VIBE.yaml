@@ -29,8 +29,8 @@ project:
       date: "2026-10-05"
       decided_by: pierce
       summary: Stack is the kickstart brief's default — FastAPI/Pydantic/
-        SQLAlchemy async/Alembic on PostgreSQL, React 19 + TypeScript + Vite,
-        uv + pnpm, pytest/Vitest/Playwright, Compose behind an existing proxy.
+        SQLAlchemy async/Alembic on PostgreSQL, React 19 + TypeScript + Vite, uv
+        + pnpm, pytest/Vitest/Playwright, Compose behind an existing proxy.
       rationale: Greenfield repo; the brief names the stack and it matches
         lang-python + lang-react-spa + lang-docker.
       status: locked
@@ -39,17 +39,17 @@ project:
       decided_by: agent (Claude Fable 5.1)
       summary: Monorepo layout — backend/ (uv project) + frontend/ (pnpm
         project) + content/packs/ (data), root Makefile fans out.
-      rationale: Two toolchains at the root would collide on tests/ and
-        tool config; farmhand is the one sibling with the same shape.
+      rationale: Two toolchains at the root would collide on tests/ and tool
+        config; farmhand is the one sibling with the same shape.
       status: locked
     - id: D3
       date: "2026-10-05"
       decided_by: agent (Claude Fable 5.1)
       summary: No Tailwind; design tokens as CSS custom properties + CSS
         Modules. TanStack Router in code-based mode (no generated route tree).
-      rationale: The brief asks for a small token-based styling system and
-        a bespoke identity; code-based routing avoids a generated file the
-        line gate would have to exclude.
+      rationale: The brief asks for a small token-based styling system and a
+        bespoke identity; code-based routing avoids a generated file the line
+        gate would have to exclude.
       status: locked
     - id: D4
       date: "2026-10-05"
@@ -63,10 +63,9 @@ project:
     - id: D5
       date: "2026-10-05"
       decided_by: pierce
-      summary: Repository is PUBLIC on GitHub (rex/istari). Secrets are
-        watched at three layers — pre-commit (detect-secrets + gitleaks),
-        GitHub secret scanning + push protection, and a gitleaks history
-        scan in Actions.
+      summary: Repository is PUBLIC on GitHub (rex/istari). Secrets are watched
+        at three layers — pre-commit (detect-secrets + gitleaks), GitHub secret
+        scanning + push protection, and a gitleaks history scan in Actions.
       rationale: Pierce directed the public repo on 2026-10-05 and asked for
         active secret watching.
       status: locked
@@ -78,7 +77,8 @@ workflow:
   # reversible decisions without stopping for routine clarifications.
   default_autonomy_mode: continue-until-blocked
   validation_command: make validate
-  final_verification_command: make check-if-the-agent-can-consider-this-task-completed
+  final_verification_command: make
+    check-if-the-agent-can-consider-this-task-completed
   # The brief mandates container images + Compose; the Dockerfile exists.
   ask_before_dockerizing: false
 
@@ -97,7 +97,7 @@ quality_gates:
     required_suites: [backend-pytest, frontend-vitest]
     coverage:
       enabled: false
-      minimum_percentage: null
+      minimum_percentage:
   clean_worktree_required_on_completion: true
 
 architecture:
@@ -153,4 +153,8 @@ versioning:
 # Written at apply time by `make stamp-skill SKILL=<id>`; agentic-skeleton
 # stamps itself on `make sync-skeleton`. Verified advisorily by
 # `make check-skills`. Don't hand-edit entries — re-stamp instead.
-skills: []
+skills:
+  - id: agentic-skeleton
+    version: "0.50.0"
+    applied: '2026-10-07'
+    source: sync

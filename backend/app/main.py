@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
+from app.buildinfo import load_build_info
 from app.config import settings
 from app.contracts.common import ErrorBody
 from app.domain.clock import Clock, SystemClock
@@ -110,16 +111,22 @@ def create_app(*, engine: AsyncEngine | None = None, clock: Clock | None = None)
                 await dispose_engine(app.state.engine)
 
     configure_logging(settings.log_level)
+    build_info = load_build_info(commit=settings.git_commit, build_date=settings.build_date)
+    log.info(
+        "istari %s (%s, built %s) starting",
+        build_info.version,
+        build_info.commit,
+        build_info.built_at or "in development",
+    )
     app = FastAPI(
         title=settings.service_name,
-        version=Path(__file__).resolve().parents[2].joinpath("VERSION").read_text().strip()
-        if Path(__file__).resolve().parents[2].joinpath("VERSION").is_file()
-        else "0.0.0",
+        version=build_info.version,
         lifespan=lifespan,
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
         redoc_url=None,
     )
+    app.state.build_info = build_info
     app.state.engine = engine
     app.state.session_factory = session_factory(engine) if engine is not None else None
     app.state.clock = clock or SystemClock()

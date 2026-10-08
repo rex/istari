@@ -29,6 +29,14 @@ all capabilities, mounts the root file system read-only and uses `tmpfs` for `/t
 The container command runs `alembic upgrade head` before starting uvicorn, so a new image
 migrates on start.
 
+`make docker-build` and `make docker-up` pass `APP_VERSION`, `GIT_COMMIT` and
+`BUILD_DATE` as build args. The image carries them as OCI labels and environment
+variables, `/api/health` reports them together with the process start time, and the
+footer of every page (the login page included) shows version, commit, build time and
+"up since". The SPA bundle also embeds the commit it was built from: when it differs from
+the API's, the footer says so and asks for a reload, which is what a stale cached bundle
+after a deploy looks like.
+
 ```bash
 make docker-build
 make docker-up        # app on 127.0.0.1:8000, db on 127.0.0.1:5433
@@ -51,6 +59,7 @@ Every variable is documented in `.env.example`. The ones that matter in producti
 | `LOGIN_MAX_ATTEMPTS` / `LOGIN_WINDOW_SECONDS` / `LOGIN_LOCKOUT_SECONDS` | login throttle |
 | `TIMEZONE` | display timezone (storage is UTC); default `America/Chicago` |
 | `LOG_LEVEL` | structured JSON logs; every line carries a request id |
+| `GIT_COMMIT` / `BUILD_DATE` | build stamp; set by the image, not by `.env` |
 
 The owner account is created with the CLI (`bootstrap-owner`); there is no default
 password and no sign-up. `--reset-password` rotates it.

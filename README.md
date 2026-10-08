@@ -64,6 +64,9 @@ See `.env.example` for the complete list. Key vars:
 - `TEST_DATABASE_URL` — optional; defaults to `DATABASE_URL` with `_test` appended.
 - `TIMEZONE` — display timezone (storage is UTC); default `America/Chicago`.
 - `SESSION_COOKIE_SECURE` — set `true` behind HTTPS.
+- `GIT_COMMIT` / `BUILD_DATE` — stamped into the image by `make docker-build`; every
+  page's footer shows them with the version and the process start time. Leave unset in
+  development (the commit then comes from the checkout).
 
 ## API docs
 

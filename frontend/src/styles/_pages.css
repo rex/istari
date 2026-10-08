@@ -2,11 +2,15 @@
 .login {
   min-height: 100dvh;
   display: grid;
+  grid-template-rows: 1fr auto;
   place-items: center;
   padding: var(--s5) var(--gutter);
 }
 .login__card {
   width: min(100%, 26rem);
+}
+.login__footer {
+  align-self: end;
 }
 .hero {
   display: grid;

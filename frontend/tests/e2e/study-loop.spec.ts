@@ -17,9 +17,9 @@ async function login(page: Page) {
   await page.waitForURL((url) => !url.pathname.endsWith("/login"));
   // The first login must complete onboarding. Ask the API rather than race the
   // router's redirect from "/" to "/onboarding".
-  const me = (await (await page.request.get("/api/me")).json()) as {
-    onboarding_required: boolean;
-  };
+  const probe = await page.request.get("/api/me");
+  expect(probe.ok(), `GET /api/me after login: ${probe.status()} ${await probe.text()}`).toBe(true);
+  const me = (await probe.json()) as { onboarding_required: boolean };
   if (me.onboarding_required) {
     await page.goto("/onboarding");
     await page.getByRole("button", { name: "Start studying" }).click();
@@ -37,6 +37,7 @@ test.describe("core study loop", () => {
     const project = info.project.name;
     await login(page);
     await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator(".build-badge")).toHaveText(/Istari v\d+\.\d+\.\d+ · \S+ · up since/);
     await shot(page, "today", project);
 
     // Resume-or-start: abandon any leftover session so the run is deterministic.
@@ -94,10 +95,18 @@ test.describe("core study loop", () => {
 
   test("keyboard shortcuts select options but Enter on a link never submits", async ({ page }) => {
     await login(page);
+    // Decide "abandon or start" only once the page knows whether a session is open.
+    const activeKnown = page.waitForResponse((r) => r.url().endsWith("/api/sessions/active"));
     await page.goto("/practice");
+    await activeKnown;
     const abandon = page.getByRole("button", { name: "Abandon it" });
-    if (await abandon.isVisible().catch(() => false)) await abandon.click();
-    await page.getByRole("button", { name: /Start practice/ }).click();
+    if (await abandon.isVisible()) {
+      await abandon.click();
+      await expect(abandon).toBeHidden();
+    }
+    const start = page.getByRole("button", { name: /Start practice/ });
+    await expect(start).toBeEnabled();
+    await start.click();
     await expect(page).toHaveURL(/\/practice\/\d+$/);
     await page.locator("body").click({ position: { x: 5, y: 5 } });
     await page.keyboard.press("1");
@@ -117,5 +126,9 @@ test.describe("protection", () => {
     expect(health.headers()["content-security-policy"]).toContain("script-src 'self'");
     await page.goto("/progress");
     await expect(page).toHaveURL(/\/login$/);
+    // The build stamp is visible before login, and it is the API's, not the bundle's.
+    const badge = page.locator(".build-badge");
+    await expect(badge).toHaveText(/Istari v\d+\.\d+\.\d+ · \S+ · up since/);
+    await expect(badge.getByRole("status")).toHaveCount(0);
   });
 });

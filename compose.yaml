@@ -34,6 +34,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # `make docker-up` exports these from VERSION, git and the clock.
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-}
     image: istari:latest
     restart: unless-stopped
     env_file:

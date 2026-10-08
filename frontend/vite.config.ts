@@ -1,12 +1,40 @@
 /// <reference types="vitest/config" />
 import react from "@vitejs/plugin-react";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
+
+/** Build stamp for the footer badge: `make docker-build` sets GIT_COMMIT, a checkout supplies it. */
+function webCommit(): string {
+  const fromEnv = process.env["GIT_COMMIT"]?.trim();
+  if (fromEnv) return fromEnv;
+  try {
+    const out = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return out.toString().trim() || "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+function webVersion(): string {
+  try {
+    return readFileSync(new URL("../VERSION", import.meta.url), "utf8").trim() || "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+}
 
 // Dev server binds to loopback only; /api is proxied to the FastAPI dev server.
 // In production the built SPA is served by FastAPI itself (same origin).
 export default defineConfig({
   plugins: [react()],
   resolve: { tsconfigPaths: true },
+  define: {
+    __WEB_VERSION__: JSON.stringify(webVersion()),
+    __WEB_COMMIT__: JSON.stringify(webCommit()),
+  },
   server: {
     host: "127.0.0.1",
     port: 5173,
