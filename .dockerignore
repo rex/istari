@@ -32,5 +32,6 @@ specs
 scripts
 !scripts/backup.sh
 !scripts/restore.sh
+!scripts/entrypoint.sh
 *.md
 !frontend/*.md

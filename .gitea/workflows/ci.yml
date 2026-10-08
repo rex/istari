@@ -1,0 +1,164 @@
+# Gitea Actions: the repo's gates, then (on main) the container image.
+#
+# The registry is the Gitea instance running this workflow, derived from the server URL
+# at run time, so this file names no hosts. Pushing needs the Actions secrets
+# REGISTRY_USER and REGISTRY_TOKEN (user- or repo-level); pull requests only validate.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: istari
+          POSTGRES_DB: istari_test
+          # A throwaway service container on the job network: trust auth means no
+          # credential exists anywhere in this repository, not even a CI-only one.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd "pg_isready -U istari -d istari_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql+asyncpg://istari@postgres:5432/istari
+      TEST_DATABASE_URL: postgresql+asyncpg://istari@postgres:5432/istari_test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          # The version gate compares HEAD's VERSION with its parent's.
+          fetch-depth: 2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Enable pnpm (version pinned by package.json "packageManager")
+        run: corepack enable
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Validate (lint, typecheck, architecture, module shape, version gate)
+        run: make validate
+
+      - name: Test (pytest against the service database, vitest)
+        run: make test
+
+  build:
+    name: Build and push image
+    needs: validate
+    # A push to main or a manual dispatch publishes; pull requests only validate.
+    if: |
+      github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Resolve build metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          registry="${GITHUB_SERVER_URL#https://}"
+          registry="${registry#http://}"
+          if [ -z "$registry" ]; then
+            echo "GITHUB_SERVER_URL is empty; cannot derive the registry host" >&2
+            exit 1
+          fi
+          echo "registry=${registry}" >> "$GITHUB_OUTPUT"
+          echo "image=${registry}/${GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
+          echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the container registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ steps.meta.outputs.registry }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      # The registry occasionally fails one layer mid-push and recovers on the next
+      # attempt, so the push is tried up to three times (the third after a pause).
+      - name: Build and push (attempt 1)
+        id: push_1
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        continue-on-error: true
+        with:
+          context: .
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+            GIT_COMMIT=${{ steps.meta.outputs.sha_short }}
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache,mode=max
+
+      - name: Build and push (attempt 2, only if 1 failed)
+        id: push_2
+        if: steps.push_1.outcome == 'failure'
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        continue-on-error: true
+        with:
+          context: .
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+            GIT_COMMIT=${{ steps.meta.outputs.sha_short }}
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache,mode=max
+
+      - name: Pause before the last attempt
+        if: steps.push_2.outcome == 'failure'
+        run: sleep 30
+
+      - name: Build and push (attempt 3, only if 1 and 2 failed)
+        if: steps.push_2.outcome == 'failure'
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: .
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+            GIT_COMMIT=${{ steps.meta.outputs.sha_short }}
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache,mode=max

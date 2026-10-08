@@ -1,8 +1,10 @@
 """Operator CLI: `uv run python -m app.cli <command>`.
 
 Commands:
-  bootstrap-owner   create the single owner account (password from a prompt or
-                    ISTARI_OWNER_PASSWORD); refuses to overwrite unless --reset-password
+  bootstrap-owner   create the single owner account (username from --username or
+                    ISTARI_OWNER_USERNAME, password from a prompt or ISTARI_OWNER_PASSWORD);
+                    refuses to overwrite unless --reset-password; --if-missing keeps an
+                    existing owner and exits 0 (the container entrypoint's mode)
   seed              import every content/packs/*/pack.json (idempotent)
   import-pack       import one pack file (--dry-run previews changes)
   export-pack       write a pack from the database as JSON
@@ -25,11 +27,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
 from app.cli import corpus_cmds
+from app.cli.owner import bootstrap_owner
 from app.config import settings
 from app.domain.content.schemas.pack import ContentPackSpec
 from app.domain.content.validate import parse_pack, validate_pack
 from app.domain.exceptions import IstariError
-from app.services import auth as auth_service
 from app.services.content_export import export_pack
 from app.services.content_import import ImportReport, import_pack
 
@@ -71,16 +73,27 @@ def _read_password(args: argparse.Namespace) -> str:
     return first
 
 
+def _owner_username(args: argparse.Namespace) -> str:
+    username = str(args.username or os.environ.get("ISTARI_OWNER_USERNAME", "")).strip()
+    if not username:
+        print("error: pass --username or set ISTARI_OWNER_USERNAME", file=sys.stderr)
+        raise SystemExit(2)
+    return username
+
+
 def cmd_bootstrap_owner(args: argparse.Namespace) -> int:
+    username = _owner_username(args)
     password = _read_password(args)
 
     async def go(db: AsyncSession) -> int:
-        if args.reset_password:
-            await auth_service.set_owner_password(db, args.username, password)
-            print(f"password updated for {args.username}")
-        else:
-            await auth_service.create_owner(db, args.username, password)
-            print(f"owner {args.username} created")
+        report = await bootstrap_owner(
+            db,
+            username,
+            password,
+            reset_password=args.reset_password,
+            if_missing=args.if_missing,
+        )
+        print(report)
         return 0
 
     return asyncio.run(_run(go))
@@ -168,8 +181,13 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("bootstrap-owner")
-    p.add_argument("--username", required=True)
+    p.add_argument("--username", default=None, help="owner login; default ISTARI_OWNER_USERNAME")
     p.add_argument("--reset-password", action="store_true")
+    p.add_argument(
+        "--if-missing",
+        action="store_true",
+        help="when an owner already exists, change nothing and exit 0",
+    )
     p.set_defaults(fn=cmd_bootstrap_owner)
 
     p = sub.add_parser("seed")

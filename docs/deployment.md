@@ -26,8 +26,14 @@ against the API serving it, using the test database.
 with `uv` installs the backend, copies `content/` and the backup scripts, and serves
 `frontend/dist` as static files. The process runs as uid 10001, the compose service drops
 all capabilities, mounts the root file system read-only and uses `tmpfs` for `/tmp`.
-The container command runs `alembic upgrade head` before starting uvicorn, so a new image
-migrates on start.
+
+The container command is `scripts/entrypoint.sh`. On every start it runs
+`alembic upgrade head`, imports the packs shipped in the image (`seed`, idempotent; set
+`ISTARI_SEED_ON_START=false` to skip), creates the owner account when
+`ISTARI_OWNER_USERNAME` and `ISTARI_OWNER_PASSWORD` are set and the database has no owner
+yet (an existing owner is never touched, so a rename or rotation in the secret store does
+not reach a running deployment), and then starts uvicorn. A failing migration or import
+stops the container rather than serving a half-upgraded schema.
 
 `make docker-build` and `make docker-up` pass `APP_VERSION`, `GIT_COMMIT` and
 `BUILD_DATE` as build args. The image carries them as OCI labels and environment
@@ -61,6 +67,8 @@ Every variable is documented in `.env.example`. The ones that matter in producti
 | `LOG_LEVEL` | structured JSON logs; every line carries a request id |
 | `GIT_COMMIT` / `BUILD_DATE` | build stamp; set by the image, not by `.env` |
 | `LEARNING_ROOT` / `LEARNING_TOPICS` | the mounted learning share and its course folders for Watch; unset disables Watch |
+| `ISTARI_OWNER_USERNAME` / `ISTARI_OWNER_PASSWORD` | containers only: the entrypoint creates this owner on first start; both unset means no owner is created |
+| `ISTARI_SEED_ON_START` | `false` skips the pack import on start (default imports) |
 
 Watch reads the share in place. On the Mac the SMB share is already mounted under
 `/Volumes`; in a container the share must be mounted read-only into the container at
@@ -68,8 +76,29 @@ the path `LEARNING_ROOT` names. Video is streamed by the API with Range support,
 container needs read access to the files and nothing else; nothing is ever written to
 the share.
 
-The owner account is created with the CLI (`bootstrap-owner`); there is no default
-password and no sign-up. `--reset-password` rotates it.
+The owner account is created with the CLI (`bootstrap-owner`) or by the container
+entrypoint from the two variables above; there is no default password and no sign-up.
+`--reset-password` rotates it; `--if-missing` is the idempotent form the entrypoint uses.
+
+## Continuous integration
+
+`.gitea/workflows/ci.yml` runs on a Gitea instance: every push and pull request runs
+`make validate` and `make test` against a throwaway Postgres service container (trust
+authentication on the job network, so the workflow holds no credential), and a push to
+`main` builds the image and pushes it to the hosting instance's own container registry,
+tagged `latest` and with the commit sha. The registry host is derived from the server URL
+at run time; the file names no hosts. Pushing needs the Actions secrets `REGISTRY_USER`
+and `REGISTRY_TOKEN`. GitHub ignores the `.gitea/` directory; the GitHub workflow in
+`.github/workflows/` only scans for secrets.
+
+## Kubernetes
+
+One Deployment with one container is enough. Give it `DATABASE_URL`, the owner variables
+and `SESSION_COOKIE_SECURE=true` from a Secret, point readiness and liveness probes at
+`GET /api/health` on port 8000, and terminate TLS at the ingress. Watch needs the learning
+share mounted read-only at `LEARNING_ROOT` (an NFS volume works; the app only reads). The
+database lives outside the pod; the image's `pg_dump` is available for `scripts/backup.sh`
+when a backup volume is mounted at `BACKUP_DIR`.
 
 ## Health and logs
 

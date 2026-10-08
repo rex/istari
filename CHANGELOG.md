@@ -30,6 +30,23 @@ version bumps).
 
 ---
 
+## [0.6.0] — 2026-10-08 — Agent: Claude Fable 5.1
+### Added
+- `scripts/entrypoint.sh` is the container command: `alembic upgrade head`, the pack
+  import (`seed`, skipped with `ISTARI_SEED_ON_START=false`), the owner account from
+  `ISTARI_OWNER_USERNAME` and `ISTARI_OWNER_PASSWORD` when the database has none yet,
+  then uvicorn. A failing step stops the container.
+- `bootstrap-owner --if-missing` keeps an existing owner and exits 0, so a restart or a
+  rotated secret never replaces the account; `--username` falls back to
+  `ISTARI_OWNER_USERNAME`. The shared logic lives in `app/cli/owner.py` with tests.
+- `.gitea/workflows/ci.yml`: on a Gitea instance, every push runs `make validate` and
+  `make test` against a throwaway Postgres service container (trust authentication, so the
+  workflow holds no credential); a push to `main` builds the image and pushes it to that
+  instance's registry, derived from the server URL, tagged `latest` and with the commit
+  sha, with three push attempts. The file names no hosts.
+- `docs/deployment.md`: entrypoint behaviour, the owner variables, the CI flow and a
+  hostname-free Kubernetes note (probes on `/api/health`, read-only `LEARNING_ROOT`).
+
 ## [0.5.1] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Changed
 - Handoff notes: corpus ingest totals, roadmap issues #29-#39
