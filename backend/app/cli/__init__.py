@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
+from app.cli import corpus_cmds
 from app.config import settings
 from app.domain.content.schemas.pack import ContentPackSpec
 from app.domain.content.validate import parse_pack, validate_pack
@@ -184,6 +185,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("slug")
     p.add_argument("-o", "--output", default=None)
     p.set_defaults(fn=cmd_export)
+
+    corpus_cmds.register(sub)
 
     p = sub.add_parser("validate-pack")
     p.add_argument("path")

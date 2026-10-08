@@ -15,6 +15,11 @@ backups/
 *.dump
 *.sql.gz
 
+# Private corpus and packs derived from purchased course material (docs/corpus.md).
+# This repository is public; nothing converted from those sources is ever committed.
+corpus/
+content/private/
+
 # Python
 .venv/
 __pycache__/

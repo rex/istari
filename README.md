@@ -50,6 +50,8 @@ reference:
   architecture, module-shape and version gates.
 - `make build` — production SPA build into `backend/static`.
 - `make seed` — import every `content/packs/*/pack.json` (idempotent).
+- `make corpus-ingest SRC=<course dir>` / `make corpus-udemy ...` — purchased course
+  material to a private, gitignored corpus and drill packs (see `docs/corpus.md`).
 - `make bootstrap-owner USERNAME=<you>` — create or reset the owner.
 - `make backup` / `make restore FILE=<dump> TARGET_DB=<db>` — pg_dump and a restore
   into an isolated database.

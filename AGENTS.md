@@ -40,6 +40,8 @@ backend/tests/     unit/ (pure domain) + integration/ (real Postgres, migrated p
 frontend/src/      pages/, components/{layout,ui,feature}, queries/ (one module per resource), lib/, styles/
 frontend/tests/    unit/ + component/ (Vitest, RTL), e2e/ (Playwright)
 content/packs/     pack.json per pack; schema in docs/content-schema.md
+content/private/   drill packs from purchased material: gitignored, never committed (docs/corpus.md)
+corpus/            converted course text (transcripts, books): gitignored, never committed
 docs/              architecture.md, content-schema.md, deployment.md, adr/
 scripts/           Gates, bump_version.py, backup.sh / restore.sh
 .claude/           Hooks, rules, commands, MCP config

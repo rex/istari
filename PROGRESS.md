@@ -6,19 +6,20 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phase 5 content review / phase 7 content pipeline, both waiting on Pierce)
-- **Last session**: 2026-10-07 (Claude Fable 5.1, v0.3.0: build badge, first-run race fix, skeleton sync; content strategy filed as rex/istari#7–#20)
+- **Active TASK_STATE**: `TASK_STATE.md` (phase 9 course player is next; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-07 (Claude Fable 5.1, v0.4.0: private corpus tooling from the learning share; course player epic filed as rex/istari#22–#28)
 
 ## Last three decisions
 
+- 2026-10-07 Purchased course material becomes a gitignored corpus and private drill packs; it is never a fact source and never committed.
 - 2026-10-07 Build stamp: the API is the source of truth (`/api/health`); the bundle embeds its own commit and warns when it differs.
 - 2026-10-07 Performance-based exams (CKA, CKAD) need a hands-on task item type with verify scripts, not MCQs (rex/istari#8, proposal).
-- 2026-10-05 Pack items are identified by `slug`, not `key` (gitleaks reads `"key": "<value>"` as a credential).
 
 ## Open blockers
 
 - Human review of the SAA-C03 pack items (Pierce). Items are `source_checked`, not `human_reviewed`.
-- Content pipeline and task engine are proposals in Inbox (rex/istari#13, #8); nothing starts until Pierce says go.
+- Content pipeline, task engine and context cards are proposals in Inbox (rex/istari#13, #8, #27); nothing starts until Pierce says go.
+- Whisper transcription (#28) needs a check-in on model size and output location before it runs.
 
 ## How to resume (for a fresh agent)
 

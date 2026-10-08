@@ -9,13 +9,14 @@
 
 ## 0. TL;DR for a fresh agent session
 
-V1 is implemented and v0.3.0 adds the build badge on every page. All gates are green
-(see §6 for the exact numbers). Two things wait on Pierce: reviewing the AI-authored
-pack items on the Content page, and saying yes or no to the content-pipeline and
-hands-on-task proposals filed in Rivendell (rex/istari#13 and #8). CKA and CKAD packs
-are Ready (#9, #11); their task sets (#10, #12) are blocked on the task engine. Do NOT
-rename item slugs or option ids in `content/packs/**/pack.json`: answers and cards
-reference them; change text and re-import instead.
+V1 is implemented; v0.3.0 added the build badge; v0.4.0 added the private corpus
+tooling (purchased course material to gitignored text and drill packs, see
+`docs/corpus.md`). All gates are green (see §6). The next slice is the course player
+(rex/istari#22, sub-issues #23–#28, Ready): watch the learning-share video courses in
+the app with synced subtitles. Still waiting on Pierce: reviewing the AI-authored pack
+items, and yes/no on the content pipeline (#13), the task engine (#8) and the context
+cards (#27). Do NOT rename item slugs or option ids in `content/packs/**/pack.json`,
+and never commit anything under `corpus/` or `content/private/`.
 
 ## Standing user directives
 
@@ -36,6 +37,8 @@ reference them; change text and re-import instead.
 | 5 | Human review of pack content | ⏸ pending | items move from `source_checked` to `human_reviewed` or are edited |
 | 6 | Build badge: version, commit, build and start time on every page (#6) | ✅ done | `/api/health` reports the stamp; footer on every page incl. login; stale-bundle warning |
 | 7 | Content pipeline and Kubernetes tracks (#7–#20) | ⏸ pending | Pierce approves #13/#8; CKA/CKAD knowledge packs (#9, #11) are Ready now |
+| 8 | Private corpus from purchased courses (#21) | ✅ done | `corpus-ingest` / `corpus-udemy` work on the real share; three private packs validate and dry-run import |
+| 9 | Course player with synced subtitles (#22: #23 catalog → #24 stream → #25 transcript → #26 related; #28 Whisper) | ⏸ pending | courses listed from `LEARNING_ROOT`, video streams with Range + WebVTT, position remembered |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -60,6 +63,8 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 4. Recent decisions (append-only, newest first)
 
+- 2026-10-07 — Purchased course material is read in place and converted into a gitignored corpus and private packs; it is a coverage map and drill source, never a fact source, and nothing derived from it is committed to the public repo (Claude Fable 5.1, #21).
+- 2026-10-07 — Imported drill questions live under an `<EXAM>-DRILL` exam version with quiz/test names as domains, so they never mix with a verified pack's objectives (Claude Fable 5.1, #21).
 - 2026-10-07 — Build stamp comes from the API (`GIT_COMMIT`/`BUILD_DATE` env, git fallback in a checkout); the SPA embeds its own commit only to detect a stale bundle (Claude Fable 5.1, #6).
 - 2026-10-07 — Settings singleton is created inside a savepoint; concurrent first requests read the winner's row (Claude Fable 5.1, e2e-found race).
 - 2026-10-07 — CKA/CKAD are performance-based: packs split into knowledge items the engine carries now and hands-on tasks that need a verifier-backed task type (Claude Fable 5.1, proposal in #8).
@@ -71,12 +76,20 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Pierce: decide on the content pipeline (#13 with #14–#19) and the task engine (#8); promote or close.
-2. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page.
-3. Agent (Ready now): CKA knowledge pack (#9), CKAD knowledge pack (#11), one at a time, each a versioned commit with `Closes #<n>`.
-4. Agent (after #8 lands): CKA and CKAD task sets (#10, #12).
+1. Agent (Ready now): course player, in order #23 catalog, #24 stream, #25 transcript, #26 related; each a versioned commit with `Closes #<n>`.
+2. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
+3. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page; import a private drill pack with `import-pack` if wanted.
+4. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-07, later (Claude Fable 5.1): v0.4.0, private corpus tooling (#21). Real-share
+results: Digital Cloud SAA-C03 course → 312 files / 236k words in 18 s; DVA-C01 practice
+tests → 368 of 389 questions; SysOps 2021 quizzes → 185 of 198; CLF 2021 quizzes → 172
+of 187; all three private packs validate and import in dry run. A whole-dataset ingest
+(`Cloud/*`, `Kubernetes/*`) was started in the background into `corpus/`. Gates: pytest
+89 passed, ruff/mypy/import-linter clean, `make validate` clean. The course player epic
+(#22, #23–#28) is filed Ready and is the next slice.
 
 2026-10-07 (Claude Fable 5.1): v0.3.0. Build badge on every page (`/api/health` carries
 version, commit, built_at, started_at; Docker build args and OCI labels wired). Fixed the

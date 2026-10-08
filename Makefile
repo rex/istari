@@ -351,6 +351,18 @@ db-reset:
 seed:
 	@$(UV) python -m app.cli seed
 
+## corpus-ingest: Course directory -> private Markdown corpus — SRC="<dir>" [ALL=1 for a topic folder] [OUT=corpus]
+corpus-ingest:
+	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make corpus-ingest SRC=\"<course dir>\" [ALL=1] [OUT=corpus]$(RESET)"; exit 1; fi
+	@$(UV) python -m app.cli corpus-ingest "$(SRC)" $(if $(ALL),--all,) --out "$(abspath $(or $(OUT),corpus))"
+
+## corpus-udemy: Udemy quiz HTML / results PDFs -> private pack — INPUTS="<files>" EXAM=SOA-C02 SLUG=<slug> NAME="<name>"
+corpus-udemy:
+	@if [ -z "$(INPUTS)" ] || [ -z "$(EXAM)" ] || [ -z "$(SLUG)" ] || [ -z "$(NAME)" ]; then \
+		echo "$(RED)Usage: make corpus-udemy INPUTS=\"<files>\" EXAM=SOA-C02 SLUG=<slug> NAME=\"<name>\"$(RESET)"; exit 1; fi
+	@$(UV) python -m app.cli corpus-udemy $(INPUTS) --exam "$(EXAM)" --slug "$(SLUG)" --name "$(NAME)" \
+		--out "$(abspath content/private/$(SLUG).json)"
+
 ## bootstrap-owner: Create the single owner account — USERNAME=<name> (prompts for password)
 bootstrap-owner:
 	@if [ -z "$(USERNAME)" ]; then echo "$(RED)Usage: make bootstrap-owner USERNAME=<name>$(RESET)"; exit 1; fi

@@ -30,6 +30,25 @@ version bumps).
 
 ---
 
+## [0.4.0] — 2026-10-07 — Agent: Claude Fable 5.1
+### Added
+- Private corpus tooling (`backend/app/corpus/`): subtitle tracks (SRT, WebVTT) become
+  readable transcript text; HTML, EPUB, DOCX go through pandoc and PDFs through
+  pdftotext; `corpus-ingest` walks one course directory into a gitignored
+  `corpus/<course>/` with a manifest (exam code and year inferred from the name,
+  every file written or skipped with a reason); `--all` treats a topic folder as a set
+  of courses. The source directory is never written.
+- `corpus-udemy`: Udemy section-quiz HTML exports and practice-test results PDFs parse
+  into a private pack (`content/private/`, gitignored) in Istari's own schema: items
+  are `draft`, authored by the vendor, not source-checked, grouped into domains by quiz
+  or test, under an `<EXAM>-DRILL` exam version so they never mix with a verified
+  pack. Invalid questions are reported and left out. `make corpus-ingest` and
+  `make corpus-udemy` wrap both.
+- `docs/corpus.md`: what the corpus is for (coverage maps, drafting input, drill), what
+  it is not (a fact source), the commands, and the currency table for the AWS library.
+- Unit tests for captions, ingestion, both Udemy parsers and the private-pack builder,
+  all on synthetic samples shaped like the exports.
+
 ## [0.3.0] — 2026-10-07 — Agent: Claude Fable 5.1
 ### Added
 - Every page, the login page included, shows a build badge: version, git commit short
