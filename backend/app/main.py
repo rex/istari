@@ -30,6 +30,7 @@ from app.observability import (
 from app.routes import (
     auth,
     content,
+    courses,
     health,
     labs,
     lessons,
@@ -41,6 +42,7 @@ from app.routes import (
     today,
     track,
 )
+from app.services.catalog import CatalogCache
 
 log = logging.getLogger("istari.app")
 
@@ -96,7 +98,18 @@ def _mount_spa(app: FastAPI, static_dir: Path) -> None:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
 
-def create_app(*, engine: AsyncEngine | None = None, clock: Clock | None = None) -> FastAPI:
+def _learning_root(override: Path | None) -> Path | None:
+    if override is not None:
+        return override
+    return Path(settings.learning_root).expanduser() if settings.learning_root else None
+
+
+def create_app(
+    *,
+    engine: AsyncEngine | None = None,
+    clock: Clock | None = None,
+    learning_root: Path | None = None,
+) -> FastAPI:
     owns_engine = engine is None
 
     @asynccontextmanager
@@ -104,6 +117,8 @@ def create_app(*, engine: AsyncEngine | None = None, clock: Clock | None = None)
         if app.state.engine is None:
             app.state.engine = create_engine(settings.database_url)
             app.state.session_factory = session_factory(app.state.engine)
+        # The share is slow: scan it in the background so the first page load is instant.
+        app.state.catalog_task = app.state.catalog.start_background_refresh()
         try:
             yield
         finally:
@@ -127,6 +142,10 @@ def create_app(*, engine: AsyncEngine | None = None, clock: Clock | None = None)
         redoc_url=None,
     )
     app.state.build_info = build_info
+    app.state.catalog = CatalogCache(
+        root=_learning_root(learning_root),
+        topics=tuple(t.strip() for t in settings.learning_topics.split(",") if t.strip()),
+    )
     app.state.engine = engine
     app.state.session_factory = session_factory(engine) if engine is not None else None
     app.state.clock = clock or SystemClock()
@@ -145,6 +164,7 @@ def create_app(*, engine: AsyncEngine | None = None, clock: Clock | None = None)
     app.include_router(progress.router, prefix="/api", tags=["progress"])
     app.include_router(content.router, prefix="/api/content", tags=["content"])
     app.include_router(labs.router, prefix="/api/labs", tags=["labs"])
+    app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
     register_exception_handlers(app)
 
     static_dir = Path(settings.static_dir)

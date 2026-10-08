@@ -74,6 +74,20 @@ item becomes a new `content_revisions` row and the current pointer moves; missin
 are retired; user data is never touched. Dry runs execute inside a savepoint. Export writes
 the same schema back out.
 
+### Watch
+
+`services/catalog.py` scans the configured topic folders under `LEARNING_ROOT` in a
+worker thread (the share is remote and slow) and keeps the result in memory: every
+directory with videos is a course, every directory inside it with videos is a section,
+lectures sort naturally ("2 - IAM" before "10 - VPC") and pick up their caption track
+by stem (`_en.srt`, ` English.vtt` and similar variants). The scan starts in the
+background at startup and on demand. Routes only ever open paths the catalog itself
+reported, resolved and checked against the course root, so a request can never reach a
+file outside it. Video is a `FileResponse` (Starlette handles Range, so seeking works);
+SRT captions become WebVTT on the fly for the browser's `<track>`. `course_progress`
+stores position and completion per lecture; a position past 95 percent of the duration
+marks the lecture watched. Watching is coverage, never evidence.
+
 ### Observability
 
 Structured JSON logs with a request id on every line and in the `X-Request-ID` header;

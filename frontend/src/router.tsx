@@ -60,8 +60,20 @@ const reviewRoute = createRoute({
   },
 });
 
+const playerRoute = createRoute({
+  getParentRoute: () => shellRoute,
+  path: "/watch/$course/play",
+  component: lazyRouteComponent(() => import("@/pages/PlayerPage")),
+  validateSearch: (search: Record<string, unknown>): { lecture: string } => ({
+    lecture: typeof search["lecture"] === "string" ? search["lecture"] : "",
+  }),
+});
+
 const routes = [
   page("/", () => import("@/pages/TodayPage")),
+  page("/watch", () => import("@/pages/WatchPage")),
+  page("/watch/$course", () => import("@/pages/CoursePage")),
+  playerRoute,
   page("/onboarding", () => import("@/pages/OnboardingPage")),
   page("/learn", () => import("@/pages/LearnPage")),
   page("/learn/$key", () => import("@/pages/LessonPage")),

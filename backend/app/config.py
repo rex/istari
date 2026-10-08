@@ -50,6 +50,14 @@ class Settings(BaseSettings):
     git_commit: str = ""
     build_date: str = ""
 
+    # Watch: the mounted learning share and which topic folders under it hold courses.
+    # Unset means the Watch area explains that nothing is configured. Read-only.
+    learning_root: str = ""
+    learning_topics: str = (
+        "Cloud/AWS,Cloud/Terraform-IaC,Cloud/General-Certs,"
+        "Kubernetes/CKA,Kubernetes/CKAD,Kubernetes/CKS,Kubernetes/Helm-GitOps"
+    )
+
     @model_validator(mode="after")
     def default_test_database_url(self) -> Settings:
         if not self.test_database_url:

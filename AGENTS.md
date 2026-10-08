@@ -84,6 +84,7 @@ change gets a corresponding test update.
 - `pytest-asyncio` needs `asyncio_default_test_loop_scope = "session"` (set) because the engine fixture is session-scoped.
 - Pin `typescript@5`: typescript-eslint rejects TS 7. Vite 8 resolves tsconfig paths natively (`resolve.tsconfigPaths`).
 - React Compiler lint rules are on: per-item state lives in a keyed child (`QuestionRunner`), derived lists replace effect-synced state, refs are not read during render.
+- `app` is importable only with `backend/` as the working directory (`[tool.uv] package = false`). A background job or a script run from elsewhere must use `uv run --directory backend python -m app.cli …`.
 - Content: item slugs and option ids are permanent once shipped (answers reference them). Change text by re-importing (new revision); never rename. The pack field is `slug`, not `key`: gitleaks reads `"key": "<value>"` as a credential.
 
 ## 10. Workflow

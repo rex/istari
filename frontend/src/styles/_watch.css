@@ -1,0 +1,76 @@
+/* Watch: the course player and its transcript rail. */
+.player {
+  display: grid;
+  gap: var(--s4);
+}
+.player__video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--r-md);
+  outline: none;
+}
+.player__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.transcript {
+  display: grid;
+  gap: var(--s2);
+}
+.transcript__tools {
+  display: flex;
+  gap: var(--s3);
+  align-items: center;
+}
+.transcript__tools .input {
+  flex: 1;
+}
+.transcript__cues {
+  max-height: 60vh;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+  padding-right: var(--s1);
+}
+.transcript__cue {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: var(--s2);
+  width: 100%;
+  text-align: left;
+  padding: var(--s1) var(--s2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ivory-dim);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  cursor: pointer;
+}
+.transcript__cue:hover {
+  background: var(--ink-800);
+  color: var(--ivory);
+}
+.transcript__cue.is-active {
+  background: var(--ink-800);
+  color: var(--ivory);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.transcript__time {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1100px) {
+  .player {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+    align-items: start;
+  }
+  .transcript__cues {
+    max-height: calc(100dvh - 12rem);
+  }
+}

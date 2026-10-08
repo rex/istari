@@ -30,6 +30,31 @@ version bumps).
 
 ---
 
+## [0.5.0] — 2026-10-07 — Agent: Claude Fable 5.1
+### Added
+- Watch: the video courses on the learning share, inside Istari. `LEARNING_ROOT` and
+  `LEARNING_TOPICS` name the mounted share and its course folders; a background scan
+  lists every directory with videos as a course, its subdirectories as sections, with
+  lectures in natural order and their caption tracks matched by stem. The share is read
+  in place and never written.
+- `/watch` lists courses grouped by topic with exam code, year, caption coverage and a
+  "continue" lecture; `/watch/<course>` lists sections and lectures with progress;
+  `/watch/<course>/play` streams the lecture (Range requests, so seeking works) with
+  the subtitle track as WebVTT (SRT converted on the fly), resumes where you left off,
+  saves position every five seconds and on pause, marks a lecture watched at 95 percent
+  or on "Mark watched", and moves on to the next lecture when one ends.
+- Transcript panel beside the video: the captions as searchable, click-to-seek text
+  with the current cue highlighted and followed.
+- Keyboard: Space/k play or pause, j/l ±10 s, arrows ±5 s, f fullscreen, n/p next or
+  previous lecture; listed in the shortcuts help.
+- `course_progress` table (migration `0002_course_progress`), `/api/courses` endpoints,
+  and tests: naming and caption rules, catalog scan of a temporary tree, byte-range
+  streaming, caption conversion, progress round trip, path safety (only catalogued paths
+  resolve), VTT parsing and the transcript panel.
+### Changed
+- Exam-code inference, slugs and natural sorting moved to `domain/naming.py`, shared by
+  the corpus tooling and the catalog.
+
 ## [0.4.0] — 2026-10-07 — Agent: Claude Fable 5.1
 ### Added
 - Private corpus tooling (`backend/app/corpus/`): subtitle tracks (SRT, WebVTT) become

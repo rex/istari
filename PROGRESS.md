@@ -6,11 +6,12 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phase 9 course player is next; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-07 (Claude Fable 5.1, v0.4.0: private corpus tooling from the learning share; course player epic filed as rex/istari#22–#28)
+- **Active TASK_STATE**: `TASK_STATE.md` (phase 10: Watch follow-ups; #26 is next; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-07 (Claude Fable 5.1, v0.4.0 private corpus tooling and v0.5.0 Watch: video courses from the learning share with synced subtitles)
 
 ## Last three decisions
 
+- 2026-10-07 Watch reads the learning share in place (`LEARNING_ROOT`), serves only paths the catalog reported, and never writes to the share.
 - 2026-10-07 Purchased course material becomes a gitignored corpus and private drill packs; it is never a fact source and never committed.
 - 2026-10-07 Build stamp: the API is the source of truth (`/api/health`); the bundle embeds its own commit and warns when it differs.
 - 2026-10-07 Performance-based exams (CKA, CKAD) need a hands-on task item type with verify scripts, not MCQs (rex/istari#8, proposal).

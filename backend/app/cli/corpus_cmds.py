@@ -19,12 +19,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from app.corpus.convert import pdf_to_text
-from app.corpus.ingest import IngestReport, ingest_course, ingest_tree, slugify
+from app.corpus.ingest import IngestReport, ingest_course, ingest_tree
 from app.corpus.private_pack import ParsedQuestion, PrivatePackMeta, build_private_pack
 from app.corpus.udemy_quiz import parse_quiz_html
 from app.corpus.udemy_results import parse_results_text
 from app.domain.content.validate import parse_pack, validate_pack
 from app.domain.exceptions import IstariError
+from app.domain.naming import slugify
 
 CERTIFICATIONS = {
     "CLF": ("aws-certified-cloud-practitioner", "AWS Certified Cloud Practitioner"),

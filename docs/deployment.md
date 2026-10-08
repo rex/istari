@@ -60,6 +60,13 @@ Every variable is documented in `.env.example`. The ones that matter in producti
 | `TIMEZONE` | display timezone (storage is UTC); default `America/Chicago` |
 | `LOG_LEVEL` | structured JSON logs; every line carries a request id |
 | `GIT_COMMIT` / `BUILD_DATE` | build stamp; set by the image, not by `.env` |
+| `LEARNING_ROOT` / `LEARNING_TOPICS` | the mounted learning share and its course folders for Watch; unset disables Watch |
+
+Watch reads the share in place. On the Mac the SMB share is already mounted under
+`/Volumes`; in a container the share must be mounted read-only into the container at
+the path `LEARNING_ROOT` names. Video is streamed by the API with Range support, so the
+container needs read access to the files and nothing else; nothing is ever written to
+the share.
 
 The owner account is created with the CLI (`bootstrap-owner`); there is no default
 password and no sign-up. `--reset-password` rotates it.

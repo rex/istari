@@ -9,14 +9,14 @@
 
 ## 0. TL;DR for a fresh agent session
 
-V1 is implemented; v0.3.0 added the build badge; v0.4.0 added the private corpus
-tooling (purchased course material to gitignored text and drill packs, see
-`docs/corpus.md`). All gates are green (see §6). The next slice is the course player
-(rex/istari#22, sub-issues #23–#28, Ready): watch the learning-share video courses in
-the app with synced subtitles. Still waiting on Pierce: reviewing the AI-authored pack
-items, and yes/no on the content pipeline (#13), the task engine (#8) and the context
-cards (#27). Do NOT rename item slugs or option ids in `content/packs/**/pack.json`,
-and never commit anything under `corpus/` or `content/private/`.
+V1 is implemented; v0.3.0 added the build badge; v0.4.0 the private corpus tooling
+(`docs/corpus.md`); v0.5.0 the Watch area (video courses from the learning share with
+synced subtitles, resume and a transcript panel; `LEARNING_ROOT` in `.env`). All gates
+are green (see §6). Next: #26 (related-in-Istari rail beside the player, Ready). Waiting
+on Pierce: reviewing the AI-authored pack items, and yes/no on the content pipeline
+(#13), the task engine (#8), the context cards (#27) and Whisper transcription (#28).
+Do NOT rename item slugs or option ids in `content/packs/**/pack.json`, and never commit
+anything under `corpus/` or `content/private/`.
 
 ## Standing user directives
 
@@ -38,7 +38,8 @@ and never commit anything under `corpus/` or `content/private/`.
 | 6 | Build badge: version, commit, build and start time on every page (#6) | ✅ done | `/api/health` reports the stamp; footer on every page incl. login; stale-bundle warning |
 | 7 | Content pipeline and Kubernetes tracks (#7–#20) | ⏸ pending | Pierce approves #13/#8; CKA/CKAD knowledge packs (#9, #11) are Ready now |
 | 8 | Private corpus from purchased courses (#21) | ✅ done | `corpus-ingest` / `corpus-udemy` work on the real share; three private packs validate and dry-run import |
-| 9 | Course player with synced subtitles (#22: #23 catalog → #24 stream → #25 transcript → #26 related; #28 Whisper) | ⏸ pending | courses listed from `LEARNING_ROOT`, video streams with Range + WebVTT, position remembered |
+| 9 | Course player with synced subtitles (#22: #23 catalog, #24 stream, #25 transcript) | ✅ done | courses listed from `LEARNING_ROOT`, video streams with Range + WebVTT, position remembered, transcript synced |
+| 10 | Watch follow-ups: #26 related-in-Istari rail, #27 context cards (proposal), #28 Whisper for subtitle-less courses | ⏸ pending | #26 Ready; #27 and #28 wait on Pierce |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -76,12 +77,22 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Agent (Ready now): course player, in order #23 catalog, #24 stream, #25 transcript, #26 related; each a versioned commit with `Closes #<n>`.
-2. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
-3. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page; import a private drill pack with `import-pack` if wanted.
-4. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
+1. Pierce: set `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env`, restart `make dev`, open Watch; the first scan of seven topic folders over SMB takes a few minutes and the page polls until it fills.
+2. Agent (Ready now): #26, the related-in-Istari rail beside the player.
+3. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
+4. Pierce: `make bootstrap-owner USERNAME=<you>`, log in, run a five-question session, review pack items on the Content page; import a private drill pack with `import-pack` if wanted.
+5. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-07, late (Claude Fable 5.1): v0.5.0, Watch (#23, #24, #25). Backend: catalog
+scan in a thread, Range streaming via FileResponse, SRT→WebVTT, `course_progress` with
+migration `0002_course_progress`, path safety by catalogue membership. Frontend: Watch,
+course and player pages, transcript panel, shortcuts. Gates: pytest 98 passed, vitest 25
+passed, Playwright 9 passed, ruff/mypy/import-linter/tsc/eslint/prettier clean. Test
+timings were inflated by a machine load average near 85 from other processes, not by the
+suite. The whole-dataset corpus ingest was still running in the background at handoff
+(log in the session scratchpad; results under `corpus/`).
 
 2026-10-07, later (Claude Fable 5.1): v0.4.0, private corpus tooling (#21). Real-share
 results: Digital Cloud SAA-C03 course → 312 files / 236k words in 18 s; DVA-C01 practice

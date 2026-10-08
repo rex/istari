@@ -78,11 +78,13 @@
   border-color: var(--gold-deep);
 }
 .lesson-row__title {
+  display: block;
   font-family: var(--font-display);
   font-size: var(--fs-lg);
   margin-bottom: var(--s1);
 }
 .lesson-row__meta {
+  display: block;
   color: var(--ivory-mute);
   font-size: var(--fs-sm);
 }

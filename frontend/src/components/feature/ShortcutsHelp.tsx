@@ -20,6 +20,16 @@ const GROUPS = [
     ],
   },
   {
+    title: "Watch",
+    rows: [
+      ["Space / k", "Play or pause"],
+      ["j / l", "Back or forward 10 seconds"],
+      ["← / →", "Back or forward 5 seconds"],
+      ["n / p", "Next or previous lecture"],
+      ["f", "Fullscreen"],
+    ],
+  },
+  {
     title: "Anywhere",
     rows: [
       ["?", "This help"],

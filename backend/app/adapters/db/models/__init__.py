@@ -15,6 +15,7 @@ from app.adapters.db.models.review import ReviewCard, ReviewEvent, SchedulerConf
 from app.adapters.db.models.settings import UserSettings
 from app.adapters.db.models.study import Answer, SessionItem, StudySession
 from app.adapters.db.models.track import Certification, Domain, ExamVersion, Objective, Subject
+from app.adapters.db.models.watch import CourseProgress
 
 __all__ = [
     "Answer",
@@ -25,6 +26,7 @@ __all__ = [
     "ContentItemObjective",
     "ContentPack",
     "ContentRevision",
+    "CourseProgress",
     "Domain",
     "ExamVersion",
     "ItemProgress",

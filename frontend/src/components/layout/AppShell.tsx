@@ -16,6 +16,7 @@ const NAV = [
   { to: "/practice", label: "Practice" },
   { to: "/review", label: "Review" },
   { to: "/progress", label: "Progress" },
+  { to: "/watch", label: "Watch" },
 ] as const;
 
 export function AppShell() {

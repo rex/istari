@@ -5,7 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.corpus.ingest import infer_exam, ingest_course, ingest_tree, slugify
+from app.corpus.ingest import ingest_course, ingest_tree
+from app.domain.naming import infer_exam, slugify
 
 SRT = "1\n00:00:01,000 --> 00:00:02,000\n" + " ".join(f"word{i}" for i in range(40)) + "\n"
 
