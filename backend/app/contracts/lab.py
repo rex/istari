@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import Field
 
 from app.contracts.common import ApiModel, ObjectiveRef, SourceView
+from app.contracts.lab_verifier import LabAttemptSummary, LabVerifierSpecView
 
 
 class EvidenceView(ApiModel):
@@ -27,6 +28,10 @@ class LabSummary(ApiModel):
     objectives: list[ObjectiveRef]
     evidence_count: int
     review_status: str
+    # Present when a backend grades this lab; the live state lives at /api/labs/{key}/verifier.
+    verifier: LabVerifierSpecView | None = None
+    attempt_count: int = 0
+    last_attempt: LabAttemptSummary | None = None
 
 
 class LabView(LabSummary):

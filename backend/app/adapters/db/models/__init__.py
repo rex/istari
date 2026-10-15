@@ -10,7 +10,7 @@ from app.adapters.db.models.content import (
     ContentPack,
     ContentRevision,
 )
-from app.adapters.db.models.notes import ItemProgress, LabEvidence, Note
+from app.adapters.db.models.notes import ItemProgress, LabAttempt, LabEvidence, Note
 from app.adapters.db.models.review import ReviewCard, ReviewEvent, SchedulerConfig
 from app.adapters.db.models.settings import UserSettings
 from app.adapters.db.models.study import Answer, SessionItem, StudySession
@@ -30,6 +30,7 @@ __all__ = [
     "Domain",
     "ExamVersion",
     "ItemProgress",
+    "LabAttempt",
     "LabEvidence",
     "LoginAttempt",
     "Note",

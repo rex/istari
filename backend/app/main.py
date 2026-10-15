@@ -33,6 +33,7 @@ from app.routes import (
     content,
     courses,
     health,
+    lab_verifier,
     labs,
     lessons,
     notes,
@@ -181,6 +182,7 @@ def create_app(
     app.include_router(progress.router, prefix="/api", tags=["progress"])
     app.include_router(content.router, prefix="/api/content", tags=["content"])
     app.include_router(labs.router, prefix="/api/labs", tags=["labs"])
+    app.include_router(lab_verifier.router, prefix="/api/labs", tags=["labs"])
     app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
     register_exception_handlers(app)
 

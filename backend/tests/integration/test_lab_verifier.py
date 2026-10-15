@@ -11,29 +11,11 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.adapters.k16s import K16sClient, K16sTimeouts
-from app.adapters.k16s.client import DEFAULT_TIMEOUTS
 from app.domain.clock import FixedClock
 from app.domain.exceptions import UpstreamError
 from app.main import create_app
-from tests.k16s_stub import StubState, create_stub
-
-STUB_URL = "http://k16s.test"
-
-
-@pytest.fixture
-def stub_app() -> FastAPI:
-    return create_stub()
-
-
-@pytest.fixture
-def stub(stub_app: FastAPI) -> StubState:
-    state: StubState = stub_app.state.stub
-    return state
-
-
-def stub_client(stub_app: FastAPI, timeouts: K16sTimeouts = DEFAULT_TIMEOUTS) -> K16sClient:
-    http = httpx.AsyncClient(transport=httpx.ASGITransport(app=stub_app), base_url=STUB_URL)
-    return K16sClient(STUB_URL, public_url="http://k16s.lan:8080", http=http, timeouts=timeouts)
+from tests.conftest import STUB_URL, stub_client
+from tests.k16s_stub import StubState
 
 
 @pytest_asyncio.fixture

@@ -14,8 +14,10 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
 
+import httpx
 import pytest
 import pytest_asyncio
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -23,6 +25,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from app.adapters.db.engine import create_engine
 from app.adapters.db.models import Base
 from app.adapters.db.session import session_factory
+from app.adapters.k16s import K16sClient, K16sTimeouts
+from app.adapters.k16s.client import DEFAULT_TIMEOUTS
 from app.config import settings
 from app.contracts.auth import OnboardingRequest
 from app.domain.clock import FixedClock
@@ -32,6 +36,7 @@ from app.services import auth as auth_service
 from app.services.content_import import import_pack
 from app.services.settings import complete_onboarding
 from tests.fixtures import mini_pack
+from tests.k16s_stub import StubState, create_stub
 
 TEST_URL = settings.test_database_url
 OWNER_USERNAME = "pierce"
@@ -124,3 +129,41 @@ async def auth_client(client: AsyncClient, owner: None) -> AsyncClient:
 async def study_client(auth_client: AsyncClient, seeded: int) -> AsyncClient:
     """Logged in, content imported, onboarding done."""
     return auth_client
+
+
+# ── Verified labs: the stub K16S exam server ─────────────────────────────
+STUB_URL = "http://k16s.test"
+
+
+def stub_client(stub_app: FastAPI, timeouts: K16sTimeouts = DEFAULT_TIMEOUTS) -> K16sClient:
+    """A K16S client whose HTTP goes straight into the in-process stub."""
+    http = httpx.AsyncClient(transport=httpx.ASGITransport(app=stub_app), base_url=STUB_URL)
+    return K16sClient(STUB_URL, public_url="http://k16s.lan:8080", http=http, timeouts=timeouts)
+
+
+@pytest.fixture
+def stub_app() -> FastAPI:
+    return create_stub()
+
+
+@pytest.fixture
+def stub(stub_app: FastAPI) -> StubState:
+    state: StubState = stub_app.state.stub
+    return state
+
+
+@pytest_asyncio.fixture
+async def verified_client(
+    engine: AsyncEngine, clock: FixedClock, owner: None, seeded: int, stub_app: FastAPI
+) -> AsyncIterator[AsyncClient]:
+    """Logged in and seeded, against an app whose verifier backend is the stub."""
+    k16s = stub_client(stub_app)
+    app = create_app(engine=engine, clock=clock, k16s=k16s)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+        response = await ac.post(
+            "/api/auth/login", json={"username": OWNER_USERNAME, "password": OWNER_PASSWORD}
+        )
+        assert response.status_code == 200, response.text
+        ac.headers["x-csrf-token"] = response.json()["csrf_token"]
+        yield ac
+    await k16s.aclose()

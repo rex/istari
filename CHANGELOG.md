@@ -30,6 +30,22 @@ version bumps).
 
 ---
 
+## [0.11.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- `lab_attempts` (migration `0003_lab_attempts`): one row per run of a verified lab with
+  `setup_at`, `checked_at`, `passed` (NULL until graded), the grader's output capped at
+  16 KB, and the setup-to-check duration. `lab_evidence` stays the owner's own notes.
+- `GET /api/labs/{key}/verifier`: configured/reachable state, the instance's mode and active
+  profile, terminal and map links, the task text fetched live with attribution, an
+  `unavailable_reason` when the task cannot run in the current mode, one plain `message`
+  when something is in the way, and the attempt history. `POST /api/labs/{key}/setup`
+  ensures a session on the lab's profile, runs the setup script and records an attempt;
+  `POST /api/labs/{key}/check` grades the open attempt (or a fresh one). An `unavailable`
+  answer and a transport failure both record nothing; the latter is a 502.
+- Lab summaries carry `verifier`, `attempt_count` and `last_attempt` (the latest graded
+  attempt with its reason line) for the cards. Setup and check log the lab, the question,
+  the result and the duration.
+
 ## [0.10.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - K16S adapter (`app/adapters/k16s`): the exam server's seven endpoints as plain domain

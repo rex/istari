@@ -62,6 +62,18 @@ A transport failure, a timeout or a non-2xx answer becomes `upstream_error` (HTT
 plain sentence such as "K16S at http://… did not answer within 45 s". No attempt is recorded
 on a transport failure. Retries are the owner's click, never automatic.
 
+## Istari's own API
+
+| Method | Path | Result |
+|---|---|---|
+| GET | `/api/labs/{key}/verifier` | configured/reachable state, the instance's mode and active profile, terminal and map links, the live task text, an `unavailable_reason` when the task cannot run in the current mode, a one-sentence `message` when something is in the way, the attempt history |
+| POST | `/api/labs/{key}/setup` | ensures a session on the lab's profile, runs the setup script, records an attempt (`setup_at`) |
+| POST | `/api/labs/{key}/check` | ensures the session, runs the validate script, grades the open attempt (or a fresh one when nothing was set up) with `passed`, the output and the duration |
+
+An `unavailable` answer records nothing and is returned as the reason. A transport failure
+is `upstream_error` (502) and records nothing. The grader's output is capped at 16 KB; its
+last line is the reason shown on the lab card ("last checked 3 min ago, failed: …").
+
 ## Adding a verified lab
 
 ```json

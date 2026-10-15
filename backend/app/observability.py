@@ -19,7 +19,19 @@ from starlette.datastructures import MutableHeaders
 
 request_id_var: ContextVar[str] = ContextVar("request_id", default="-")
 
-_EXTRA_KEYS = ("event", "method", "path", "status", "duration_ms")
+_EXTRA_KEYS = (
+    "event",
+    "method",
+    "path",
+    "status",
+    "duration_ms",
+    # Verified labs: which lab and backend question, and how it went.
+    "lab",
+    "question",
+    "profile",
+    "result",
+    "switched",
+)
 _QUIET_PATHS = frozenset({"/api/health"})
 
 Scope = MutableMapping[str, Any]
