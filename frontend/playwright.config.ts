@@ -4,6 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 // `make e2e` builds first; the API must have a migrated database with the seed
 // pack and an owner (see tests/e2e/README.md).
 const port = Number(process.env["E2E_PORT"] ?? 8001);
+const stubPort = Number(process.env["E2E_K16S_PORT"] ?? 8082);
 const baseURL = process.env["E2E_BASE_URL"] ?? `http://127.0.0.1:${port}`;
 // `make e2e` derives this from the backend settings; no DSN literal lives here.
 const databaseUrl = process.env["E2E_DATABASE_URL"] ?? "";
@@ -27,12 +28,22 @@ export default defineConfig({
   ...(process.env["E2E_BASE_URL"]
     ? {}
     : {
-        webServer: {
-          command: `cd ../backend && DATABASE_URL='${databaseUrl}' STATIC_DIR=static uv run uvicorn app.main:app --host 127.0.0.1 --port ${port}`,
-          url: `${baseURL}/api/health`,
-          reuseExistingServer: false,
-          timeout: 60_000,
-        },
+        // Two servers: the stub K16S exam server (tests/k16s_stub.py), then the API pointed
+        // at it, so the verified-lab flow runs without a real cluster.
+        webServer: [
+          {
+            command: `cd ../backend && uv run uvicorn tests.k16s_stub:app --host 127.0.0.1 --port ${stubPort}`,
+            url: `http://127.0.0.1:${stubPort}/api/status`,
+            reuseExistingServer: false,
+            timeout: 60_000,
+          },
+          {
+            command: `cd ../backend && DATABASE_URL='${databaseUrl}' STATIC_DIR=static K16S_BASE_URL=http://127.0.0.1:${stubPort} K16S_PUBLIC_URL=http://127.0.0.1:${stubPort} uv run uvicorn app.main:app --host 127.0.0.1 --port ${port}`,
+            url: `${baseURL}/api/health`,
+            reuseExistingServer: false,
+            timeout: 60_000,
+          },
+        ],
       }),
   projects: [
     {

@@ -2,6 +2,9 @@
    Runs the same CLI an operator would, against TEST_DATABASE_URL (never the dev db). */
 
 import { execFileSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const backend = fileURLToPath(new URL("../../../backend", import.meta.url));
@@ -29,6 +32,17 @@ export default function globalSetup(): void {
   run(["alembic", "downgrade", "base"]);
   run(["alembic", "upgrade", "head"]);
   run(["python", "-m", "app.cli", "seed"]);
+  // The fixture pack adds two verified labs graded by the stub K16S (never shipped).
+  const fixture = join(tmpdir(), "istari-e2e-fixture-pack.json");
+  writeFileSync(
+    fixture,
+    run([
+      "python",
+      "-c",
+      "import json; from tests.fixtures import mini_pack; print(json.dumps(mini_pack()))",
+    ]),
+  );
+  run(["python", "-m", "app.cli", "import-pack", fixture]);
   run(["python", "-m", "app.cli", "bootstrap-owner", "--username", E2E_USERNAME], {
     ISTARI_OWNER_PASSWORD: E2E_PASSWORD,
   });

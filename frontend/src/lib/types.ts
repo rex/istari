@@ -1,5 +1,7 @@
 /* API types, mirroring backend/app/contracts. Keep in step with /api/openapi.json. */
 
+import type { LabAttemptSummary, LabVerifierSpec } from "@/lib/types-labs";
+
 export type SessionMinutes = 5 | 15 | 30;
 export type Confidence = "guessing" | "uncertain" | "confident";
 export type SessionKind = "practice" | "assessment";
@@ -89,7 +91,7 @@ export interface HealthView {
 }
 
 export interface PlanBlockView {
-  kind: "resume" | "review" | "practice" | "lesson";
+  kind: "resume" | "review" | "practice" | "lab" | "lesson";
   count: number;
   label: string;
   reason: string;
@@ -277,6 +279,9 @@ export interface ObjectiveProgress {
   assessment_correct: number;
   evidence: EvidenceLevel;
   self_declared_familiar: boolean;
+  labs_total: number;
+  labs_attempted: number;
+  labs_passed_first: number;
 }
 export interface DomainProgress {
   code: string;
@@ -288,6 +293,8 @@ export interface DomainProgress {
   first_accuracy: number | null;
   lessons_total: number;
   lessons_completed: number;
+  labs_total: number;
+  labs_passed_first: number;
 }
 export interface ProgressView {
   totals: {
@@ -306,6 +313,9 @@ export interface ProgressView {
     cards_due: number;
     questions_total: number;
     families_seen: number;
+    labs_total: number;
+    labs_attempted: number;
+    labs_passed_first: number;
   };
   domains: DomainProgress[];
   weak_areas: ObjectiveProgress[];
@@ -330,6 +340,10 @@ export interface LabSummary {
   objectives: ObjectiveRef[];
   evidence_count: number;
   review_status: string;
+  /** present when a backend grades this lab (see lib/types-labs.ts) */
+  verifier: LabVerifierSpec | null;
+  attempt_count: number;
+  last_attempt: LabAttemptSummary | null;
 }
 export interface EvidenceView {
   id: number;

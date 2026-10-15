@@ -12,6 +12,7 @@ export const contentKeys = {
   progress: ["progress"] as const,
   labs: ["labs"] as const,
   lab: (key: string) => ["labs", key] as const,
+  verifier: (key: string) => ["labs", key, "verifier"] as const,
   items: (kind?: string) => ["content", "items", kind ?? "all"] as const,
   item: (key: string) => ["content", "item", key] as const,
   packs: ["content", "packs"] as const,

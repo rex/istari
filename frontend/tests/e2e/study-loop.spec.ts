@@ -1,34 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-import { E2E_PASSWORD, E2E_USERNAME } from "./global-setup";
-
-async function shot(page: Page, name: string, project: string) {
-  await page.screenshot({
-    path: `test-results/screenshots/${project}-${name}.png`,
-    fullPage: true,
-  });
-}
-
-async function login(page: Page) {
-  await page.goto("/login");
-  await page.getByLabel("Username").fill(E2E_USERNAME);
-  await page.getByLabel("Password").fill(E2E_PASSWORD);
-  await page.getByRole("button", { name: "Enter" }).click();
-  await page.waitForURL((url) => !url.pathname.endsWith("/login"));
-  // The first login must complete onboarding. Ask the API rather than race the
-  // router's redirect from "/" to "/onboarding".
-  const probe = await page.request.get("/api/me");
-  expect(probe.ok(), `GET /api/me after login: ${probe.status()} ${await probe.text()}`).toBe(true);
-  const me = (await probe.json()) as { onboarding_required: boolean };
-  if (me.onboarding_required) {
-    await page.goto("/onboarding");
-    await page.getByRole("button", { name: "Start studying" }).click();
-    await page.waitForURL(/\/$/);
-  } else {
-    await page.goto("/");
-  }
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-}
+import { login, shot } from "./helpers";
 
 test.describe("core study loop", () => {
   test("login → Today → five-question session → feedback → summary → review → progress", async ({

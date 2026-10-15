@@ -30,6 +30,24 @@ version bumps).
 
 ---
 
+## [0.12.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- The lab page for a verified lab: a cluster chip that names the first thing in the way
+  (not configured, unreachable, task unavailable in this mode, task not found, or ready
+  with a note when a setup would switch the cluster's session); the task text fetched
+  live from the backend and shown with attribution, context, and the hint behind a
+  disclosure; three steps with one primary action each (set up the environment, open the
+  terminal in a new tab, check the answer), the done steps ticked and the setup output
+  kept behind a disclosure; the verdict verbatim from the grader ("Passed" or "Not yet"
+  with its reason line, never a percentage); the attempt history, failures included; and
+  the brief's own notes folded underneath. Manual labs render as before.
+- The Labs list groups verified labs under a strip showing the cluster's state from the
+  API's last poll, and each card carries the latest verdict with its reason line.
+- Playwright: `verified-lab.spec.ts` runs the loop against the stub K16S, which
+  `playwright.config.ts` now starts as a second web server; the e2e database gains the
+  fixture pack with its two verified labs. Component tests cover the phase model, the
+  primary-action rule, the verdict and the cluster chip.
+
 ## [0.11.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - `lab_attempts` (migration `0003_lab_attempts`): one row per run of a verified lab with
