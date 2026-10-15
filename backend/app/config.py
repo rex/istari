@@ -58,6 +58,19 @@ class Settings(BaseSettings):
         "Kubernetes/CKA,Kubernetes/CKAD,Kubernetes/CKS,Kubernetes/Helm-GitOps"
     )
 
+    # Verified labs: the K16S exam server the owner runs (see docs/labs-k16s.md). Unset means
+    # verified labs explain that no backend is configured; nothing is installed from here.
+    k16s_base_url: str = ""
+    # What the browser opens for the terminal and the exam UI; defaults to the base URL. In the
+    # ring the pod and the browser reach the VM by different paths.
+    k16s_public_url: str = ""
+    # Optional link to a cluster map (Headlamp or similar), opened in a new tab.
+    headlamp_url: str = ""
+
+    @property
+    def k16s_browser_url(self) -> str:
+        return (self.k16s_public_url or self.k16s_base_url).rstrip("/")
+
     @model_validator(mode="after")
     def default_test_database_url(self) -> Settings:
         if not self.test_database_url:

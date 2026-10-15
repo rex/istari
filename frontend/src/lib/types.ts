@@ -71,6 +71,13 @@ export interface MeView {
   onboarding_required: boolean;
 }
 
+export interface K16sHealth {
+  configured: boolean;
+  reachable: boolean | null;
+  mode: string | null;
+  profiles: string[];
+  checked_at: string | null;
+}
 export interface HealthView {
   status: "ok" | "unhealthy";
   reason: string | null;
@@ -78,6 +85,7 @@ export interface HealthView {
   commit: string;
   built_at: string | null;
   started_at: string;
+  k16s: K16sHealth;
 }
 
 export interface PlanBlockView {

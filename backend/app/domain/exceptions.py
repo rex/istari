@@ -41,3 +41,10 @@ class ForbiddenError(IstariError):
 class ThrottledError(IstariError):
     code = "throttled"
     status = 429
+
+
+class UpstreamError(IstariError):
+    """A backend Istari depends on (the lab cluster's exam server) did not answer properly."""
+
+    code = "upstream_error"
+    status = 502

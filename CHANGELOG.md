@@ -30,6 +30,23 @@ version bumps).
 
 ---
 
+## [0.10.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- K16S adapter (`app/adapters/k16s`): the exam server's seven endpoints as plain domain
+  data (`app/domain/verifier.py`, `app/domain/verifier_mapping.py`), with the session
+  policy (one active session, reused on the same profile, switched only when a lab needs
+  another), a 60-second question cache, and a status snapshot refreshed in the background
+  so `/api/health` and the planner never wait on the cluster. Timeouts: setup 90 s, check
+  45 s, reads 10 s. Every transport failure, timeout or non-2xx becomes `upstream_error`
+  (HTTP 502) with a sentence naming the server and the limit; `unavailable` is a reason,
+  not an error.
+- Config `K16S_BASE_URL`, `K16S_PUBLIC_URL`, `HEADLAMP_URL` (unset disables verified labs);
+  `/api/health` reports `k16s: {configured, reachable, mode, profiles, checked_at}`.
+- `tests/k16s_stub.py`: a stand-in exam server with its own placeholder text, controllable
+  pass/fail and modes, used in-process by the integration tests and standalone by Playwright.
+  `docs/labs-k16s.md` documents the contract, the licence rule (no K16S text in this
+  repository) and development without an instance. `httpx` is a direct dependency.
+
 ## [0.9.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - Pack schema: a lab may carry a `verifier` (`backend`, `profile`, `question`, `weight`,

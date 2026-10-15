@@ -16,6 +16,7 @@ const healthy: HealthView = {
   commit: __WEB_COMMIT__,
   built_at: "2026-10-07T00:00:00+00:00",
   started_at: "2026-10-07T01:30:00+00:00",
+  k16s: { configured: false, reachable: null, mode: null, profiles: [], checked_at: null },
 };
 
 function renderWithClient(ui: ReactElement) {

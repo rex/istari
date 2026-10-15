@@ -69,6 +69,13 @@ Every variable is documented in `.env.example`. The ones that matter in producti
 | `LEARNING_ROOT` / `LEARNING_TOPICS` | the mounted learning share and its course folders for Watch; unset disables Watch |
 | `ISTARI_OWNER_USERNAME` / `ISTARI_OWNER_PASSWORD` | containers only: the entrypoint creates this owner on first start; both unset means no owner is created |
 | `ISTARI_SEED_ON_START` | `false` skips the pack import on start (default imports) |
+| `K16S_BASE_URL` / `K16S_PUBLIC_URL` / `HEADLAMP_URL` | verified labs: the K16S exam server as the API reaches it, as the browser reaches it, and an optional cluster map; unset disables verified labs (`docs/labs-k16s.md`) |
+
+Verified labs need a running K16S instance that the owner installs and runs separately
+(`docs/labs-k16s.md`). The API process must reach `K16S_BASE_URL`; the browser must reach
+`K16S_PUBLIC_URL` for the terminal, which is plain HTTP and therefore opens in a new tab.
+`/api/health` reports whether the instance is configured and reachable, from a background
+poll, so the probe never waits on it.
 
 Watch reads the share in place. On the Mac the SMB share is already mounted under
 `/Volumes`; in a container the share must be mounted read-only into the container at

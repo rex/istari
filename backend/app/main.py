@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
+from app.adapters.k16s import K16sClient
 from app.buildinfo import load_build_info
 from app.config import settings
 from app.contracts.common import ErrorBody
@@ -104,11 +105,18 @@ def _learning_root(override: Path | None) -> Path | None:
     return Path(settings.learning_root).expanduser() if settings.learning_root else None
 
 
+def _k16s_from_settings() -> K16sClient | None:
+    if not settings.k16s_base_url:
+        return None
+    return K16sClient(settings.k16s_base_url, public_url=settings.k16s_public_url)
+
+
 def create_app(
     *,
     engine: AsyncEngine | None = None,
     clock: Clock | None = None,
     learning_root: Path | None = None,
+    k16s: K16sClient | None = None,
 ) -> FastAPI:
     owns_engine = engine is None
 
@@ -119,9 +127,16 @@ def create_app(
             app.state.session_factory = session_factory(app.state.engine)
         # The share is slow: scan it in the background so the first page load is instant.
         app.state.catalog_task = app.state.catalog.start_background_refresh()
+        # The lab cluster may be down: poll it in the background so health and the planner
+        # read a snapshot instead of waiting on it.
+        verifier: K16sClient | None = app.state.k16s
+        if verifier is not None:
+            app.state.k16s_task = verifier.start_background_refresh()
         try:
             yield
         finally:
+            if verifier is not None:
+                await verifier.aclose()
             if owns_engine and app.state.engine is not None:
                 await dispose_engine(app.state.engine)
 
@@ -149,6 +164,8 @@ def create_app(
     app.state.engine = engine
     app.state.session_factory = session_factory(engine) if engine is not None else None
     app.state.clock = clock or SystemClock()
+    app.state.k16s = k16s or _k16s_from_settings()
+    app.state.headlamp_url = settings.headlamp_url.rstrip("/")
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIdMiddleware)
 
