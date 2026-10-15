@@ -1,88 +1,224 @@
-/* Istari design tokens — a precise, modern wizard's study.
-   Dark ink surfaces, warm ivory text, restrained antique gold. */
-:root {
-  color-scheme: dark;
-
-  /* Surfaces */
-  --ink-950: #0a0b0e;
-  --ink-900: #101217;
-  --ink-850: #15181e;
-  --ink-800: #1b1f26;
-  --ink-700: #252a33;
-  --ink-600: #333945;
-  --ink-500: #4a5160;
-
-  /* Text */
-  --ivory: #f2ebdb;
-  --ivory-dim: #cdc5b2;
-  --ivory-mute: #948d7d;
-
-  /* Accent — antique gold from the brand mark */
-  --gold: #d3ae5b;
-  --gold-bright: #e9cb7e;
+/* Istari — generated from tokens.json */
+:root,
+[data-theme="night"] {
+  --ground: #120f0c;
+  --surface: #1a1612;
+  --surface-raised: #262019;
+  --surface-sunken: #0c0a08;
+  --line: #2f2820;
+  --line-strong: #4a3f31;
+  --line-control: #7a6a52;
+  --scrim: #000000a6;
+  --vellum: #efe6d2;
+  --vellum-dim: #c2b69c;
+  --vellum-mute: #9a8e77;
+  --gold: #dcb557;
+  --gold-text: #e2c06c;
   --gold-deep: #a4843a;
-  --gold-ink: #2a2307;
-
-  /* Semantics — muted, never neon */
-  --success: #8fbc8b;
-  --success-dim: #263a2a;
-  --danger: #d4907c;
-  --danger-dim: #3d2a24;
-  --warning: #dcb86a;
-  --info: #9ab7d3;
-
-  /* Typography */
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  --font-body:
-    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", system-ui,
-    sans-serif;
-  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
-
-  --fs-xs: 0.8125rem;
-  --fs-sm: 0.9rem;
-  --fs-md: 1rem;
-  --fs-lg: 1.125rem;
-  --fs-xl: 1.375rem;
-  --fs-2xl: 1.75rem;
-  --fs-3xl: 2.25rem;
-  --lh-tight: 1.2;
-  --lh-body: 1.6;
-
-  /* Space, shape */
-  --s1: 0.25rem;
-  --s2: 0.5rem;
-  --s3: 0.75rem;
-  --s4: 1rem;
-  --s5: 1.5rem;
-  --s6: 2rem;
-  --s7: 2.5rem;
-  --s8: 3rem;
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 16px;
-  --border: 1px solid var(--ink-600);
-  --border-soft: 1px solid var(--ink-700);
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.35);
-
-  /* Widths — comfortable reading, extra width is for context, not long lines */
+  --on-gold: #1a1406;
+  --sage: #9cc38f;
+  --sage-dim: #22301f;
+  --ember: #e39a85;
+  --ember-dim: #3a231d;
+  --copper: #d98c5a;
+  --copper-dim: #3b2a1a;
+  --slate: #9ab7d3;
+  --focus: var(--gold);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-dialog: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --focus-ring: 0 0 0 2px #120f0c, 0 0 0 4px #dcb557;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 64px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
   --measure: 66ch;
   --content-max: 1180px;
   --rail: 300px;
-  --gutter: var(--s4);
-
-  /* Motion */
-  --motion: 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  --focus-ring: 0 0 0 2px var(--ink-900), 0 0 0 4px var(--gold);
+  --touch-min: 44px;
+  --quick: 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --pulse: 1200ms ease-in-out;
+  --font-display: "Cormorant Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+  --font-ui: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-reading: Newsreader, "Iowan Old Style", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion: 0ms linear;
-  }
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("fonts/CormorantGaramond-Roman-latin.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
 }
-
-@media (min-width: 900px) {
-  :root {
-    --gutter: var(--s6);
-  }
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("fonts/CormorantGaramond-Italic-latin.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("fonts/HankenGrotesk-Roman-latin.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("fonts/HankenGrotesk-Italic-latin.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Newsreader";
+  src: url("fonts/Newsreader-Roman-latin.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Newsreader";
+  src: url("fonts/Newsreader-Italic-latin.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Roman-latin.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Italic-latin.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+.display {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 34px;
+  font-weight: 600;
+}
+.heading {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.subheading {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.numeral {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 32px;
+  font-weight: 600;
+}
+.body {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.body-strong {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.small {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+}
+.button {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.label {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+.read {
+  font-family: var(--font-reading);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 400;
+}
+.read-lead {
+  font-family: var(--font-reading);
+  font-size: 20px;
+  line-height: 30px;
+  font-weight: 400;
+}
+.read-heading {
+  font-family: var(--font-reading);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 500;
+}
+.read-subheading {
+  font-family: var(--font-reading);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+}
+.read-quote {
+  font-family: var(--font-reading);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 400;
+  font-style: italic;
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.code-block {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 21px;
+  font-weight: 400;
+}
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 16px;
+  font-weight: 500;
 }

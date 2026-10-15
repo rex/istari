@@ -30,6 +30,20 @@ version bumps).
 
 ---
 
+## [0.15.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Changed
+- The app renders in the Istari design system (claude.ai/design, built by Pierce on
+  2026-10-15 from this repository's marks and component inventory): warm umber surfaces,
+  vellum text, the mark's gold rationed to the one thing to do next, Cormorant Garamond
+  for titles, Hanken Grotesk for the interface, Newsreader for anything read at length,
+  JetBrains Mono for code and grader output. `styles/tokens.css` is the system's
+  generated token file and `styles/bundle.css` its component stylesheet, written to
+  this app's own class names; the seven v0 partials (`base`, `_layout`, `_components`,
+  `_study`, `_pages`, `_watch`, `_labs`) are gone and nothing references a v0 token.
+  Markup is unchanged in this slice; the per-area alignment follows.
+- The four typefaces ship as Google Fonts latin subsets under `styles/fonts/`, each with
+  its SIL Open Font License text, and load through `@font-face` with `font-display: swap`.
+
 ## [0.14.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - The CKA v1.35 track as a content pack (`content/packs/k8s-cka-k16s`): domains and

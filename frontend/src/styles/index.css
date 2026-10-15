@@ -1,9 +1,6 @@
-/* Table of contents — one concern per partial. */
+/* Two files, both from the Istari design system (claude.ai/design; docs/architecture.md):
+   tokens.css is generated from its tokens.json (colour, type, space, fonts under ./fonts),
+   bundle.css is its component stylesheet, written to this app's class names. Edit the
+   system and re-sync; a change made only here drifts. */
 @import "./tokens.css";
-@import "./base.css";
-@import "./_layout.css";
-@import "./_components.css";
-@import "./_study.css";
-@import "./_pages.css";
-@import "./_watch.css";
-@import "./_labs.css";
+@import "./bundle.css";
