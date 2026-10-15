@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { CoursePicker } from "@/components/feature/CoursePicker";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
 import { api } from "@/lib/api";
@@ -67,30 +68,18 @@ export default function OnboardingPage() {
       }}
     >
       <div className="page-head">
-        <h1>Set up your track</h1>
-        <p>Thirty seconds. You can change all of this in Settings.</p>
+        <h1>Choose a track</h1>
+        <p>
+          One at a time. Switching keeps everything you have done on the other. Thirty seconds; all
+          of this can change in Settings.
+        </p>
       </div>
-      <fieldset className="field">
-        <legend className="field__label">Track</legend>
-        {me.available_tracks.map((t) => (
-          <label key={t.exam_version_id} className="check">
-            <input
-              type="radio"
-              name="track"
-              checked={trackId === t.exam_version_id}
-              onChange={() => setTrackId(t.exam_version_id)}
-            />
-            <span>
-              {t.certification} <span className="muted">({t.code})</span>
-              {t.verification_status === "unverified" ? (
-                <span className="badge badge--warning" style={{ marginLeft: "0.5rem" }}>
-                  exam metadata unverified
-                </span>
-              ) : null}
-            </span>
-          </label>
-        ))}
-      </fieldset>
+      <CoursePicker
+        tracks={me.available_tracks}
+        currentId={me.track?.exam_version_id ?? null}
+        value={trackId}
+        onSelect={setTrackId}
+      />
       <label className="field">
         <span className="field__label">Exam date (optional)</span>
         <input

@@ -42,6 +42,8 @@ class SettingsPatch(ApiModel):
     daily_review_limit: int | None = Field(default=None, ge=1, le=500)
     backlog_mode: Literal["normal", "recovery"] | None = None
     familiar_objective_codes: list[str] | None = None
+    # Switch the active track; everything done on the other track stays.
+    active_exam_version_id: int | None = None
 
 
 class OnboardingRequest(ApiModel):

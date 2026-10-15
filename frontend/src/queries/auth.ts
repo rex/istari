@@ -50,6 +50,8 @@ export interface SettingsPatch {
   daily_review_limit?: number;
   backlog_mode?: "normal" | "recovery";
   familiar_objective_codes?: string[];
+  /** switch the active track; everything done on the other track stays */
+  active_exam_version_id?: number;
 }
 
 export function useUpdateSettings() {

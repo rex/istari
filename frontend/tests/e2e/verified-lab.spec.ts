@@ -13,7 +13,14 @@ test.describe("verified lab on the lab cluster", () => {
   test("open lab → set up → check → attempt recorded", async ({ page }, info) => {
     const project = info.project.name;
     await login(page);
-    await switchTrack(page, "TST-C01");
+
+    // Switch tracks the way the owner does: the chip in the Settings page head opens the
+    // course picker; picking a card switches and the chip follows.
+    await page.goto("/settings");
+    await page.locator(".track-switch").click();
+    await page.getByRole("radio", { name: /TST-C01/ }).click();
+    await expect(page.locator(".track-switch__code")).toHaveText("TST-C01");
+    await shot(page, "settings-track", project);
 
     await page.goto("/labs");
     await expect(page.getByRole("heading", { name: "Verified on the lab cluster" })).toBeVisible();

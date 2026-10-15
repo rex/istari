@@ -30,6 +30,20 @@ version bumps).
 
 ---
 
+## [0.17.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- Choosing what to study is a course picker: one card per track with the provider, the
+  certification, the code and its verification date, what the pack holds (lessons,
+  questions, cards, labs), a meter with one progress sentence (coverage, in words: lessons
+  read, question families seen, labs verified on the first graded attempt; accuracy only
+  once there are enough first attempts for it to be evidence), when the track was last
+  studied, and one primary button in the grid (Continue on the current track). It is a
+  radiogroup: arrow keys move, Enter picks. It replaces the radio list in onboarding, and
+  on Settings a compact chip in the page head shows the current track and opens it.
+- The track list (`/api/tracks`, `available_tracks` on `/api/me`) carries those counts,
+  the progress line and `last_studied_at` per track; `PATCH /api/settings` accepts
+  `active_exam_version_id` to switch tracks, keeping everything done on the other.
+
 ## [0.16.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Changed
 - Markup aligned to the design system where its previews and the code differed. The

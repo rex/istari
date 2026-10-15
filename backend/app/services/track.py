@@ -10,6 +10,7 @@ from app.adapters.db.models import Certification, Domain, ExamVersion, UserSetti
 from app.contracts.common import SourceView
 from app.contracts.track import DomainView, ObjectiveView, TrackSummary, TrackView
 from app.domain.exceptions import NotFoundError
+from app.services.track_cards import card_fields, last_studied, track_tallies
 
 
 def track_summary(exam: ExamVersion, cert: Certification) -> TrackSummary:
@@ -25,12 +26,29 @@ def track_summary(exam: ExamVersion, cert: Certification) -> TrackSummary:
 
 
 async def list_tracks(db: AsyncSession) -> list[TrackSummary]:
-    rows = await db.execute(
-        select(ExamVersion, Certification)
-        .join(Certification, Certification.id == ExamVersion.certification_id)
-        .order_by(Certification.name, ExamVersion.code)
-    )
-    return [track_summary(exam, cert) for exam, cert in rows.all()]
+    """Every track with what its pack holds and what has been done on it: the course picker."""
+    rows = (
+        await db.execute(
+            select(ExamVersion, Certification)
+            .join(Certification, Certification.id == ExamVersion.certification_id)
+            .order_by(Certification.name, ExamVersion.code)
+        )
+    ).all()
+    tallies = await track_tallies(db, [exam.id for exam, _ in rows])
+    studied = await last_studied(db)
+    summaries: list[TrackSummary] = []
+    for exam, cert in rows:
+        counts, progress = card_fields(tallies[exam.id])
+        summaries.append(
+            track_summary(exam, cert).model_copy(
+                update={
+                    "counts": counts,
+                    "progress": progress,
+                    "last_studied_at": studied.get(exam.id),
+                }
+            )
+        )
+    return summaries
 
 
 async def get_exam_version(db: AsyncSession, exam_version_id: int) -> ExamVersion:

@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { CoursePicker, TrackSwitch } from "@/components/feature/CoursePicker";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Segmented";
 import type { SessionMinutes } from "@/lib/types";
@@ -25,16 +26,44 @@ export default function SettingsPage() {
   const [examDate, setExamDate] = useState(s.exam_date ?? "");
   const [limit, setLimit] = useState(s.daily_review_limit);
   const [familiar, setFamiliar] = useState<Set<string>>(new Set(s.familiar_objective_codes));
+  const [picking, setPicking] = useState(false);
+  const currentId = me.track?.exam_version_id ?? null;
 
   return (
     <div className="stack" style={{ maxWidth: "44rem" }}>
       <div className="page-head">
         <h1>Settings</h1>
-        <p>
-          Signed in as {me.user.username} · track {me.track?.code ?? "none"} ·{" "}
+        <p className="cluster">
+          <span>Signed in as {me.user.username}</span>
+          {me.track ? (
+            <TrackSwitch
+              code={me.track.code}
+              certification={me.track.certification}
+              open={picking}
+              onToggle={() => setPicking(!picking)}
+            />
+          ) : (
+            <span className="muted">no track</span>
+          )}
           <Link to="/content">Content administration</Link>
         </p>
       </div>
+      {picking ? (
+        <section className="card stack" aria-label="Choose a track">
+          <p className="muted small" style={{ margin: 0 }}>
+            One at a time. Switching keeps everything you have done on the other.
+          </p>
+          <CoursePicker
+            tracks={me.available_tracks}
+            currentId={currentId}
+            value={currentId}
+            onSelect={(id) => {
+              if (id === currentId) return;
+              update.mutate({ active_exam_version_id: id }, { onSuccess: () => setPicking(false) });
+            }}
+          />
+        </section>
+      ) : null}
       <form
         className="card stack"
         onSubmit={(e) => {

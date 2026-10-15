@@ -1,6 +1,7 @@
 /* API types, mirroring backend/app/contracts. Keep in step with /api/openapi.json. */
 
 import type { LabAttemptSummary, LabVerifierSpec } from "@/lib/types-labs";
+import type { TrackSummary } from "@/lib/types-track";
 
 export type SessionMinutes = 5 | 15 | 30;
 export type Confidence = "guessing" | "uncertain" | "confident";
@@ -31,40 +32,14 @@ export interface SettingsView {
   familiar_objective_codes: string[];
   onboarding_completed_at: string | null;
 }
-export interface TrackSummary {
-  exam_version_id: number;
-  code: string;
-  name: string;
-  certification: string;
-  provider: string;
-  verification_status: "verified" | "unverified";
-  checked_on: string | null;
-}
-export interface ObjectiveView {
-  id: number;
-  code: string;
-  title: string;
-  knowledge: string[];
-  skills: string[];
-}
-export interface DomainView {
-  id: number;
-  code: string;
-  name: string;
-  weight_percent: number;
-  objectives: ObjectiveView[];
-}
-export interface TrackView extends TrackSummary {
-  duration_minutes: number;
-  scored_questions: number;
-  unscored_questions: number;
-  passing_scaled_score: number;
-  score_scale: [number, number];
-  format_notes: string;
-  guide_revision: string | null;
-  sources: SourceView[];
-  domains: DomainView[];
-}
+export type {
+  DomainView,
+  ObjectiveView,
+  TrackCounts,
+  TrackProgress,
+  TrackSummary,
+  TrackView,
+} from "@/lib/types-track";
 export interface MeView {
   user: UserView;
   settings: SettingsView;

@@ -66,6 +66,11 @@ async def update_settings(db: AsyncSession, patch: SettingsPatch) -> UserSetting
         row.backlog_mode = patch.backlog_mode
     if patch.familiar_objective_codes is not None:
         row.familiar_objective_codes = sorted(set(patch.familiar_objective_codes))
+    if patch.active_exam_version_id is not None:
+        exam = await db.get(ExamVersion, patch.active_exam_version_id)
+        if exam is None:
+            raise NotFoundError("exam version not found")
+        row.active_exam_version_id = exam.id
     await db.flush()
     return row
 
