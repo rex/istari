@@ -30,6 +30,24 @@ version bumps).
 
 ---
 
+## [0.14.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- The CKA v1.35 track as a content pack (`content/packs/k8s-cka-k16s`): domains and
+  objectives from the CNCF curriculum (CC-BY-4.0) and one verified lab per K16S CKA
+  question, 36 across the `cka` and `cka2` profiles, each referencing its question by id
+  only with brief fields in Istari's own words; the two tasks that need the full install
+  are tagged. Exam facts are checked against the Linux Foundation page and the unpublished
+  task count is declared an estimate.
+- `istari labs check-map` (`make labs-check`): reads the packs, asks the configured K16S
+  instance for each profile's questions and reports the labs whose question is not served
+  (exit 1), served questions no lab covers, weight drift and full-install-only tasks; exit
+  2 when no backend is configured or the instance does not answer.
+- The Labs list groups verified labs by domain, ordered by objective within a domain, with
+  a passed count per group.
+### Changed
+- The K16S stub can serve any id list with placeholder text, so the mapping check is
+  tested against the shipped pack without a cluster.
+
 ## [0.13.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - Verified labs in the daily plan: when the lab cluster answers and the session is 15

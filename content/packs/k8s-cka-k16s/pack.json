@@ -1,0 +1,1769 @@
+{
+  "schema_version": 1,
+  "pack": {
+    "slug": "k8s-cka-k16s",
+    "name": "CKA v1.35: verified labs on K16S",
+    "version": "1.0.0",
+    "description": "The CKA v1.35 track (domains and objectives from the CNCF curriculum) with one verified lab per K16S CKA question: 36 tasks graded on your own lab cluster.",
+    "authored_by": "ai",
+    "coverage_notes_md": "Every competency of the CKA v1.35 curriculum is an objective here; 36 of them have a verified lab (both K16S CKA mocks, by question id). Lessons, questions and flashcards for this track are a separate pack (rex/istari#9). Two labs need the full VM-based K16S install. Task text is never stored in Istari; it is fetched from your instance."
+  },
+  "subject": {
+    "slug": "kubernetes",
+    "name": "Kubernetes"
+  },
+  "certification": {
+    "slug": "cka",
+    "name": "Certified Kubernetes Administrator",
+    "provider": "CNCF / The Linux Foundation"
+  },
+  "exam_version": {
+    "code": "CKA-1.35",
+    "name": "Certified Kubernetes Administrator (Kubernetes v1.35)",
+    "guide_revision": "v1.35",
+    "duration_minutes": 120,
+    "scored_questions": 17,
+    "unscored_questions": 0,
+    "passing_scaled_score": 66,
+    "score_scale": [
+      0,
+      100
+    ],
+    "format_notes": "Performance-based: 15 to 20 command-line tasks on live clusters, two hours, 66% to pass; proctored online. Verified labs here are graded by your K16S instance.",
+    "verification": {
+      "status": "verified",
+      "checked_on": "2026-10-15",
+      "sources": [
+        {
+          "title": "Linux Foundation: Certified Kubernetes Administrator (CKA)",
+          "url": "https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "notes": "Duration, format and the Kubernetes version come from the Linux Foundation page; the 66% passing score from its candidate instructions. The task count is not published (15 to 20 is typical), so scored_questions is an estimate, not a fact."
+    }
+  },
+  "domains": [
+    {
+      "code": "1",
+      "name": "Cluster Architecture, Installation and Configuration",
+      "weight_percent": 25,
+      "objectives": [
+        {
+          "code": "1.1",
+          "title": "Manage role based access control (RBAC)"
+        },
+        {
+          "code": "1.2",
+          "title": "Prepare underlying infrastructure for installing a Kubernetes cluster"
+        },
+        {
+          "code": "1.3",
+          "title": "Create and manage Kubernetes clusters using kubeadm"
+        },
+        {
+          "code": "1.4",
+          "title": "Manage the lifecycle of Kubernetes clusters"
+        },
+        {
+          "code": "1.5",
+          "title": "Implement and configure a highly-available control plane"
+        },
+        {
+          "code": "1.6",
+          "title": "Use Helm and Kustomize to install cluster components"
+        },
+        {
+          "code": "1.7",
+          "title": "Understand extension interfaces (CNI, CSI, CRI, etc.)"
+        },
+        {
+          "code": "1.8",
+          "title": "Understand CRDs, install and configure operators"
+        }
+      ]
+    },
+    {
+      "code": "2",
+      "name": "Workloads and Scheduling",
+      "weight_percent": 15,
+      "objectives": [
+        {
+          "code": "2.1",
+          "title": "Understand application deployments and how to perform rolling update and rollbacks"
+        },
+        {
+          "code": "2.2",
+          "title": "Use ConfigMaps and Secrets to configure applications"
+        },
+        {
+          "code": "2.3",
+          "title": "Configure workload autoscaling"
+        },
+        {
+          "code": "2.4",
+          "title": "Understand the primitives used to create robust, self-healing, application deployments"
+        },
+        {
+          "code": "2.5",
+          "title": "Configure Pod admission and scheduling (limits, node affinity, etc.)"
+        }
+      ]
+    },
+    {
+      "code": "3",
+      "name": "Services and Networking",
+      "weight_percent": 20,
+      "objectives": [
+        {
+          "code": "3.1",
+          "title": "Understand connectivity between Pods"
+        },
+        {
+          "code": "3.2",
+          "title": "Define and enforce Network Policies"
+        },
+        {
+          "code": "3.3",
+          "title": "Use ClusterIP, NodePort, LoadBalancer service types and endpoints"
+        },
+        {
+          "code": "3.4",
+          "title": "Use the Gateway API to manage Ingress traffic"
+        },
+        {
+          "code": "3.5",
+          "title": "Know how to use Ingress controllers and Ingress resources"
+        },
+        {
+          "code": "3.6",
+          "title": "Understand and use CoreDNS"
+        }
+      ]
+    },
+    {
+      "code": "4",
+      "name": "Storage",
+      "weight_percent": 10,
+      "objectives": [
+        {
+          "code": "4.1",
+          "title": "Implement storage classes and dynamic volume provisioning"
+        },
+        {
+          "code": "4.2",
+          "title": "Configure volume types, access modes and reclaim policies"
+        },
+        {
+          "code": "4.3",
+          "title": "Manage persistent volumes and persistent volume claims"
+        }
+      ]
+    },
+    {
+      "code": "5",
+      "name": "Troubleshooting",
+      "weight_percent": 30,
+      "objectives": [
+        {
+          "code": "5.1",
+          "title": "Troubleshoot clusters and nodes"
+        },
+        {
+          "code": "5.2",
+          "title": "Troubleshoot cluster components"
+        },
+        {
+          "code": "5.3",
+          "title": "Monitor cluster and application resource usage"
+        },
+        {
+          "code": "5.4",
+          "title": "Manage and evaluate container output streams"
+        },
+        {
+          "code": "5.5",
+          "title": "Troubleshoot services and networking"
+        }
+      ]
+    }
+  ],
+  "lessons": [],
+  "questions": [],
+  "flashcards": [],
+  "labs": [
+    {
+      "slug": "cka-01-fix-notready-node",
+      "objectives": [
+        "5.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "5.1",
+        "needs-full-install"
+      ],
+      "title": "A worker node reports NotReady",
+      "estimated_minutes": 14,
+      "goals_md": "Read the node's conditions and the kubelet's state on the worker, find what stopped it, and bring the node back without rebuilding it.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile in the full VM-based install (this task is marked heavy and cannot run under the lightweight mode).",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The node reports Ready and stays Ready; workloads schedule onto it again.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "01-fix-notready-node",
+        "weight": 7
+      }
+    },
+    {
+      "slug": "cka-02-fix-crashloop",
+      "objectives": [
+        "5.4",
+        "2.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "5.4",
+        "2.4"
+      ],
+      "title": "A pod keeps crashing",
+      "estimated_minutes": 10,
+      "goals_md": "Use the container's last termination state and logs to find why it exits, then correct the workload so it runs.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The pod reaches Running and the restart count stops climbing.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "02-fix-crashloop",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-03-fix-pending-pod",
+      "objectives": [
+        "2.5",
+        "5.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "2.5",
+        "5.1"
+      ],
+      "title": "A pod is stuck Pending on a selector",
+      "estimated_minutes": 10,
+      "goals_md": "Read the scheduler's reason on the pod, compare it with the nodes' labels, and fix whichever side is wrong.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The pod is scheduled and Running on a node that matches.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "03-fix-pending-pod",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-04-fix-broken-scheduler",
+      "objectives": [
+        "5.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "5.2"
+      ],
+      "title": "The scheduler is down",
+      "estimated_minutes": 12,
+      "goals_md": "Treat kube-scheduler as a static pod: find its manifest, read its logs, repair the mistake, and confirm new pods get placed.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "kube-scheduler runs and newly created pods are assigned to nodes.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "04-fix-broken-scheduler",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka-05-resource-usage",
+      "objectives": [
+        "5.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "5.3"
+      ],
+      "title": "Which pods use the most resources",
+      "estimated_minutes": 8,
+      "goals_md": "Use the metrics pipeline from the command line to rank pods by CPU or memory and record the answer where asked.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The ranking is written to the expected place and matches what metrics-server reports.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "05-resource-usage",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka-06-etcd-backup",
+      "objectives": [
+        "1.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "1.4"
+      ],
+      "title": "Back up etcd and prove the snapshot is good",
+      "estimated_minutes": 12,
+      "goals_md": "Take an etcd snapshot with the cluster's own certificates and verify it, the way a restore would need it.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "A snapshot file exists where requested and its status checks out.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "06-etcd-backup",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka-07-node-drain",
+      "objectives": [
+        "1.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "1.4"
+      ],
+      "title": "Drain a node for maintenance",
+      "estimated_minutes": 8,
+      "goals_md": "Cordon and drain a worker the safe way, DaemonSets and local data included, so workloads move off before maintenance.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The node is unschedulable and no evictable pods remain on it.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "07-node-drain",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka-08-rbac",
+      "objectives": [
+        "1.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "1.1"
+      ],
+      "title": "Grant a service account exactly what it needs",
+      "estimated_minutes": 12,
+      "goals_md": "Build a ServiceAccount, a Role and a RoleBinding that allow one narrow set of verbs on one resource kind, nothing more.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The binding exists, and `kubectl auth can-i` as that account answers yes only for the intended verbs.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "08-rbac",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka-09-cert-check",
+      "objectives": [
+        "1.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "1.4"
+      ],
+      "title": "When do the cluster's certificates expire",
+      "estimated_minutes": 8,
+      "goals_md": "Use kubeadm's certificate tooling to read expiry dates and record the one asked for.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The expiry is written where requested and matches the certificate.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "09-cert-check",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka-10-static-pod",
+      "objectives": [
+        "1.3",
+        "5.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "1.3",
+        "5.2",
+        "needs-full-install"
+      ],
+      "title": "Run a static pod on a worker",
+      "estimated_minutes": 8,
+      "goals_md": "Place a manifest where the worker's kubelet watches, so the pod runs without the API server creating it.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile in the full VM-based install (this task is marked heavy and cannot run under the lightweight mode).",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The mirror pod appears in the API, bound to that worker, and survives deletion attempts through the API.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "10-static-pod",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka-11-networkpolicy",
+      "objectives": [
+        "3.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "3.2"
+      ],
+      "title": "Restrict pod-to-pod traffic",
+      "estimated_minutes": 12,
+      "goals_md": "Write a NetworkPolicy that allows only the intended ingress to a workload and denies the rest.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "Allowed pods still connect; everything else is refused.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "11-networkpolicy",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka-12-gateway-api",
+      "objectives": [
+        "3.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "3.4"
+      ],
+      "title": "Route traffic with the Gateway API",
+      "estimated_minutes": 14,
+      "goals_md": "Create a Gateway and an HTTPRoute so a hostname reaches the right Service through the installed gateway controller.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "A request for the hostname reaches the backend through the Gateway.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "12-gateway-api",
+        "weight": 7
+      }
+    },
+    {
+      "slug": "cka-13-ingress",
+      "objectives": [
+        "3.5"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "3.5"
+      ],
+      "title": "A path-based Ingress",
+      "estimated_minutes": 10,
+      "goals_md": "Create an Ingress that routes different paths to different Services on the installed ingress controller.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "Each path answers from its own Service.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "13-ingress",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-14-coredns",
+      "objectives": [
+        "3.6"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "3.6"
+      ],
+      "title": "Forward an internal domain in CoreDNS",
+      "estimated_minutes": 10,
+      "goals_md": "Add a stub zone to the CoreDNS configuration so an internal domain resolves through the named upstream, and reload it.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "Lookups for the domain return the upstream's answer from inside a pod.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "14-coredns",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-15-hpa",
+      "objectives": [
+        "2.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "2.3"
+      ],
+      "title": "Autoscale a Deployment",
+      "estimated_minutes": 10,
+      "goals_md": "Create a HorizontalPodAutoscaler with the requested bounds and target so the Deployment scales on load.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The HPA exists with the right min, max and target and reports current metrics.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "15-hpa",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-16-daemonset",
+      "objectives": [
+        "2.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "2.4"
+      ],
+      "title": "Run one pod on every labelled node",
+      "estimated_minutes": 8,
+      "goals_md": "Create a DaemonSet that lands on exactly the nodes carrying a label, using the right selector.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "Each matching node runs one pod of the DaemonSet; others run none.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "16-daemonset",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka-17-sidecar",
+      "objectives": [
+        "2.4",
+        "5.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "2.4",
+        "5.4"
+      ],
+      "title": "A sidecar that shares a volume",
+      "estimated_minutes": 10,
+      "goals_md": "Add a sidecar container to a pod and a shared volume so the sidecar can read what the main container writes.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "Both containers run and the sidecar sees the main container's output through the volume.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "17-sidecar",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka-18-pv-pvc-pod",
+      "objectives": [
+        "4.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka",
+        "4.3"
+      ],
+      "title": "A PersistentVolume, its claim and a pod",
+      "estimated_minutes": 12,
+      "goals_md": "Create a PersistentVolume, bind a PersistentVolumeClaim to it and mount the claim in a pod at the requested path.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The claim is Bound and the pod runs with the volume mounted.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "18-pv-pvc-pod",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka2-01-fix-apiserver",
+      "objectives": [
+        "5.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "5.2"
+      ],
+      "title": "The API server is down",
+      "estimated_minutes": 16,
+      "goals_md": "Work without kubectl: read the static pod manifest and the container runtime's logs on the control plane, fix the mistake and watch the API return.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "kubectl answers again and the control plane pods are healthy.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "01-fix-apiserver",
+        "weight": 8
+      }
+    },
+    {
+      "slug": "cka2-02-fix-oomkilled",
+      "objectives": [
+        "5.4",
+        "2.5"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "5.4",
+        "2.5"
+      ],
+      "title": "A container keeps getting OOMKilled",
+      "estimated_minutes": 8,
+      "goals_md": "Read the termination reason, size the memory limit to what the process needs, and roll the change out.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The pod runs without further OOM terminations.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "02-fix-oomkilled",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-03-fix-service-selector",
+      "objectives": [
+        "5.5",
+        "3.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "5.5",
+        "3.3"
+      ],
+      "title": "A Service has no endpoints",
+      "estimated_minutes": 8,
+      "goals_md": "Compare the Service's selector with the pods' labels, fix the mismatch, and confirm the endpoints populate.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The Service lists endpoints and answers requests.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "03-fix-service-selector",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-04-fix-resource-quota",
+      "objectives": [
+        "2.5"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "2.5"
+      ],
+      "title": "A Deployment is blocked by a quota",
+      "estimated_minutes": 10,
+      "goals_md": "Read the events and the namespace's ResourceQuota, then give the pods requests and limits that fit.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The Deployment reaches its desired replica count within the quota.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "04-fix-resource-quota",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-05-event-logging",
+      "objectives": [
+        "5.4",
+        "5.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "5.4",
+        "5.3"
+      ],
+      "title": "Read the events and find the failing pod",
+      "estimated_minutes": 8,
+      "goals_md": "Use cluster events and pod logs to identify a failing workload and record what you found.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The answer is written where requested and matches the cluster's events.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "05-event-logging",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-06-clusterrole",
+      "objectives": [
+        "1.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "1.1"
+      ],
+      "title": "Cluster-wide read access to nodes",
+      "estimated_minutes": 10,
+      "goals_md": "Create a ClusterRole and a ClusterRoleBinding that let a subject inspect nodes and nothing else.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "`kubectl auth can-i` as the subject allows reading nodes and denies the rest.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "06-clusterrole",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-07-kubeconfig-sa",
+      "objectives": [
+        "1.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "1.1"
+      ],
+      "title": "A kubeconfig for a service account",
+      "estimated_minutes": 10,
+      "goals_md": "Mint a token for a ServiceAccount and write a kubeconfig that uses it, with the cluster's CA and server.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "kubectl with that kubeconfig authenticates as the service account.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "07-kubeconfig-sa",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-08-manual-scheduling",
+      "objectives": [
+        "2.5"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "2.5"
+      ],
+      "title": "Schedule a pod by hand",
+      "estimated_minutes": 8,
+      "goals_md": "Place a pod on a named node without the scheduler, using the field that binds a pod to a node.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The pod runs on the named node even with the scheduler out of the picture.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "08-manual-scheduling",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-09-kustomize",
+      "objectives": [
+        "1.6"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "1.6"
+      ],
+      "title": "Apply a Kustomize overlay",
+      "estimated_minutes": 10,
+      "goals_md": "Build and apply an overlay so the base resources land with the overlay's patches applied.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The resources exist with the overlay's values.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "09-kustomize",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-10-priority-class",
+      "objectives": [
+        "2.5"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "2.5"
+      ],
+      "title": "A PriorityClass for an important Deployment",
+      "estimated_minutes": 10,
+      "goals_md": "Create a PriorityClass with the requested value and assign it to a Deployment's pods.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The Deployment's pods carry the priority class and value.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "10-priority-class",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-11-job-cronjob",
+      "objectives": [
+        "2.4"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "2.4"
+      ],
+      "title": "A Job and a CronJob",
+      "estimated_minutes": 8,
+      "goals_md": "Create a Job that runs to completion and a CronJob on the requested schedule, with the requested image and command.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The Job completes and the CronJob is scheduled as asked.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "11-job-cronjob",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-12-secret-mount",
+      "objectives": [
+        "2.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "2.2"
+      ],
+      "title": "A Secret, as a file and as an environment variable",
+      "estimated_minutes": 8,
+      "goals_md": "Create a Secret and consume it in a pod both ways: a mounted file and an environment variable.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The pod sees the secret's value at the mount path and in its environment.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "12-secret-mount",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-13-headless-service",
+      "objectives": [
+        "3.3",
+        "3.6"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "3.3",
+        "3.6"
+      ],
+      "title": "A headless Service and its DNS records",
+      "estimated_minutes": 10,
+      "goals_md": "Create a headless Service and confirm DNS returns the pods' addresses rather than a cluster IP.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "DNS lookups for the Service return one record per ready pod.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "13-headless-service",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-14-networkpolicy-egress",
+      "objectives": [
+        "3.2"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "3.2"
+      ],
+      "title": "Egress policy that still allows DNS",
+      "estimated_minutes": 12,
+      "goals_md": "Write an egress NetworkPolicy that blocks outbound traffic except the one allowed destination and DNS.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The allowed destination and DNS work; other egress is refused.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "14-networkpolicy-egress",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka2-15-nodeport-named",
+      "objectives": [
+        "3.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "3.3"
+      ],
+      "title": "A NodePort Service on a named port",
+      "estimated_minutes": 8,
+      "goals_md": "Name the container port and expose it through a NodePort Service that targets the name.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The Service reaches the pod through the named port on every node's NodePort.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "15-nodeport-named",
+        "weight": 4
+      }
+    },
+    {
+      "slug": "cka2-16-storageclass-default",
+      "objectives": [
+        "4.1"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "4.1"
+      ],
+      "title": "Make a StorageClass the default",
+      "estimated_minutes": 10,
+      "goals_md": "Create a StorageClass and mark it as the cluster default so claims without a class get it.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "A claim with no storageClassName binds using the new default.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "16-storageclass-default",
+        "weight": 5
+      }
+    },
+    {
+      "slug": "cka2-17-pv-recover",
+      "objectives": [
+        "4.2",
+        "4.3"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "4.2",
+        "4.3"
+      ],
+      "title": "Recover a Released PersistentVolume",
+      "estimated_minutes": 12,
+      "goals_md": "Make a Released volume claimable again by clearing its old claim reference, keeping its data and reclaim policy in mind.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The volume returns to Available and a new claim binds to it.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "17-pv-recover",
+        "weight": 6
+      }
+    },
+    {
+      "slug": "cka2-18-helm-install",
+      "objectives": [
+        "1.6"
+      ],
+      "sources": [
+        {
+          "title": "K16S exam simulator (question ids, profiles and weights)",
+          "url": "https://github.com/immanuwell/k16s-exam-simulator",
+          "checked_on": "2026-10-15"
+        },
+        {
+          "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
+          "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
+          "checked_on": "2026-10-15"
+        }
+      ],
+      "provenance": {
+        "authored_by": "ai",
+        "author": "Claude Fable 5.1",
+        "authored_on": "2026-10-15",
+        "source_checked": true
+      },
+      "review_status": "source_checked",
+      "tags": [
+        "cka2",
+        "1.6"
+      ],
+      "title": "Install a Helm chart, then render it without CRDs",
+      "estimated_minutes": 12,
+      "goals_md": "Install a chart into a namespace with the requested values and render the templates to a file the way the task describes.",
+      "prerequisites_md": "Your K16S instance is up and serves the `cka2` profile.",
+      "cost_warning_md": "Runs on the lab cluster; costs nothing.",
+      "steps_md": "Set up the environment, work the task in the cluster's terminal, then check. The task text comes from the cluster, live.",
+      "expected_observations_md": "The release is deployed and the rendered manifest exists as requested.",
+      "cleanup_md": "The next setup resets the environment; nothing to clean by hand.",
+      "verifier": {
+        "backend": "k16s",
+        "profile": "cka2",
+        "question": "18-helm-install",
+        "weight": 6
+      }
+    }
+  ]
+}

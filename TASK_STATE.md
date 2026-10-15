@@ -4,25 +4,27 @@
 > This file is **committed** to the repo. It survives sessions, machines,
 > and context compactions.
 >
-> Spec: the implementation brief `istari-agent-kickstart.md` (Pierce's copy, not committed) · Plan: Rivendell rex/istari#1 (parent) with #2, #3, #4, #5
-> Branch: `main` · Owner (human): @rex · Last update: 2026-10-08 by Claude Fable 5.1
+> Spec: the implementation briefs `istari-agent-kickstart.md` and `istari-agent-kickstart-labs.md` (Pierce's copies, not committed) · Plan: Rivendell rex/istari#1 (V1, #2–#5) and #8 (verified labs, #42–#47)
+> Branch: `main` · Owner (human): @rex · Last update: 2026-10-15 by Claude Fable 5.1
 
 ## 0. TL;DR for a fresh agent session
 
-V1 is implemented; v0.3.0 added the build badge; v0.4.0 the private corpus tooling
-(`docs/corpus.md`); v0.5.0 the Watch area (video courses from the learning share with
-synced subtitles, resume and a transcript panel; `LEARNING_ROOT` in `.env`); v0.6.0 made
-the image deployable (entrypoint, Gitea CI) and v0.7.0 committed the corpus package the
-ignore rule had hidden. Istari runs in Pierce's homelab ring since 2026-10-08 (#40):
+V1 is implemented and Istari has run in Pierce's homelab ring since 2026-10-08 (#40):
 GitHub is the source of truth, the lab's Gitea pull mirror builds the image, Flux rolls it
-out; the owner account comes from the vault. All gates are green (see §6). Next: #26
-(related-in-Istari rail beside the player, Ready). The
-roadmap on top of Watch and the corpus is filed as rex/istari#29 with sub-issues #30–#39
-(all Inbox; recommended order: #30 transcript search, #31 mistake-to-clip, #32 lecture
-to objective mapping, #33 timestamped notes). Waiting on Pierce: promoting any of those,
-reviewing the AI-authored pack items, and yes/no on #13, #8, #27, #28, #39. Do NOT
-rename item slugs or option ids in `content/packs/**/pack.json`, and never commit
-anything under `corpus/` or `content/private/`.
+out, the owner account comes from the vault. v0.9.0 to v0.14.0 (2026-10-15) added verified
+hands-on labs (#8: #42–#47): a lab brief may carry a `verifier` (backend `k16s`, profile,
+question id) and is then set up and graded by the owner's K16S exam server over REST;
+attempts are recorded, the first graded attempt is the evidence, the planner schedules a
+lab only while the cluster answers, and `content/packs/k8s-cka-k16s` ships the CKA v1.35
+track with 36 such labs (question ids only, never K16S text; `docs/labs-k16s.md`). No K16S
+instance exists in the ring yet: the build was verified against the stub
+(`tests/k16s_stub.py`); the real-instance check (`make labs-check` plus one setup/check
+round trip) waits for a VM and its URL from Pierce. Next agent slice: #26 (related-in-Istari
+rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in
+Inbox; the Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the K16S VM,
+reviewing the AI-authored pack items, and yes/no on #13, #27, #28, #39, #48. Do NOT rename
+item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
+`corpus/` or `content/private/`, or any K16S text.
 
 ## Standing user directives
 
@@ -48,6 +50,7 @@ anything under `corpus/` or `content/private/`.
 | 9 | Course player with synced subtitles (#22: #23 catalog, #24 stream, #25 transcript) | ✅ done | courses listed from `LEARNING_ROOT`, video streams with Range + WebVTT, position remembered, transcript synced |
 | 10 | Watch follow-ups: #26 related-in-Istari rail, #27 context cards (proposal), #28 Whisper for subtitle-less courses | ⏸ pending | #26 Ready; #27 and #28 wait on Pierce |
 | 11 | Homelab deployment (#40): deployable image, Gitea CI, ring stack, database, vault items, learning share mount | ✅ done | the lab ingress serves the app over TLS; `/api/health` ok; owner bootstrapped from the vault; Watch lists the share |
+| 12 | Verified labs on K16S (#8: #42 schema, #43 adapter, #44 attempts, #45 lab page, #46 plan and progress, #47 CKA pack) | ✅ done | set up → check → attempt recorded against the stub on three viewports; plan and progress carry labs; the CKA pack maps 36 ids and `make labs-check` verifies them; real-instance check pending a VM |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -69,9 +72,13 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 - GitHub's `secret_scanning_non_provider_patterns` could not be enabled through the REST API (stays `disabled`); gitleaks covers generic patterns. Flip it in Settings > Code security if wanted.
 - The HTML exam guide shows no version string, so `exam_version.guide_revision` is unset.
+- No K16S instance in the ring yet. The verified-lab build is tested against the stub only; the first real check is `make labs-check` plus one setup/check round trip on a lab, once a VM exists and Pierce gives its URL (`K16S_BASE_URL` / `K16S_PUBLIC_URL` in the ring stack, private inventory). Docker Desktop was broken on the laptop on 2026-10-15, so that day's gates ran against a Homebrew Postgres on 127.0.0.1:5434 (`TEST_DATABASE_URL`).
 
 ## 4. Recent decisions (append-only, newest first)
 
+- 2026-10-15 — K16S text (titles, descriptions, hints, scripts) is never committed: the repo is public and K16S is PolyForm Noncommercial; packs reference question ids only and the lab page fetches the text live with attribution. `make labs-check` verifies the ids against a live instance (Claude Fable 5.1, Pierce's labs brief, #42/#47).
+- 2026-10-15 — A verified lab is evidence on its first graded attempt only; later passes are repeats, as with questions. The planner schedules one lab, weakest objective first, only while the cluster's 60 s status snapshot says it answers and the session is 15 minutes or longer; health and the planner never call the cluster inline (Claude Fable 5.1, #46).
+- 2026-10-15 — A transport failure, a timeout or a non-2xx from K16S is `upstream_error` (502) and records nothing; an `unavailable` answer (the task needs the full install) is a reason, not an error, and records nothing either; retries are the owner's click, never automatic (Claude Fable 5.1, #43/#44).
 - 2026-10-08 — GitHub-first deployment: the lab's Gitea repo is a pull mirror of GitHub (Pierce: a second remote drifts and doubles every push); Gitea Actions builds on mirror sync, `.gitea/workflows/ci.yml` derives the registry from the server URL so the public repo names no hosts (Claude Fable 5.1, #40).
 - 2026-10-08 — The container entrypoint owns start-up: migrate, seed the shipped packs, create the owner once from `ISTARI_OWNER_USERNAME`/`ISTARI_OWNER_PASSWORD` (`bootstrap-owner --if-missing`, never touching an existing owner), then serve (Claude Fable 5.1, #40).
 - 2026-10-08 — `.gitignore` rules for generated directories are anchored to the repo root; the unanchored `corpus/` had hidden `backend/app/corpus/` from git and the linters since v0.4.0 (Claude Fable 5.1, found by the first CI run).
@@ -88,14 +95,36 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Pierce: open the deployed app, log in with the owner login kept in the vault (`app-istari`), run a five-question session, open Watch (the first scan of the share takes a few minutes and the page polls until it fills), review pack items on the Content page.
-2. Agent (Ready now): #26, the related-in-Istari rail beside the player.
-3. Pierce: decide on the content pipeline (#13 with #14–#19), the task engine (#8) and the per-lecture context cards (#27); promote or close. Check-in needed on #28 (Whisper model size, whether VTTs go back to the share).
-4. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41).
-5. Agent (Ready): CKA knowledge pack (#9), CKAD knowledge pack (#11); after #8 lands, the task sets (#10, #12).
-6. Local dev still works as before: set `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner.
+1. Pierce: stand up a K16S VM for the ring (the install is K16S's own; Istari never provisions it), set `K16S_BASE_URL` and `K16S_PUBLIC_URL` in `stacks/istari.yml` (private inventory), and give the agent the URL.
+2. Agent, once the URL exists: `make labs-check BASE_URL=<url>`, then one setup → terminal → check round trip on a `cka` lab from the deployed app; fix whatever the real server does differently from the stub.
+3. Pierce: open the deployed app, switch the track to CKA-1.35 in Settings and look at Labs and a lab page; the design iterates from there. Review pack items on the Content page.
+4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
+5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
+6. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41).
+7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-15, 01:20 CDT (Claude Fable 5.1): verified hands-on labs on K16S shipped as
+v0.9.0–v0.14.0 (#8: #42 verifier schema, #43 K16S adapter, health field and stub, #44
+attempts table and setup/check routes, #45 lab page and Labs list, #46 plan and progress,
+#47 CKA pack and `labs check-map`). Pierce's labs brief (`istari-agent-kickstart-labs.md`,
+untracked on purpose) was the spec; the one thing it defers is the ring's K16S URL, to be
+asked for once a VM exists. No K16S ran during the build (none exists yet; Docker Desktop
+was broken on the laptop as well), so everything was verified against `tests/k16s_stub.py`:
+pytest 144 passed, vitest 37 passed, Playwright 12 passed (desktop, mobile, ultrawide; the
+stub runs as a second Playwright web server), ruff/mypy/import-linter/tsc/eslint/prettier
+clean, `make validate` clean, `make check-skeleton` current for every verbatim file with
+only the advisory Makefile drift this repo always carries (its own targets). The dev app was
+checked by eye with the CKA track active: the Labs list groups the 36 labs by domain and
+orders them by objective; a CKA lab page against the stub shows "Task not found on the
+instance" with setup disabled, the right state for a mismatched instance. Open: the
+real-instance check (§5, items 1 and 2). #10 and #12 carry comments explaining that #47
+covers CKA through K16S by a different route than they describe; Pierce re-scopes or closes
+them. Rivendell: #8 and #42–#47 closed by their commits; #48–#53 in Inbox. The Homebrew
+test Postgres on 127.0.0.1:5434 may still be running
+(`/opt/homebrew/opt/postgresql@18/bin/pg_ctl -D ~/.local/share/istari-test-pg stop`); the
+dev database there has the SAA, CKA and fixture packs and a local owner.
 
 2026-10-08, 04:10 (Claude Fable 5.1): Istari is deployed in the homelab ring (#40). The
 chain: GitHub `main` → the lab's Gitea pull mirror (10-minute interval, or

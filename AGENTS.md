@@ -4,7 +4,7 @@
      CLAUDE.md and GEMINI.md are symlinks to this file. Keep under 150 lines. -->
 
 ## 1. Project snapshot
-- **What**: Istari is a single-owner certification-training web app: lessons, scenario practice graded server-side, FSRS-scheduled review cards, an explainable daily plan and honest progress evidence. Ships with an AWS SAA-C03 starter pack (`content/packs/`).
+- **What**: Istari is a single-owner certification-training web app: lessons, scenario practice graded server-side, FSRS-scheduled review cards, an explainable daily plan and honest progress evidence. Ships with an AWS SAA-C03 starter pack and a CKA v1.35 track whose 36 hands-on labs are graded by the owner's K16S cluster (`content/packs/`, `docs/labs-k16s.md`).
 - **Runtime**: Python 3.13 · FastAPI · SQLAlchemy 2 async + asyncpg · Alembic · py-fsrs · argon2-cffi (`backend/`); React 19 · TypeScript 5.9 · Vite 8 · TanStack Router/Query · zustand (`frontend/`); PostgreSQL 18.
 - **Infra**: `compose.yaml` (db + app) and a hardened `Dockerfile`. No cloud resources, no AWS credentials. `docs/deployment.md` names no hosts.
 - **Owner**: Pierce (@rex). Work is tracked in Rivendell (GitHub issues on rex/istari); nothing else.
@@ -28,6 +28,7 @@ make dev                        # API :8000 + Vite :5173
 - `make e2e`  when a page or flow changed (Playwright: desktop, mobile, ultrawide)
 - `make validate`  (architecture, module shape, version gate; pre-commit mirrors it)
 - `make check-skeleton` — skeleton-owned files (`scripts/`, `.claude/{hooks,commands,agents,rules}`) match the installed agentic-skeleton; if behind, `make sync-skeleton`, then commit + push
+- If a pack's `verifier` entries or `tests/k16s_stub.py` changed and a K16S instance is reachable: `make labs-check` (not a gate; needs `K16S_BASE_URL`)
 - If `infra/**` changed: `terraform fmt -recursive infra/ && terraform validate`
 - If `ansible/**` changed: `ansible-lint ansible/ && ansible-playbook --syntax-check`
 
@@ -80,7 +81,7 @@ change gets a corresponding test update.
 - `DATABASE_URL` is required (no default DSN with a password in code). `TEST_DATABASE_URL` defaults to it with `_test` appended. The e2e target derives `E2E_DATABASE_URL` from the backend settings; do not hard-code a DSN in TypeScript.
 - `detect-secrets` runs in pre-commit: no literal passwords even in tests (`conftest` generates one per run), and Alembic revision ids must not be hex (`make db-revision MSG=... REV_ID=0002_<slug>`).
 - `bash-guard` blocks `DROP DATABASE`. Empty a database with `alembic downgrade base`, never with SQL.
-- Module-shape gate: at most 8 public top-level defs per file. In TS, `export const`/`export function` count, `export type`/`interface` do not. Split by resource (see `frontend/src/queries/`).
+- Module-shape gate: at most 8 public top-level defs per file, classes included. In TS, `export const`/`export function` count, `export type`/`interface` do not. Split by resource (`frontend/src/queries/`, `domain/verifier.py` + `verifier_mapping.py`, `routes/labs.py` + `routes/lab_verifier.py`).
 - `pytest-asyncio` needs `asyncio_default_test_loop_scope = "session"` (set) because the engine fixture is session-scoped.
 - Pin `typescript@5`: typescript-eslint rejects TS 7. Vite 8 resolves tsconfig paths natively (`resolve.tsconfigPaths`).
 - React Compiler lint rules are on: per-item state lives in a keyed child (`QuestionRunner`), derived lists replace effect-synced state, refs are not read during render.
@@ -89,6 +90,10 @@ change gets a corresponding test update.
 - `.gitignore` rules for generated directories are anchored (`/corpus/`, `/content/private/`). An unanchored `corpus/` hid `backend/app/corpus/` from git, ruff and mypy for three releases; after adding an ignore rule, run `git check-ignore -v` against the source tree.
 - The Edit/Write tools turn `\uXXXX` escapes into the literal character (seen with `﻿` and `–`, which `RUF001` then rejects). Spell such characters as `chr(0x2013)` in Python and compare `charCodeAt` values in TypeScript.
 - Deployment is GitHub-first: the lab's Gitea repo is a pull mirror (never add it as a git remote). Gitea Actions runs `.gitea/workflows/ci.yml` when the mirror syncs and derives the registry from the server URL; the ring stack lives in the private inventory repo, and `docs/deployment.md` stays hostname-free.
+- `httpx.ASGITransport` ignores timeouts: test a client timeout with `httpx.MockTransport` raising `ReadTimeout` (`test_lab_verifier.py`). A FastAPI handler annotated `JSONResponse | dict[...]` needs `response_model=None` (`tests/k16s_stub.py`). Pydantic list defaults are `Field(default_factory=list)` (RUF012).
+- eslint `react-refresh/only-export-components`: a component file exports components only; helpers live in `lib/` (`lib/labs.ts`).
+- The Playwright projects (desktop, mobile, ultrawide) share one e2e database and run in order: a spec must tolerate what the earlier project left behind (`/Set up (environment|again)/`, `getByText("failed").first()`).
+- K16S text (titles, descriptions, hints, scripts) is never committed: `content/packs/k8s-cka-k16s` references question ids only, the stub speaks its own placeholder text, and `make labs-check` verifies the ids against a live instance.
 
 ## 10. Workflow
 

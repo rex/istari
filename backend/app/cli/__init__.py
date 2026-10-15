@@ -9,6 +9,7 @@ Commands:
   import-pack       import one pack file (--dry-run previews changes)
   export-pack       write a pack from the database as JSON
   validate-pack     schema + cross-reference validation only
+  labs check-map    compare every verified lab's question id with what the K16S instance serves
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
-from app.cli import corpus_cmds
+from app.cli import corpus_cmds, labs_cmds
 from app.cli.owner import bootstrap_owner
 from app.config import settings
 from app.domain.content.schemas.pack import ContentPackSpec
@@ -205,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=cmd_export)
 
     corpus_cmds.register(sub)
+    labs_cmds.register(sub)
 
     p = sub.add_parser("validate-pack")
     p.add_argument("path")

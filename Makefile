@@ -351,6 +351,10 @@ db-reset:
 seed:
 	@$(UV) python -m app.cli seed
 
+## labs-check: Compare every verified lab's question id with the K16S instance (K16S_BASE_URL, or BASE_URL=... PROFILE=...)
+labs-check:
+	@$(UV) python -m app.cli labs check-map $(if $(BASE_URL),--base-url "$(BASE_URL)",) $(if $(PROFILE),--profile "$(PROFILE)",)
+
 ## corpus-ingest: Course directory -> private Markdown corpus — SRC="<dir>" [ALL=1 for a topic folder] [OUT=corpus]
 corpus-ingest:
 	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make corpus-ingest SRC=\"<course dir>\" [ALL=1] [OUT=corpus]$(RESET)"; exit 1; fi

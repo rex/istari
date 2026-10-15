@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
 import { formatRelative, pluralize } from "@/lib/format";
-import type { LabSummary } from "@/lib/types";
+import type { DomainView, LabSummary } from "@/lib/types";
 import { healthQueryOptions } from "@/queries/health";
 import { labsQueryOptions } from "@/queries/labs";
+import { trackQueryOptions } from "@/queries/track";
 
 /** Where a lab stands, in one glance: the latest verdict for graded labs, notes for manual ones. */
 function LabStatus({ lab }: { lab: LabSummary }) {
@@ -85,8 +86,34 @@ function ClusterStrip() {
   );
 }
 
+/** Labs whose latest verdict is a pass. Progress keeps the stricter first-attempt view. */
+function passedCount(labs: LabSummary[]): number {
+  return labs.filter((lab) => lab.last_attempt?.passed === true).length;
+}
+
+/** Verified labs under their first objective's domain, in the track's order; within a
+ *  domain by objective code, then title, so the list reads like the curriculum. */
+function groupByDomain(labs: LabSummary[], domains: DomainView[]) {
+  const names = new Map(domains.map((d) => [d.code, `${d.code}. ${d.name}`]));
+  const groups = new Map<string, LabSummary[]>();
+  for (const lab of labs) {
+    const code = lab.objectives[0]?.domain_code ?? "";
+    groups.set(code, [...(groups.get(code) ?? []), lab]);
+  }
+  const order = (lab: LabSummary) => `${lab.objectives[0]?.code ?? ""} ${lab.title}`;
+  const numeric = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
+  return [...groups.entries()]
+    .sort(([a], [b]) => numeric(a, b))
+    .map(([code, list]) => ({
+      code,
+      title: names.get(code) ?? (code ? `Domain ${code}` : "Other"),
+      labs: [...list].sort((a, b) => numeric(order(a), order(b))),
+    }));
+}
+
 export default function LabsPage() {
   const labs = useQuery(labsQueryOptions());
+  const track = useQuery(trackQueryOptions());
   if (labs.isPending) return <Spinner label="Loading lab briefs" />;
   if (labs.isError)
     return <StateBlock tone="error" title="Could not load labs" body={labs.error.message} />;
@@ -107,13 +134,25 @@ export default function LabsPage() {
           <ClusterStrip />
           <div className="domain-head">
             <h2 id="verified-labs">Verified on the lab cluster</h2>
-            <span className="muted small">{pluralize(verified.length, "lab")}</span>
+            <span className="muted small">
+              {pluralize(verified.length, "lab")} · {passedCount(verified)} passed
+            </span>
           </div>
-          <div className="lesson-list">
-            {verified.map((lab) => (
-              <LabRow key={lab.item_key} lab={lab} />
-            ))}
-          </div>
+          {groupByDomain(verified, track.data?.domains ?? []).map((group) => (
+            <div key={group.code} className="lab-group">
+              <div className="domain-head">
+                <h3>{group.title}</h3>
+                <span className="muted small">
+                  {passedCount(group.labs)}/{group.labs.length} passed
+                </span>
+              </div>
+              <div className="lesson-list">
+                {group.labs.map((lab) => (
+                  <LabRow key={lab.item_key} lab={lab} />
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
       ) : null}
       {manual.length > 0 ? (

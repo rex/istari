@@ -102,3 +102,30 @@ and Playwright suites run against it:
 cd backend && uv run uvicorn tests.k16s_stub:app --port 8081
 K16S_BASE_URL=http://127.0.0.1:8081 make dev
 ```
+
+## The CKA pack
+
+`content/packs/k8s-cka-k16s/pack.json` is the CKA v1.35 track (domains and objectives from
+the CNCF curriculum, CC-BY-4.0) with one verified lab per K16S CKA question: 18 on the `cka`
+profile and 18 on `cka2`. A lab's slug is `<profile>-<question id>`; its brief fields are
+Istari's own words and the task text arrives live from the instance. The two labs K16S marks
+`requires: heavy` (`cka-01-fix-notready-node`, `cka-10-static-pod`) carry the tag
+`needs-full-install`. The exam facts are checked against the Linux Foundation page; the task
+count is not published, so `scored_questions` is an estimate and the pack says so. Lessons,
+questions and flashcards for the track are a separate pack (rex/istari#9).
+
+## Keeping the mapping honest
+
+The mapping is written by hand and never fetched into the pack. `make labs-check`
+(`istari labs check-map`) reads the pack files, asks the configured instance for each
+profile's questions and prints, per profile:
+
+- the labs whose question the instance does not serve (exit 1: that lab would fail at setup);
+- the served questions no lab covers yet;
+- weights that drifted since the pack was written;
+- the questions that need the full install.
+
+Exit 2 means no backend is configured or the instance did not answer. Pass
+`BASE_URL=http://host:8080` to check an instance other than `K16S_BASE_URL`, and
+`PROFILE=cka` to narrow. Run it after updating K16S; the integration suite runs the same
+check against the stub so the shipped pack is known to parse and map.

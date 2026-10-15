@@ -69,6 +69,9 @@ class StubState:
     question_fetches: int = 0
     setups: list[str] = field(default_factory=list)
     checks: list[str] = field(default_factory=list)
+    # Replaces the module's bank when set: the mapping tests serve a pack's real ids with
+    # placeholder text of our own.
+    questions: dict[str, list[dict[str, object]]] | None = None
 
     def reset(self) -> None:
         self.__init__()  # type: ignore[misc]
@@ -78,14 +81,39 @@ def _now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
-def _find(profile: str, question_id: str) -> dict[str, object] | None:
-    return next((q for q in QUESTIONS.get(profile, []) if q["id"] == question_id), None)
+def _find(
+    bank: dict[str, list[dict[str, object]]], profile: str, question_id: str
+) -> dict[str, object] | None:
+    return next((q for q in bank.get(profile, []) if q["id"] == question_id), None)
+
+
+def placeholder_bank(
+    ids_by_profile: dict[str, list[str]],
+) -> dict[str, list[dict[str, object]]]:
+    """A bank that serves the given ids with placeholder text of our own, for mapping tests."""
+    return {
+        profile: [
+            {
+                "id": question_id,
+                "title": f"Stub task {question_id}",
+                "weight": 4,
+                "context": "",
+                "description": "Placeholder text; a real instance serves its own.",
+                "hint": "",
+            }
+            for question_id in ids
+        ]
+        for profile, ids in ids_by_profile.items()
+    }
 
 
 def create_stub() -> FastAPI:
     app = FastAPI(title="k16s-stub")
     state = StubState()
     app.state.stub = state
+
+    def bank() -> dict[str, list[dict[str, object]]]:
+        return state.questions if state.questions is not None else QUESTIONS
 
     def error(code: int, message: str) -> JSONResponse:
         return JSONResponse(status_code=code, content={"error": message})
@@ -100,7 +128,7 @@ def create_stub() -> FastAPI:
         return {
             "ok": True,
             "session": state.session,
-            "profiles": list(QUESTIONS),
+            "profiles": list(bank()),
             "mode": state.mode,
         }
 
@@ -114,7 +142,7 @@ def create_stub() -> FastAPI:
     async def start_session(request: Request) -> JSONResponse | dict[str, object]:
         body = await request.json()
         profile = str(body.get("profile") or "cka")
-        if profile not in QUESTIONS:
+        if profile not in bank():
             return error(400, f"unknown profile: {profile}")
         state.session_starts += 1
         state.session = {
@@ -137,16 +165,16 @@ def create_stub() -> FastAPI:
 
     @app.get("/api/questions", response_model=None)
     async def questions(profile: str = "cka") -> JSONResponse | dict[str, object]:
-        if profile not in QUESTIONS:
+        if profile not in bank():
             return error(404, f"unknown profile: {profile}")
         state.question_fetches += 1
-        return {"questions": QUESTIONS[profile]}
+        return {"questions": bank()[profile]}
 
     @app.post("/api/questions/{question_id}/setup", response_model=None)
     async def setup(question_id: str) -> JSONResponse | dict[str, object]:
         if state.session is None:
             return error(400, "no active session")
-        question = _find(str(state.session["profile"]), question_id)
+        question = _find(bank(), str(state.session["profile"]), question_id)
         if unavailable(question):
             return {"unavailable": True, "reason": UNAVAILABLE_REASON}
         if state.delay_seconds:
@@ -158,7 +186,7 @@ def create_stub() -> FastAPI:
     async def check(question_id: str) -> JSONResponse | dict[str, object]:
         if state.session is None:
             return error(400, "no active session")
-        question = _find(str(state.session["profile"]), question_id)
+        question = _find(bank(), str(state.session["profile"]), question_id)
         if question is None:
             return error(404, f"question not found: {question_id}")
         if unavailable(question):

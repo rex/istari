@@ -6,21 +6,21 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phase 11 deployment done; #26 is next; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-08 (Claude Fable 5.1, v0.6.0 deployable image + Gitea CI, v0.7.0 corpus package fix, deployed to the homelab ring, rex/istari#40)
+- **Active TASK_STATE**: `TASK_STATE.md` (phase 12 verified labs done; a K16S VM is Pierce's next step; #26 is the next agent slice; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-15 (Claude Fable 5.1, v0.9.0–v0.14.0 verified hands-on labs graded by K16S, the CKA v1.35 pack, rex/istari#8 with #42–#47)
 
 ## Last three decisions
 
+- 2026-10-15 Verified labs: K16S sets up and grades them over REST; no K16S text in the repo (question ids only, text fetched live); the first graded attempt is the evidence; the planner schedules a lab only while the cluster answers.
 - 2026-10-08 GitHub-first: the lab's Gitea repo is a pull mirror; CI builds on mirror sync; the container entrypoint migrates, seeds and bootstraps the owner once.
 - 2026-10-07 Watch reads the learning share in place (`LEARNING_ROOT`), serves only paths the catalog reported, and never writes to the share.
 - 2026-10-07 Purchased course material becomes a gitignored corpus and private drill packs; it is never a fact source and never committed.
 - 2026-10-07 Build stamp: the API is the source of truth (`/api/health`); the bundle embeds its own commit and warns when it differs.
-- 2026-10-07 Performance-based exams (CKA, CKAD) need a hands-on task item type with verify scripts, not MCQs (rex/istari#8, proposal).
-
 ## Open blockers
 
-- Human review of the SAA-C03 pack items (Pierce). Items are `source_checked`, not `human_reviewed`.
-- Content pipeline, task engine and context cards are proposals in Inbox (rex/istari#13, #8, #27); nothing starts until Pierce says go.
+- No K16S instance in the ring yet (Pierce); the verified-lab build is tested against the stub only.
+- Human review of the SAA-C03 and CKA pack items (Pierce). Items are `source_checked`, not `human_reviewed`.
+- The content pipeline (#13), context cards (#27) and CK-X for CKAD (#48) are proposals in Inbox; nothing starts until Pierce says go.
 - Whisper transcription (#28) needs a check-in on model size and output location before it runs.
 
 ## How to resume (for a fresh agent)
@@ -35,3 +35,4 @@
 - Rename item slugs or option ids in `content/packs/**/pack.json` (answers reference them).
 - Add a default `DATABASE_URL` or any literal credential, even in tests (detect-secrets, gitleaks).
 - Put a JSON field called `key` in content (gitleaks false positive); use `slug` / `id`.
+- Commit any K16S text (titles, descriptions, hints, scripts); packs reference question ids only.

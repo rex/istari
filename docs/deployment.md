@@ -77,6 +77,12 @@ Verified labs need a running K16S instance that the owner installs and runs sepa
 `/api/health` reports whether the instance is configured and reachable, from a background
 poll, so the probe never waits on it.
 
+The image ships the CKA v1.35 pack (`content/packs/k8s-cka-k16s`): 36 labs that reference
+K16S questions by id. They appear under Labs as soon as the pack is seeded and are graded
+once `K16S_BASE_URL` points at an instance serving the `cka` and `cka2` profiles. After
+updating K16S, `make labs-check` (or `python -m app.cli labs check-map` inside the
+container) confirms the instance still serves every question the pack references.
+
 Watch reads the share in place. On the Mac the SMB share is already mounted under
 `/Volumes`; in a container the share must be mounted read-only into the container at
 the path `LEARNING_ROOT` names. Video is streamed by the API with Range support, so the
