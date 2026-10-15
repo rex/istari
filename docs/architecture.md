@@ -105,6 +105,25 @@ Keyboard shortcuts (1–6 select options, Enter submits, Space/Enter reveals a c
 rate) are registered per page. Per-item state lives in `QuestionRunner`, remounted by key
 per item so the React Compiler lint rules hold.
 
+### Styles
+
+The identity is the Istari design system, a Design System artifact on claude.ai/design that
+Pierce built on 2026-10-15 from this repository's marks and component inventory (its link is
+in rex/istari#55). `frontend/src/styles/tokens.css` is the system's generated token file
+(colour, type, space, radii, shadows, layout widths, timings, and the `@font-face` rules) and
+`frontend/src/styles/bundle.css` its component stylesheet, written to this app's own class
+names; both are the system's files, Prettier-formatted by the lint gate but otherwise
+unchanged. The four typefaces (Cormorant Garamond for display, Hanken Grotesk for the
+interface, Newsreader for reading, JetBrains Mono for code) ship as OFL latin subsets under
+`styles/fonts/` with their licence texts; Vite hashes them into `assets/`. Under 720px the
+stylesheet turns the primary nav into a bottom tab bar and the More sheet carries the rest.
+
+The split of authority: the system is the source for tokens and rules (edit there, copy the
+two files here, `make fix`, run the gates); the code is the source for markup (change a
+component here, then its preview there). The system's 45 previews are static renditions of
+the stylesheet, so a class the code stops emitting or starts emitting is a change to make in
+both places; `rex/istari#60` records the differences found when the system was adopted.
+
 ## Data model (tables)
 
 `owner`, `auth_sessions`, `login_attempts`, `user_settings`, `scheduler_configs`;

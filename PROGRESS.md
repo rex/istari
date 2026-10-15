@@ -6,11 +6,12 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phase 12 verified labs done; a K16S VM is Pierce's next step; #26 is the next agent slice; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-15 (Claude Fable 5.1, v0.9.0–v0.14.0 verified hands-on labs graded by K16S, the CKA v1.35 pack, rex/istari#8 with #42–#47)
+- **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs and 13 design system done; a K16S VM is Pierce's next step; #26 is the next agent slice; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-15 (Claude Fable 5.1, v0.9.0–v0.14.0 verified hands-on labs graded by K16S and the CKA v1.35 pack, rex/istari#8 with #42–#47; then v0.15.0–v0.19.0 adopting the Istari design system from claude.ai/design, rex/istari#55 with #56–#60)
 
 ## Last three decisions
 
+- 2026-10-15 The UI identity is the Istari design system on claude.ai/design: it owns tokens and rules (`styles/tokens.css`, `styles/bundle.css` are its files), the code owns markup; course cards show coverage in words, never a readiness score.
 - 2026-10-15 Verified labs: K16S sets up and grades them over REST; no K16S text in the repo (question ids only, text fetched live); the first graded attempt is the evidence; the planner schedules a lab only while the cluster answers.
 - 2026-10-08 GitHub-first: the lab's Gitea repo is a pull mirror; CI builds on mirror sync; the container entrypoint migrates, seeds and bootstraps the owner once.
 - 2026-10-07 Watch reads the learning share in place (`LEARNING_ROOT`), serves only paths the catalog reported, and never writes to the share.

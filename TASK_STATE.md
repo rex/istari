@@ -19,8 +19,13 @@ lab only while the cluster answers, and `content/packs/k8s-cka-k16s` ships the C
 track with 36 such labs (question ids only, never K16S text; `docs/labs-k16s.md`). No K16S
 instance exists in the ring yet: the build was verified against the stub
 (`tests/k16s_stub.py`); the real-instance check (`make labs-check` plus one setup/check
-round trip) waits for a VM and its URL from Pierce. Next agent slice: #26 (related-in-Istari
-rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in
+round trip) waits for a VM and its URL from Pierce. v0.15.0 to v0.19.0 (2026-10-15) adopted
+the Istari design system Pierce built in Claude Design (#55: #56–#60): the system's tokens,
+stylesheet and fonts replace the v0 styles, markup is aligned, a course picker with per-track
+counts and progress replaces the onboarding radio list and sits behind a chip on Settings,
+and phones get the bottom tab bar with a More sheet. The system is the source for tokens
+and rules, the code for markup (`docs/architecture.md`, Styles). Next agent slice: #26
+(related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in
 Inbox; the Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the K16S VM,
 reviewing the AI-authored pack items, and yes/no on #13, #27, #28, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
@@ -51,6 +56,7 @@ item slugs or option ids in `content/packs/**/pack.json`, and never commit anyth
 | 10 | Watch follow-ups: #26 related-in-Istari rail, #27 context cards (proposal), #28 Whisper for subtitle-less courses | ⏸ pending | #26 Ready; #27 and #28 wait on Pierce |
 | 11 | Homelab deployment (#40): deployable image, Gitea CI, ring stack, database, vault items, learning share mount | ✅ done | the lab ingress serves the app over TLS; `/api/health` ok; owner bootstrapped from the vault; Watch lists the share |
 | 12 | Verified labs on K16S (#8: #42 schema, #43 adapter, #44 attempts, #45 lab page, #46 plan and progress, #47 CKA pack) | ✅ done | set up → check → attempt recorded against the stub on three viewports; plan and progress carry labs; the CKA pack maps 36 ids and `make labs-check` verifies them; real-instance check pending a VM |
+| 13 | Adopt the Istari design system (#55: #56 foundation, #57 markup, #58 course picker, #59 phone shell, #60 docs and re-sync) | ✅ done | every page renders in the system's tokens and stylesheet; picker and chip switch tracks; the phone tab bar and More sheet pass the mobile e2e; the system's README and PlanList preview match the code |
 
 Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
@@ -76,6 +82,9 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 4. Recent decisions (append-only, newest first)
 
+- 2026-10-15 — The UI identity lives in the Istari design system on claude.ai/design (Pierce's, built from this repo's marks and inventory); `styles/tokens.css` and `styles/bundle.css` are its files, Prettier-formatted. The system owns tokens and rules, the code owns markup; the v0 partials and tokens are gone, and the fonts ship as OFL subsets with their licences (Claude Fable 5.1, #55–#60).
+- 2026-10-15 — Track progress on a course card is coverage in words (lessons read, question families seen, labs verified on the first graded attempt; accuracy only past the evidence threshold) and a capped fraction for the meter; never a readiness score. Switching tracks is `PATCH /api/settings {active_exam_version_id}` and keeps everything done on the other track (Claude Fable 5.1, #58).
+- 2026-10-15 — Phones: five tabs (Today, Learn, Practice, Review, Watch); Progress, Labs and Settings behind More; Labs stays mostly a desktop screen because the terminal wants one (Claude Fable 5.1, #59, per the system's AppBar guidelines).
 - 2026-10-15 — K16S text (titles, descriptions, hints, scripts) is never committed: the repo is public and K16S is PolyForm Noncommercial; packs reference question ids only and the lab page fetches the text live with attribution. `make labs-check` verifies the ids against a live instance (Claude Fable 5.1, Pierce's labs brief, #42/#47).
 - 2026-10-15 — A verified lab is evidence on its first graded attempt only; later passes are repeats, as with questions. The planner schedules one lab, weakest objective first, only while the cluster's 60 s status snapshot says it answers and the session is 15 minutes or longer; health and the planner never call the cluster inline (Claude Fable 5.1, #46).
 - 2026-10-15 — A transport failure, a timeout or a non-2xx from K16S is `upstream_error` (502) and records nothing; an `unavailable` answer (the task needs the full install) is a reason, not an error, and records nothing either; retries are the owner's click, never automatic (Claude Fable 5.1, #43/#44).
@@ -97,13 +106,31 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: stand up a K16S VM for the ring (the install is K16S's own; Istari never provisions it), set `K16S_BASE_URL` and `K16S_PUBLIC_URL` in `stacks/istari.yml` (private inventory), and give the agent the URL.
 2. Agent, once the URL exists: `make labs-check BASE_URL=<url>`, then one setup → terminal → check round trip on a `cka` lab from the deployed app; fix whatever the real server does differently from the stub.
-3. Pierce: open the deployed app, switch the track to CKA-1.35 in Settings and look at Labs and a lab page; the design iterates from there. Review pack items on the Content page.
+3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
 6. Agent (Inbox): the Playwright e2e suite in Gitea CI (#41).
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
+Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The
+analysis before the go: the system's stylesheet covered 174 of the 185 class names the code
+uses; Pierce's session added the rest (layout rules, the phone tab bar, explicit modifiers,
+page previews, OFL texts) in a third pass, after which 185/185 were covered and no token
+was undefined. Then: fonts, tokens and the stylesheet replaced the seven v0 partials with
+the markup untouched (v0.15.0); the few markup differences were aligned (v0.16.0); the
+course picker, the track chip and the per-track counts and progress landed with
+`PATCH /api/settings {active_exam_version_id}` (v0.17.0); the phone shell got the More
+sheet and the desk-only Progress link (v0.18.0); the plan rows lost their duplicated kind
+prefix and the docs, this file and the system's README and PlanList preview were brought in
+line (v0.19.0). Gates at each commit: ruff/mypy/import-linter/tsc/eslint/prettier clean,
+pytest 150 passed, vitest 40 passed, Playwright 13 passed on desktop, mobile and
+ultrawide (the phone-shell spec skips off mobile), `make validate` clean. Every page was
+eyeballed at desktop and phone widths against the dev servers. One known wart left for the
+system: its PlanList preview had a tag-and-duration row shape its own CSS does not
+implement; the preview now shows the code's shape and the README says so.
 
 2026-10-15, 01:20 CDT (Claude Fable 5.1): verified hands-on labs on K16S shipped as
 v0.9.0–v0.14.0 (#8: #42 verifier schema, #43 K16S adapter, health field and stub, #44

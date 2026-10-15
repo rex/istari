@@ -38,7 +38,7 @@ make dev                        # API :8000 + Vite :5173
 backend/app/       routes → services → adapters/db + domain (import-linter enforces the layers)
 backend/alembic/   Migrations: autogenerate, then review. Pass REV_ID=<slug> (see §9)
 backend/tests/     unit/ (pure domain) + integration/ (real Postgres, migrated per session)
-frontend/src/      pages/, components/{layout,ui,feature}, queries/ (one module per resource), lib/, styles/
+frontend/src/      pages/, components/{layout,ui,feature}, queries/ (one module per resource), lib/, styles/ (the design system's tokens.css + bundle.css + fonts/)
 frontend/tests/    unit/ + component/ (Vitest, RTL), e2e/ (Playwright)
 content/packs/     pack.json per pack; schema in docs/content-schema.md
 content/private/   drill packs from purchased material: gitignored, never committed (docs/corpus.md)
@@ -94,6 +94,7 @@ change gets a corresponding test update.
 - eslint `react-refresh/only-export-components`: a component file exports components only; helpers live in `lib/` (`lib/labs.ts`).
 - The Playwright projects (desktop, mobile, ultrawide) share one e2e database and run in order: a spec must tolerate what the earlier project left behind (`/Set up (environment|again)/`, `getByText("failed").first()`).
 - K16S text (titles, descriptions, hints, scripts) is never committed: `content/packs/k8s-cka-k16s` references question ids only, the stub speaks its own placeholder text, and `make labs-check` verifies the ids against a live instance.
+- `styles/tokens.css` and `styles/bundle.css` are the Istari design system's files (claude.ai/design, rex/istari#55), not hand-written CSS: change tokens or rules in the system and copy the two files back (`make fix` reformats them); change markup in the code and then its preview there. There are no v0 tokens (`--ink-*`, `--ivory`, `--s4`, `--fs-md`) and no `.h2` utility; `docs/architecture.md`, Styles, has the full split of authority.
 
 ## 10. Workflow
 

@@ -30,6 +30,16 @@ version bumps).
 
 ---
 
+## [0.19.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Changed
+- Plan rows no longer repeat the kind: the planner's "Lab: …" and "Read: …" labels show as
+  the kind badge plus the title, and a bare "Review" label is the badge alone.
+- Docs record the split of authority with the design system: `docs/architecture.md`
+  (Styles) explains that the system owns tokens and rules and the code owns markup, and how
+  to change either; AGENTS.md and the README point at it. The design system's README and
+  PlanList preview were brought in line with the adopted code (the preview had a row shape
+  the system's own CSS does not implement). TASK_STATE and PROGRESS carry the handoff.
+
 ## [0.18.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - The phone layout the design system specifies: under 720px the primary nav is a fixed

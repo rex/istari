@@ -19,7 +19,9 @@ whose 36 hands-on labs are set up and graded by your own
   strict, layered by import-linter.
 - **Frontend** (`frontend/`): React 19, TypeScript 5.9, Vite 8, TanStack Router and
   Query, zustand, react-markdown. Managed with `pnpm`; ESLint, Prettier, Vitest,
-  Playwright.
+  Playwright. Styled by the Istari design system (tokens and a component stylesheet
+  synced from claude.ai/design; `docs/architecture.md`, Styles), with Cormorant Garamond,
+  Hanken Grotesk, Newsreader and JetBrains Mono shipped under the SIL Open Font License.
 - **Database**: PostgreSQL 18 via `compose.yaml`.
 
 ## Prerequisites
