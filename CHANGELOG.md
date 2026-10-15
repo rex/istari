@@ -30,6 +30,18 @@ version bumps).
 
 ---
 
+## [0.18.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- The phone layout the design system specifies: under 720px the primary nav is a fixed
+  bottom tab bar of five (Today, Learn, Practice, Review, Watch) with 44px targets and the
+  safe-area inset, the active tab in gold with a rule along its top edge. Progress is
+  dropped from the bar as occasional and table-heavy; it, Labs and Settings live behind a
+  ghost More button in the top bar that opens a sheet of ghost buttons (the same native
+  dialog as the shortcuts help). Focus mode on a phone hides the bar, keeps the focus bar
+  at the top and gives the column the full width; on wide screens nothing changes.
+- A phone-only Playwright spec walks the tab bar, the More sheet and focus mode on the
+  mobile project; the desktop and ultrawide projects skip it.
+
 ## [0.17.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - Choosing what to study is a course picker: one card per track with the provider, the
