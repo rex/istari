@@ -31,6 +31,9 @@ class ObjectiveCounts:
     repeat_correct: int = 0
     assessment_attempts: int = 0
     assessment_correct: int = 0
+    labs_total: int = 0
+    labs_attempted: int = 0
+    labs_passed_first: int = 0
 
 
 @dataclass(slots=True)

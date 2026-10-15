@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.contracts.today import TodayView
 from app.deps import ActiveExam, ClockDep, DbSession, ObjectiveMap, SettingsDep, require_auth
@@ -15,6 +15,7 @@ router = APIRouter(dependencies=[Depends(require_auth)])
 
 @router.get("/today", response_model=TodayView)
 async def today_view(
+    request: Request,
     db: DbSession,
     clock: ClockDep,
     user_settings: SettingsDep,
@@ -33,4 +34,5 @@ async def today_view(
         now=clock.now(),
         minutes=minutes or user_settings.preferred_session_minutes,
         objective_map=objective_map,
+        verifier=request.app.state.k16s,
     )

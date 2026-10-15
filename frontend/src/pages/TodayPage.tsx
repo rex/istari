@@ -38,6 +38,8 @@ export default function TodayPage() {
       void navigate({ to: "/review", search: { limit: block.count } });
     } else if (block.kind === "lesson" && block.item_key) {
       void navigate({ to: "/learn/$key", params: { key: block.item_key } });
+    } else if (block.kind === "lab" && block.item_key) {
+      void navigate({ to: "/labs/$key", params: { key: block.item_key } });
     } else {
       createSession.mutate(
         {
@@ -77,7 +79,9 @@ export default function TodayPage() {
         ? `Review ${primary.count} card${primary.count === 1 ? "" : "s"}`
         : primary.kind === "lesson"
           ? "Read the lesson"
-          : "Start"
+          : primary.kind === "lab"
+            ? "Open the lab"
+            : "Start"
     : null;
 
   return (

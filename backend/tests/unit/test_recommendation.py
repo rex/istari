@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.domain.planning_types import (
     ActiveSession,
+    LabCandidate,
     LessonCandidate,
     ObjectiveEvidence,
     PlannerInput,
@@ -80,3 +81,37 @@ def test_thirty_minutes_includes_a_lesson_five_does_not() -> None:
 def test_nothing_available_is_stated_plainly() -> None:
     plan = plan_session(_input(available_questions=0, next_lesson=None))
     assert plan.blocks == () and plan.headline == "Nothing scheduled"
+
+
+def _lab() -> LabCandidate:
+    return LabCandidate("lab-verified", "Fix the crashing pod", 10, "2.1", "Objective 2.1")
+
+
+def test_verified_lab_is_scheduled_once_while_the_cluster_answers() -> None:
+    plan = plan_session(_input(minutes=30, verified_lab=_lab(), lab_backend="ready"))
+    kinds = [b.kind for b in plan.blocks]
+    assert kinds == ["practice", "lab", "lesson"]
+    lab = plan.blocks[1]
+    assert lab.item_key == "lab-verified" and lab.count == 1 and "objective 2.1" in lab.reason
+    assert any("the cluster grades it" in line for line in plan.explanation)
+
+
+def test_verified_lab_waits_for_a_real_session_length() -> None:
+    plan = plan_session(_input(minutes=5, verified_lab=_lab(), lab_backend="ready"))
+    assert [b.kind for b in plan.blocks] == ["practice"]
+    assert not any("lab" in line.lower() for line in plan.explanation)
+
+
+def test_unreachable_cluster_skips_the_lab_and_says_so() -> None:
+    plan = plan_session(_input(minutes=15, verified_lab=_lab(), lab_backend="unreachable"))
+    assert [b.kind for b in plan.blocks] == ["practice"]
+    assert any("not reachable" in line for line in plan.explanation)
+    silent = plan_session(_input(minutes=15, verified_lab=_lab(), lab_backend="unconfigured"))
+    assert not any("lab" in line.lower() for line in silent.explanation)
+
+
+def test_a_lab_can_headline_when_nothing_else_is_due() -> None:
+    plan = plan_session(
+        _input(minutes=15, available_questions=0, verified_lab=_lab(), lab_backend="ready")
+    )
+    assert [b.kind for b in plan.blocks] == ["lab"] and plan.headline.startswith("Lab:")

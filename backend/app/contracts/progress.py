@@ -29,6 +29,11 @@ class ObjectiveProgress(ApiModel):
     assessment_correct: int
     evidence: EvidenceLevel
     self_declared_familiar: bool
+    # Verified labs serving this objective: how many exist, how many were graded at least
+    # once, and how many passed on their first graded attempt (the only pass that counts).
+    labs_total: int = 0
+    labs_attempted: int = 0
+    labs_passed_first: int = 0
 
 
 class DomainProgress(ApiModel):
@@ -41,6 +46,8 @@ class DomainProgress(ApiModel):
     first_accuracy: float | None
     lessons_total: int
     lessons_completed: int
+    labs_total: int = 0
+    labs_passed_first: int = 0
 
 
 class ConfidentMistakeView(ApiModel):
@@ -75,6 +82,9 @@ class ProgressTotals(ApiModel):
     cards_due: int
     questions_total: int
     families_seen: int
+    labs_total: int = 0
+    labs_attempted: int = 0
+    labs_passed_first: int = 0
 
 
 class ProgressFlags(ApiModel):

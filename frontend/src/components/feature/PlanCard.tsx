@@ -4,6 +4,7 @@ const KIND_LABEL: Record<PlanBlockView["kind"], string> = {
   resume: "Resume",
   review: "Review",
   practice: "Practice",
+  lab: "Lab",
   lesson: "Read",
 };
 

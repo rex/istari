@@ -10,7 +10,8 @@ Budgets by session length (reviews ≈ 20 s each, questions ≈ 60 s each):
       30       15        12         1
 
 Order of blocks: resume an unfinished session → due reviews (capped by the
-daily limit, and by 10 in backlog-recovery mode) → practice → one lesson.
+daily limit, and by 10 in backlog-recovery mode) → practice → one verified lab
+(15- and 30-minute sessions, only while the lab cluster is reachable) → one lesson.
 
 Practice focus: the weakest objective that has at least MIN_EVIDENCE
 first-attempt answers and accuracy below WEAK_THRESHOLD; otherwise a mixed
@@ -33,6 +34,8 @@ from app.domain.planning_types import (
 MIN_EVIDENCE = 3
 WEAK_THRESHOLD = 0.7
 RECOVERY_REVIEW_CAP = 10
+# A verified lab needs a real stretch of attention; five-minute sessions never schedule one.
+LAB_MIN_MINUTES = 15
 SECONDS_PER_REVIEW = 20
 SECONDS_PER_QUESTION = 60
 
@@ -124,6 +127,30 @@ def plan_session(inp: PlannerInput) -> Plan:
         )
         explanation.append(f"Practice: {reason}.")
 
+    lab = inp.verified_lab
+    if lab is not None and inp.minutes >= LAB_MIN_MINUTES:
+        if inp.lab_backend == "ready":
+            blocks.append(
+                PlanBlock(
+                    kind="lab",
+                    count=1,
+                    label=f"Lab: {lab.title}",
+                    reason=(
+                        f"verified on the lab cluster; serves objective {lab.objective_code}, "
+                        f"about {lab.estimated_minutes} min"
+                    ),
+                    item_key=lab.item_key,
+                )
+            )
+            explanation.append(
+                f"One verified lab, {lab.title}, serves objective {lab.objective_code} "
+                f"({lab.objective_title}); the cluster grades it, so a pass is evidence."
+            )
+        elif inp.lab_backend == "unreachable":
+            explanation.append(
+                "Verified labs are skipped: the lab cluster is not reachable right now."
+            )
+
     if budget.lessons and inp.next_lesson is not None:
         lesson = inp.next_lesson
         blocks.append(
@@ -149,6 +176,7 @@ def plan_session(inp: PlannerInput) -> Plan:
     headline = {
         "review": "Clear what is due, then practise",
         "practice": blocks[0].label,
+        "lab": blocks[0].label,
     }.get(blocks[0].kind, "Study")
     return Plan(
         minutes=inp.minutes,

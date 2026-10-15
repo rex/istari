@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-BlockKind = Literal["resume", "review", "practice", "lesson"]
+BlockKind = Literal["resume", "review", "practice", "lab", "lesson"]
+# Whether verified labs can be scheduled: no backend configured, configured but silent, or ready.
+LabBackend = Literal["unconfigured", "unreachable", "ready"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +42,17 @@ class LessonCandidate:
 
 
 @dataclass(frozen=True, slots=True)
+class LabCandidate:
+    """A verified lab the planner may schedule, with the objective it serves."""
+
+    item_key: str
+    title: str
+    estimated_minutes: int
+    objective_code: str
+    objective_title: str
+
+
+@dataclass(frozen=True, slots=True)
 class PlannerInput:
     minutes: int
     active_session: ActiveSession | None
@@ -49,6 +62,8 @@ class PlannerInput:
     objectives: tuple[ObjectiveEvidence, ...]
     available_questions: int
     next_lesson: LessonCandidate | None
+    verified_lab: LabCandidate | None = None
+    lab_backend: LabBackend = "unconfigured"
 
 
 @dataclass(frozen=True, slots=True)

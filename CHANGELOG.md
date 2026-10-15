@@ -30,6 +30,18 @@ version bumps).
 
 ---
 
+## [0.13.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- Verified labs in the daily plan: when the lab cluster answers and the session is 15
+  minutes or longer, Today schedules one open verified lab (weakest objective first, after
+  resume, review and practice and before a lesson) and explains why; when the cluster is
+  silent the plan says labs are skipped and why; a track without a backend never mentions
+  them. Today and Progress open the lab straight from the plan.
+- Labs as progress evidence: per objective, domain and track, Progress counts verified
+  labs, labs attempted and labs passed on the first graded attempt; later passes are
+  repeats, as with questions. The objective table gains a Labs column and a stat appears
+  only when the track has verified labs.
+
 ## [0.12.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Added
 - The lab page for a verified lab: a cluster chip that names the first thing in the way

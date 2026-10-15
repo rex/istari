@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ExamVersion, UserSettings
+from app.adapters.k16s import K16sClient
 from app.contracts.common import ObjectiveRef
 from app.contracts.progress import (
     ActivityDay,
@@ -21,6 +22,7 @@ from app.contracts.progress import (
 from app.domain.recommendation import MIN_EVIDENCE, WEAK_THRESHOLD
 from app.domain.timeframes import local_date
 from app.services.content_query import content_str, objective_refs
+from app.services.lab_progress import LabFact, lab_facts
 from app.services.progress_activity import (
     activity_by_day,
     assessment_session_count,
@@ -40,7 +42,9 @@ from app.services.track import track_view
 EVIDENCE_NOTE = (
     "First-attempt accuracy counts the first time you answered each question family. "
     "Repeated practice is shown separately and is not evidence of exam readiness. "
-    f"An objective needs at least {MIN_EVIDENCE} first attempts before it is rated."
+    f"An objective needs at least {MIN_EVIDENCE} first attempts before it is rated. "
+    "A verified lab counts once: its first graded attempt is the evidence, later attempts "
+    "are repeats."
 )
 
 
@@ -80,7 +84,18 @@ def _objective_progress(
         assessment_correct=counts.assessment_correct,
         evidence=evidence_level(counts.first_attempts, counts.first_correct),
         self_declared_familiar=ref.code in familiar,
+        labs_total=counts.labs_total,
+        labs_attempted=counts.labs_attempted,
+        labs_passed_first=counts.labs_passed_first,
     )
+
+
+def _tally_lab(bucket: ObjectiveCounts, fact: LabFact) -> None:
+    bucket.labs_total += 1
+    if fact.graded_attempts:
+        bucket.labs_attempted += 1
+    if fact.first_passed:
+        bucket.labs_passed_first += 1
 
 
 async def build_progress(
@@ -90,6 +105,7 @@ async def build_progress(
     exam: ExamVersion,
     now: datetime,
     objective_map: dict[str, ObjectiveRef],
+    verifier: K16sClient | None = None,
 ) -> ProgressView:
     track = await track_view(db, exam.id)
     counts = await item_counts_by_objective(db, exam_version_id=exam.id)
@@ -104,6 +120,11 @@ async def build_progress(
             bucket = counts.setdefault(code, ObjectiveCounts())
             _tally(bucket, fact)
             families_by_objective.setdefault(code, set()).add(fact.family_key)
+    # A verified lab serving several objectives counts once in the totals, once per objective.
+    for lab in await lab_facts(db, exam_version_id=exam.id):
+        _tally_lab(totals, lab)
+        for code in lab.objectives:
+            _tally_lab(counts.setdefault(code, ObjectiveCounts()), lab)
     for code, families in families_by_objective.items():
         counts[code].families_seen = len(families)
     totals.families_seen = len(families_total)
@@ -137,6 +158,8 @@ async def build_progress(
                 first_accuracy=_ratio(first_correct, first_attempts),
                 lessons_total=lessons_by_domain.get(domain.code, (0, 0))[0],
                 lessons_completed=lessons_by_domain.get(domain.code, (0, 0))[1],
+                labs_total=sum(o.labs_total for o in objectives),
+                labs_passed_first=sum(o.labs_passed_first for o in objectives),
             )
         )
     weak = sorted(
@@ -153,6 +176,7 @@ async def build_progress(
         now=now,
         minutes=settings.preferred_session_minutes,
         objective_map=objective_map,
+        verifier=verifier,
     )
     mistakes = [
         ConfidentMistakeView(
@@ -182,6 +206,9 @@ async def build_progress(
             cards_due=cards_due,
             questions_total=totals.questions_total,
             families_seen=totals.families_seen,
+            labs_total=totals.labs_total,
+            labs_attempted=totals.labs_attempted,
+            labs_passed_first=totals.labs_passed_first,
         ),
         domains=domains,
         weak_areas=weak,

@@ -45,6 +45,15 @@ function ObjectiveRow({ o }: { o: ObjectiveProgress }) {
         {o.assessment_correct}/{o.assessment_attempts}
       </td>
       <td>
+        {o.labs_total > 0 ? (
+          <span title={`${o.labs_attempted} attempted`}>
+            {o.labs_passed_first}/{o.labs_total}
+          </span>
+        ) : (
+          <span className="muted">—</span>
+        )}
+      </td>
+      <td>
         <EvidenceBadge level={o.evidence} />
       </td>
     </tr>
@@ -102,6 +111,13 @@ export default function ProgressPage() {
           label="Cards due"
           note="Spaced repetition queue"
         />
+        {p.totals.labs_total > 0 ? (
+          <Stat
+            value={`${p.totals.labs_passed_first}/${p.totals.labs_total}`}
+            label="Verified labs passed first try"
+            note={`${p.totals.labs_attempted} attempted; the first graded attempt counts`}
+          />
+        ) : null}
       </div>
       {next ? (
         <section className="card card--gold spread">
@@ -122,6 +138,8 @@ export default function ProgressPage() {
                 void navigate({ to: "/review", search: { limit: next.count } });
               else if (next.kind === "lesson" && next.item_key)
                 void navigate({ to: "/learn/$key", params: { key: next.item_key } });
+              else if (next.kind === "lab" && next.item_key)
+                void navigate({ to: "/labs/$key", params: { key: next.item_key } });
               else
                 createSession.mutate(
                   { kind: "practice", minutes: 15, focus: next.focus ?? "mixed" },
@@ -248,6 +266,7 @@ export default function ProgressPage() {
                   <th>First attempt</th>
                   <th>Repeated</th>
                   <th>Assessment</th>
+                  <th>Labs</th>
                   <th>Evidence</th>
                 </tr>
               </thead>

@@ -153,12 +153,19 @@ def stub(stub_app: FastAPI) -> StubState:
 
 
 @pytest_asyncio.fixture
+async def stub_k16s(stub_app: FastAPI) -> AsyncIterator[K16sClient]:
+    """The app's client into the stub; tests refresh its snapshot to mark the cluster reachable."""
+    client = stub_client(stub_app)
+    yield client
+    await client.aclose()
+
+
+@pytest_asyncio.fixture
 async def verified_client(
-    engine: AsyncEngine, clock: FixedClock, owner: None, seeded: int, stub_app: FastAPI
+    engine: AsyncEngine, clock: FixedClock, owner: None, seeded: int, stub_k16s: K16sClient
 ) -> AsyncIterator[AsyncClient]:
     """Logged in and seeded, against an app whose verifier backend is the stub."""
-    k16s = stub_client(stub_app)
-    app = create_app(engine=engine, clock=clock, k16s=k16s)
+    app = create_app(engine=engine, clock=clock, k16s=stub_k16s)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
         response = await ac.post(
             "/api/auth/login", json={"username": OWNER_USERNAME, "password": OWNER_PASSWORD}
@@ -166,4 +173,3 @@ async def verified_client(
         assert response.status_code == 200, response.text
         ac.headers["x-csrf-token"] = response.json()["csrf_token"]
         yield ac
-    await k16s.aclose()

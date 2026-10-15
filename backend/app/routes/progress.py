@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.contracts.progress import ProgressView
 from app.deps import ActiveExam, ClockDep, DbSession, ObjectiveMap, SettingsDep, require_auth
@@ -13,6 +13,7 @@ router = APIRouter(dependencies=[Depends(require_auth)])
 
 @router.get("/progress", response_model=ProgressView)
 async def progress(
+    request: Request,
     db: DbSession,
     clock: ClockDep,
     user_settings: SettingsDep,
@@ -20,5 +21,10 @@ async def progress(
     objective_map: ObjectiveMap,
 ) -> ProgressView:
     return await build_progress(
-        db, settings=user_settings, exam=exam, now=clock.now(), objective_map=objective_map
+        db,
+        settings=user_settings,
+        exam=exam,
+        now=clock.now(),
+        objective_map=objective_map,
+        verifier=request.app.state.k16s,
     )
