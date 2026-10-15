@@ -16,7 +16,7 @@ async def test_dry_run_changes_nothing(auth_client: AsyncClient, db: AsyncSessio
     )
     assert response.status_code == 200, response.text
     report = response.json()
-    assert report["dry_run"] is True and report["counts"]["created"] == 14
+    assert report["dry_run"] is True and report["counts"]["created"] == 16
     assert await db.scalar(select(func.count(ContentItem.id))) == 0
 
 
@@ -26,7 +26,7 @@ async def test_reimport_is_idempotent_and_edits_create_revisions(
     again = await study_client.post(
         "/api/content/import", json={"pack": mini_pack(), "dry_run": False}
     )
-    assert again.json()["counts"] == {"created": 0, "updated": 0, "unchanged": 14, "retired": 0}
+    assert again.json()["counts"] == {"created": 0, "updated": 0, "unchanged": 16, "retired": 0}
 
     # Learning history on q-1 before the edit, plus a personal note.
     session = (
@@ -85,7 +85,7 @@ async def test_export_round_trips_through_the_schema(study_client: AsyncClient) 
     data = exported.json()
     assert data["pack"]["slug"] == "mini-test-pack" and len(data["questions"]) == 8
     reimport = await study_client.post("/api/content/import", json={"pack": data, "dry_run": True})
-    assert reimport.json()["counts"]["unchanged"] == 14
+    assert reimport.json()["counts"]["unchanged"] == 16
 
 
 async def test_invalid_pack_is_rejected_with_details(auth_client: AsyncClient) -> None:
@@ -120,3 +120,30 @@ async def test_editing_through_the_api_validates_and_versions(study_client: Asyn
         "/api/content/items/q-2/flags", json={"status": "invalidated"}
     )
     assert flagged.json()["status"] == "invalidated"
+
+
+async def test_lab_verifier_round_trips_through_export(study_client: AsyncClient) -> None:
+    exported = (await study_client.get("/api/content/export/mini-test-pack")).json()
+    labs = {lab["slug"]: lab for lab in exported["labs"]}
+    assert labs["lab-one"].get("verifier") is None
+    assert labs["lab-verified"]["verifier"] == {
+        "backend": "k16s",
+        "profile": "cka",
+        "question": "stub-01-crashloop",
+        "weight": 4,
+        "time_limit_minutes": None,
+    }
+    again = await study_client.post("/api/content/import", json={"pack": exported, "dry_run": True})
+    assert again.status_code == 200, again.text
+    assert again.json()["counts"] == {"created": 0, "updated": 0, "unchanged": 16, "retired": 0}
+
+
+async def test_changing_the_verifier_is_a_new_revision(study_client: AsyncClient) -> None:
+    pack = mini_pack()
+    labs = pack["labs"]
+    assert isinstance(labs, list)
+    labs[1]["verifier"]["question"] = "stub-01-crashloop-v2"
+    report = (
+        await study_client.post("/api/content/import", json={"pack": pack, "dry_run": True})
+    ).json()
+    assert report["updated"] == ["lab-verified"] and report["counts"]["unchanged"] == 15

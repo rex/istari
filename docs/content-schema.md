@@ -67,6 +67,22 @@ demand for readers who want groundwork first), `estimated_minutes` (1 to 60), `c
 characters), `expected_observations_md`, `cleanup_md` (at least 40 characters). Labs are
 briefs for work the learner does in their own account. Istari never provisions anything.
 
+A lab may carry a `verifier`, which turns the brief into a task graded by a backend the
+owner runs (see `docs/labs-k16s.md`):
+
+```json
+"verifier": {"backend": "k16s", "profile": "cka", "question": "02-fix-crashloop", "weight": 5}
+```
+
+`backend` is one of `k16s` (implemented), `ck-x`, `localstack`, `real-aws`, `kubernetes`
+(reserved; a pack naming a reserved backend fails validation with "not implemented").
+`profile` is the backend's own grouping, `question` its question id (a slug), `weight`
+(1 to 20, default 1) its relative weight, `time_limit_minutes` optional. The task text
+lives in the backend and is fetched live; the pack holds only the reference. With a
+verifier present, `cost_warning_md`, `steps_md` and `cleanup_md` only need to exist (20
+characters), since the backend supplies the task. The verifier is part of the revision
+hash, so changing it makes a new revision like any other content edit.
+
 ## Cross-reference validation
 
 `validate_pack` runs after the schema passes and reports:

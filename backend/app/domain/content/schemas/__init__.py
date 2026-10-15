@@ -20,6 +20,7 @@ from app.domain.content.schemas.track import (
     SubjectSpec,
     VerificationSpec,
 )
+from app.domain.content.schemas.verifier import LabVerifierSpec
 
 __all__ = [
     "CertificationSpec",
@@ -28,6 +29,7 @@ __all__ = [
     "ExamVersionSpec",
     "FlashcardSpec",
     "LabSpec",
+    "LabVerifierSpec",
     "LessonCheck",
     "LessonSpec",
     "ObjectiveSpec",

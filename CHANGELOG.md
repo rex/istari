@@ -30,6 +30,17 @@ version bumps).
 
 ---
 
+## [0.9.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Added
+- Pack schema: a lab may carry a `verifier` (`backend`, `profile`, `question`, `weight`,
+  `time_limit_minutes`), which turns the brief into a task graded by a backend the owner
+  runs. `k16s` is implemented; `ck-x`, `localstack`, `real-aws` and `kubernetes` are
+  reserved and fail validation with a "not implemented" message. With a verifier, the
+  brief's cost, steps and cleanup fields only need to exist (20 characters), because the
+  task text comes from the backend; manual labs keep the long-form minimums. The verifier
+  is part of the revision hash and round-trips through export and re-import unchanged.
+  Documented in `docs/content-schema.md`; the test fixture pack gains two verified labs.
+
 ## [0.8.2] — 2026-10-08 — Agent: Claude Fable 5.1
 ### Changed
 - Handoff: homelab-ansible#71 fixed and the static DNS record converged (already present through external-dns); nothing is pending on the lab side

@@ -8,6 +8,7 @@ from typing import Annotated
 from pydantic import Field, StringConstraints, model_validator
 
 from app.domain.content.schemas.common import Difficulty, ItemBase, NonEmpty, StrictModel
+from app.domain.content.schemas.verifier import LabVerifierSpec
 
 # Stable, descriptive slugs (never positional letters): options are shuffled per session.
 OptionId = Annotated[str, StringConstraints(pattern=r"^[a-z0-9][a-z0-9-]{0,31}$")]
@@ -94,14 +95,38 @@ class FlashcardSpec(ItemBase):
     hint_md: str = ""
 
 
+# A manual lab must spell out cost, steps and cleanup; a verified lab gets its task text from
+# the backend, so its own fields only need to exist.
+MANUAL_LAB_MINIMUMS: dict[str, int] = {"cost_warning_md": 40, "steps_md": 200, "cleanup_md": 40}
+VERIFIED_LAB_MINIMUM = 20
+
+
 class LabSpec(ItemBase):
-    """A guided brief for manual, hands-on practice. Istari never provisions anything."""
+    """A guided brief for hands-on practice, by hand or graded by a verifier backend.
+
+    Istari never provisions anything. With a `verifier`, the task runs on the owner's own lab
+    cluster and the backend grades it; without one, the brief is followed by hand.
+    """
 
     title: NonEmpty
     estimated_minutes: int = Field(ge=5, le=480)
     goals_md: NonEmpty
     prerequisites_md: NonEmpty
-    cost_warning_md: Annotated[str, StringConstraints(min_length=40)]
-    steps_md: Annotated[str, StringConstraints(min_length=200)]
+    cost_warning_md: NonEmpty
+    steps_md: Annotated[str, StringConstraints(min_length=VERIFIED_LAB_MINIMUM)]
     expected_observations_md: NonEmpty
-    cleanup_md: Annotated[str, StringConstraints(min_length=40)]
+    cleanup_md: Annotated[str, StringConstraints(min_length=VERIFIED_LAB_MINIMUM)]
+    verifier: LabVerifierSpec | None = None
+
+    @model_validator(mode="after")
+    def manual_labs_are_thorough(self) -> LabSpec:
+        if self.verifier is not None:
+            return self
+        for field_name, minimum in MANUAL_LAB_MINIMUMS.items():
+            if len(getattr(self, field_name)) < minimum:
+                raise ValueError(
+                    f"{self.slug}: {field_name} needs at least {minimum} characters for a lab "
+                    "without a verifier (every manual lab names what costs money, what to do "
+                    "and how to clean up)"
+                )
+        return self

@@ -90,3 +90,62 @@ def test_verified_exam_metadata_needs_sources_and_date() -> None:
     exam["verification"] = {"status": "verified", "checked_on": None, "sources": []}
     with pytest.raises(ValidationError):
         parse_pack(pack)
+
+
+def _labs(pack: dict[str, object]) -> list[dict[str, object]]:
+    labs = pack["labs"]
+    assert isinstance(labs, list)
+    return labs
+
+
+def _verifier(pack: dict[str, object], index: int = 1) -> dict[str, object]:
+    verifier = _labs(pack)[index]["verifier"]
+    assert isinstance(verifier, dict)
+    return verifier
+
+
+def test_lab_verifier_is_part_of_the_content_hash() -> None:
+    spec = parse_pack(mini_pack())
+    verified = next(lab for lab in spec.labs if lab.slug == "lab-verified")
+    assert verified.verifier is not None and verified.verifier.backend == "k16s"
+    assert verified.verifier.weight == 4 and verified.verifier.time_limit_minutes is None
+    changed = mini_pack()
+    _verifier(changed)["weight"] = 5
+    changed_spec = next(lab for lab in parse_pack(changed).labs if lab.slug == "lab-verified")
+    assert content_hash(changed_spec) != content_hash(verified)
+
+
+@pytest.mark.parametrize("backend", ["ck-x", "localstack", "real-aws", "kubernetes"])
+def test_reserved_backends_are_rejected_as_not_implemented(backend: str) -> None:
+    pack = mini_pack()
+    _verifier(pack)["backend"] = backend
+    with pytest.raises(ValidationError) as exc:
+        parse_pack(pack)
+    issues = exc.value.details["issues"]
+    assert isinstance(issues, list)
+    assert any("not implemented" in issue["msg"] and backend in issue["msg"] for issue in issues)
+
+
+def test_unknown_backend_is_a_schema_error() -> None:
+    pack = mini_pack()
+    _verifier(pack)["backend"] = "chalkboard"
+    with pytest.raises(ValidationError):
+        parse_pack(pack)
+
+
+def test_manual_labs_keep_the_long_form_minimums() -> None:
+    pack = mini_pack()
+    _labs(pack)[0]["steps_md"] = "Set up, work, check."
+    with pytest.raises(ValidationError) as exc:
+        parse_pack(pack)
+    assert "steps_md needs at least 200" in str(exc.value.details)
+    # The same short text is fine once a verifier supplies the task.
+    _labs(pack)[0]["verifier"] = {"backend": "k16s", "profile": "cka", "question": "stub-x"}
+    assert parse_pack(pack).labs[0].verifier is not None
+
+
+def test_verifier_question_ids_are_slugs() -> None:
+    pack = mini_pack()
+    _verifier(pack)["question"] = "Not A Slug"
+    with pytest.raises(ValidationError):
+        parse_pack(pack)
