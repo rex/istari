@@ -84,7 +84,7 @@ export function QuestionCard({
             <button
               key={option.value}
               type="button"
-              className={`btn btn--sm ${confidence === option.value ? "btn--primary" : "btn--ghost"}`}
+              className="btn btn--sm btn--ghost"
               aria-pressed={confidence === option.value}
               onClick={() => onConfidence(confidence === option.value ? null : option.value)}
             >

@@ -131,7 +131,7 @@ function LecturePlayer({ course, lecture, index, total, prev, next }: LecturePla
             {course.title}
           </Link>
         </p>
-        <h1 className="h2">{lecture.title}</h1>
+        <h1 className="player__title">{lecture.title}</h1>
         <video
           ref={videoRef}
           className="player__video"

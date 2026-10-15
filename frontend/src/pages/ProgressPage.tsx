@@ -14,8 +14,8 @@ import { useCreateSession } from "@/queries/study";
 function Stat({ value, label, note }: { value: string; label: string; note?: string }) {
   return (
     <div className="card card--quiet stat">
-      <span className="stat__value">{value}</span>
       <span className="stat__label">{label}</span>
+      <span className="stat__value">{value}</span>
       {note ? <span className="stat__note">{note}</span> : null}
     </div>
   );
@@ -30,21 +30,21 @@ function ObjectiveRow({ o }: { o: ObjectiveProgress }) {
           <span className="muted small"> · familiar (self-declared)</span>
         ) : null}
       </td>
-      <td>
+      <td className="num">
         {o.lessons_completed}/{o.lessons_total}
       </td>
-      <td>
+      <td className="num">
         {o.first_correct}/{o.first_attempts}{" "}
         <span className="muted">({formatPercent(o.first_accuracy)})</span>
       </td>
-      <td>
+      <td className="num">
         {o.repeat_correct}/{o.repeat_attempts}{" "}
         <span className="muted">({formatPercent(o.repeat_accuracy)})</span>
       </td>
-      <td>
+      <td className="num">
         {o.assessment_correct}/{o.assessment_attempts}
       </td>
-      <td>
+      <td className="num">
         {o.labs_total > 0 ? (
           <span title={`${o.labs_attempted} attempted`}>
             {o.labs_passed_first}/{o.labs_total}
@@ -258,7 +258,7 @@ export default function ProgressPage() {
             </span>
           </div>
           <div className="table-wrap">
-            <table className="table">
+            <table className="table table--objectives">
               <thead>
                 <tr>
                   <th>Objective</th>

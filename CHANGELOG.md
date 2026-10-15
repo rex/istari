@@ -30,6 +30,22 @@ version bumps).
 
 ---
 
+## [0.16.0] — 2026-10-15 — Agent: Claude Fable 5.1
+### Changed
+- Markup aligned to the design system where its previews and the code differed. The
+  system's stylesheet was written to this app's markup, so the differences were few: the
+  confidence buttons are ghost buttons with `aria-pressed` (the pressed one is a raised
+  secondary; gold belongs to Submit alone), Progress stats read label, value, note like
+  the Today rail and the Stat preview, the objective table carries `table--objectives`
+  (under 720px it keeps Objective, First attempt and Evidence with no sideways scroll)
+  with right-aligned tabular figures, and the lecture title uses the player's own title
+  style instead of a v0 utility class that no longer exists.
+- The lab task card's gold top rule, the plan rows, the transcript cue and the
+  feedback panel already matched the system's rules and needed no markup change. One
+  inconsistency inside the system is left for the re-sync: its PlanList preview shows a
+  kind tag with the duration at the right, while its own CSS (and this app) keep the
+  count first; the CSS is the contract adopted here.
+
 ## [0.15.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Changed
 - The app renders in the Istari design system (claude.ai/design, built by Pierce on
