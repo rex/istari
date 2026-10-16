@@ -88,6 +88,24 @@ SRT captions become WebVTT on the fly for the browser's `<track>`. `course_progr
 stores position and completion per lecture; a position past 95 percent of the duration
 marks the lecture watched. Watching is coverage, never evidence.
 
+### Lecture index
+
+Which lectures teach which objectives. `services/lecture_index.py` picks the candidate
+courses for the active track (same exam family, or filed under the track's subject), reads
+their captions off the share in a worker thread, and stores each lecture as term counts in
+`indexed_lectures` (never the transcript). `domain/lecture_index.py` is the pure part: a
+tokenizer that keeps service names whole, a BM25 index over the lectures, a weighted query
+per objective from its title, knowledge and skills statements and the lessons and questions
+mapped to it, an objective-specificity weight that zeroes the words every objective shares,
+and title rules (an objective code named in a file name outranks the ranking; a domain's
+distinctive word in a section title lifts its objectives). Results land in
+`lecture_objectives` with a source: `rule`, `lexical`, or the owner's `pinned` and
+`excluded`, which every rebuild keeps. `services/lecture_mapping.py` serves the review queue
+(one unreviewed lecture at a time with its candidates and an excerpt), records decisions in
+`lecture_reviews`, and answers the two lookups: a lecture's objectives and an objective's
+lectures. One build runs at a time, in the background, with its own session; its status is
+a row in `lecture_index_runs`.
+
 ### Observability
 
 Structured JSON logs with a request id on every line and in the `X-Request-ID` header;

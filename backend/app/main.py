@@ -35,6 +35,7 @@ from app.routes import (
     health,
     lab_verifier,
     labs,
+    lectures,
     lessons,
     notes,
     progress,
@@ -117,6 +118,7 @@ def create_app(
     engine: AsyncEngine | None = None,
     clock: Clock | None = None,
     learning_root: Path | None = None,
+    learning_topics: tuple[str, ...] | None = None,
     k16s: K16sClient | None = None,
 ) -> FastAPI:
     owns_engine = engine is None
@@ -160,7 +162,11 @@ def create_app(
     app.state.build_info = build_info
     app.state.catalog = CatalogCache(
         root=_learning_root(learning_root),
-        topics=tuple(t.strip() for t in settings.learning_topics.split(",") if t.strip()),
+        topics=(
+            learning_topics
+            if learning_topics is not None
+            else tuple(t.strip() for t in settings.learning_topics.split(",") if t.strip())
+        ),
     )
     app.state.engine = engine
     app.state.session_factory = session_factory(engine) if engine is not None else None
@@ -184,6 +190,7 @@ def create_app(
     app.include_router(labs.router, prefix="/api/labs", tags=["labs"])
     app.include_router(lab_verifier.router, prefix="/api/labs", tags=["labs"])
     app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
+    app.include_router(lectures.router, prefix="/api/lecture-index", tags=["lectures"])
     register_exception_handlers(app)
 
     static_dir = Path(settings.static_dir)

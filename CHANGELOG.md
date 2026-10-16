@@ -30,6 +30,26 @@ version bumps).
 
 ---
 
+## [0.20.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- A lecture-to-objective index for the active track: the candidate courses on the share
+  (same exam family, or filed under the track's subject) have their captions read in a
+  worker thread, each lecture becomes term counts, and every lecture is ranked against the
+  track's objectives with BM25 over a weighted query built from the objective's title,
+  knowledge and skills statements and the lessons and questions already mapped to it.
+  Words every objective shares count for nothing; a lecture keeps its few best objectives
+  when they stand clearly above the rest and share enough terms to show why. Objective
+  codes named in a lecture's title or file name ("obj-1-1", a leading "2.1") outrank the
+  ranking; a domain's distinctive word in a section title lifts its objectives.
+- The owner's decisions on top: a review queue hands over one unreviewed lecture at a time
+  with its candidates, matched terms and an excerpt; pin the right objectives, exclude the
+  lecture, or accept it as ranked. Pinned and excluded rows survive every rebuild.
+- API under `/api/lecture-index`: status and rebuild (one build at a time, in the
+  background), the review queue and decisions, a lecture's mappings, and the lectures
+  ranked under an objective. Tables `indexed_lectures`, `lecture_objectives`,
+  `lecture_reviews`, `lecture_index_runs` (migration `0004_lecture_index`). The review
+  page in the Content area follows in the next version.
+
 ## [0.19.0] — 2026-10-15 — Agent: Claude Fable 5.1
 ### Changed
 - Plan rows no longer repeat the kind: the planner's "Lab: …" and "Read: …" labels show as

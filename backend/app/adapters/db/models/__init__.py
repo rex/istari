@@ -10,6 +10,12 @@ from app.adapters.db.models.content import (
     ContentPack,
     ContentRevision,
 )
+from app.adapters.db.models.lectures import (
+    IndexedLecture,
+    LectureIndexRun,
+    LectureObjective,
+    LectureReview,
+)
 from app.adapters.db.models.notes import ItemProgress, LabAttempt, LabEvidence, Note
 from app.adapters.db.models.review import ReviewCard, ReviewEvent, SchedulerConfig
 from app.adapters.db.models.settings import UserSettings
@@ -29,9 +35,13 @@ __all__ = [
     "CourseProgress",
     "Domain",
     "ExamVersion",
+    "IndexedLecture",
     "ItemProgress",
     "LabAttempt",
     "LabEvidence",
+    "LectureIndexRun",
+    "LectureObjective",
+    "LectureReview",
     "LoginAttempt",
     "Note",
     "Objective",

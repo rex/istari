@@ -11,6 +11,7 @@ _TAG = re.compile(r"<[^>]+>")
 _HEADER = re.compile(r"^(WEBVTT|NOTE\b|STYLE\b|REGION\b|Kind:|Language:)", re.IGNORECASE)
 _SPEAKER_MARK = re.compile(r"^-?\s*>>\s*")
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+_CUE_END = re.compile(r"-->\s*(\d{1,2}):(\d{2})(?::(\d{2}))?[.,](\d{3})")
 
 SENTENCES_PER_PARAGRAPH = 6
 
@@ -60,3 +61,16 @@ def caption_text(text: str) -> str:
         for i in range(0, len(sentences), SENTENCES_PER_PARAGRAPH)
     ]
     return "\n\n".join(paragraphs)
+
+
+def caption_duration_seconds(text: str) -> float | None:
+    """Where the last cue ends: the lecture's length until the player reports the real one."""
+    last = None
+    for match in _CUE_END.finditer(text):
+        last = match
+    if last is None:
+        return None
+    first, second, third, millis = last.groups()
+    if third is None:  # mm:ss.mmm
+        return int(first) * 60 + int(second) + int(millis) / 1000
+    return int(first) * 3600 + int(second) * 60 + int(third) + int(millis) / 1000
