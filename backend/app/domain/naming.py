@@ -80,3 +80,28 @@ def names_certification(title: str, certification: str) -> bool:
     title is `infer_exam`'s job; most downloaded courses carry the name and no code."""
     wanted = {word for word in _WORD.findall(certification.lower()) if word not in _GENERIC}
     return bool(wanted) and wanted <= set(_WORD.findall(title.lower()))
+
+
+# The word in a certification's name that says which exam of a family it is.
+_LEVELS = frozenset(
+    [
+        "associate",
+        "professional",
+        "specialty",
+        "practitioner",
+        "foundational",
+        "fundamentals",
+        "expert",
+    ]
+)
+
+
+def names_other_level(title: str, certification: str) -> bool:
+    """Whether a course title names the certification's family at another level: a
+    "Solutions Architect - Professional" course against the Associate certification."""
+    wanted = {word for word in _WORD.findall(certification.lower()) if word not in _GENERIC}
+    level, family = wanted & _LEVELS, wanted - _LEVELS
+    if not level or not family:
+        return False
+    have = set(_WORD.findall(title.lower()))
+    return family <= have and not (level & have) and bool(have & _LEVELS)

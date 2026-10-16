@@ -76,9 +76,10 @@ def _minutes(value: float) -> str:
     return f"{whole // 60} h {whole % 60:02d} min" if whole >= 60 else f"{whole} min"
 
 
-def _anchor(courses: dict[str, list[PathLecture]]) -> str:
+def _anchor(courses: dict[str, list[PathLecture]], cap_minutes: float) -> str:
     """The deepest course, preferring one made for this exam when it has at least half the
-    depth of the deepest of all: a course built around the objectives beats a longer one."""
+    depth of the deepest of all or enough lectures of its own to fill the path: a course
+    built around the objectives beats a longer one for another exam."""
     by_depth = sorted(
         courses,
         key=lambda slug: (
@@ -90,7 +91,9 @@ def _anchor(courses: dict[str, list[PathLecture]]) -> str:
     )
     best = _depth(courses[by_depth[0]])
     own = [slug for slug in by_depth if CURRENCY_RANK.get(courses[slug][0].currency, 5) <= 3]
-    if own and _depth(courses[own[0]]) >= STALE_COVERAGE * best:
+    if own and (
+        _depth(courses[own[0]]) >= STALE_COVERAGE * best or _length(courses[own[0]]) >= cap_minutes
+    ):
         return own[0]
     return by_depth[0]
 
@@ -181,7 +184,7 @@ def compose_path(
     if not courses:
         return entries
 
-    anchor_slug = _anchor(courses)
+    anchor_slug = _anchor(courses, cap_minutes)
     anchor = _run(courses[anchor_slug])
     depth = _minutes(_length(anchor))
     for lecture in anchor:

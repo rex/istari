@@ -7,7 +7,7 @@ import re
 
 from app.adapters.db.models import ExamVersion
 from app.contracts.comparison import Currency
-from app.domain.naming import names_certification
+from app.domain.naming import names_certification, names_other_level
 from app.domain.watch import Course
 
 _NUMBERS = re.compile(r"\d+")
@@ -38,7 +38,9 @@ def currency(course: Course, exam: ExamVersion, *, certification: str) -> Curren
     if course.exam_code is None:
         if own_exam(course, exam):
             return "current"
-        return "same_exam" if names_certification(course.title, certification) else "unknown"
+        if names_certification(course.title, certification):
+            return "same_exam"
+        return "other" if names_other_level(course.title, certification) else "unknown"
     if exam_family(course.exam_code) != exam_family(exam.code):
         return "other"
     theirs, mine = version_key(course.exam_code), version_key(exam.code)

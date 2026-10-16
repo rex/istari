@@ -127,19 +127,22 @@ captioned lecture time mapped to each domain and the objectives touched from
 `lecture_objectives` (excluded rows left out), its exam against the track's (`currency`: the
 same version, an older or newer one, the same certification with no version named, another
 exam, or none named in its folder; `domain/naming.py` reads the certification's name out of
-a title, since most downloaded courses carry the name and no code) and the lectures the
-owner has completed. Figures only; the page at `/watch/compare` sorts them and
+a title, since most downloaded courses carry the name and no code, and reads the same
+family at another level, Professional against Associate, as another exam) and the lectures
+the owner has completed. Figures only; the page at `/watch/compare` sorts them and
 says in words that coverage and currency are not quality. Minutes come from captions, so a
 course without them cannot be measured and the page says so.
 
 ### Learning paths
 
 `domain/learning_path.py` composes one path per objective from the lectures mapped to it:
-the course with the deepest coverage of the objective (minutes of mapped captions) supplies
-a run of its lectures in course order, the other courses' strongest lectures fill in behind
-it (skipping titles the run already covers), a course for an older version of the exam
-steps aside when a current one has at least half its minutes, and the whole thing is capped
-at two hours. `services/learning_path.py` keeps the result in `objective_path_entries`:
+the course with the deepest coverage of the objective (minutes of mapped captions weighted
+by match strength) supplies a run of its lectures, its most relevant sections first and in
+course order within a section; a course made for this exam leads when it has half the
+deepest depth or two hours of mapped lectures of its own; the other courses' strongest
+lectures fill in behind it (skipping titles the run already covers), a course for an older
+version of the exam steps aside when a current one has at least half its minutes, and the
+whole thing is capped at two hours. `services/learning_path.py` keeps the result in `objective_path_entries`:
 `proposed` rows are rewritten by every index run and every decision, `pinned` rows (the
 owner's order) and `excluded` rows stay. `/api/paths` serves the summaries, one objective's
 path with the reason per entry and where to resume, and the owner's decisions; the player

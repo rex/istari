@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.domain.naming import infer_exam, names_certification
+from app.domain.naming import infer_exam, names_certification, names_other_level
 
 SAA = "AWS Certified Solutions Architect - Associate"
 
@@ -18,6 +18,20 @@ def test_names_certification_wants_every_distinctive_word() -> None:
     assert names_certification(
         "Certified Kubernetes Administrator (CKA) with Practice Tests",
         "Certified Kubernetes Administrator",
+    )
+
+
+def test_another_level_of_the_same_family_is_another_exam() -> None:
+    assert names_other_level("AWS Certified Solutions Architect - Professional", SAA)
+    assert names_other_level(
+        "Udemy -Ultimate AWS Certified Solutions Architect Professional 2022", SAA
+    )
+    assert not names_other_level("Ultimate AWS Certified Solutions Architect Associate 2022", SAA)
+    assert not names_other_level("AWS Certified Developer - Associate", SAA)
+    assert not names_other_level("ZeroToMastery - AWS Solutions Architect", SAA)
+    # A certification without a level word has no other level.
+    assert not names_other_level(
+        "Kubernetes Administrator Professional", "Certified Kubernetes Administrator"
     )
 
 

@@ -30,6 +30,15 @@ version bumps).
 
 ---
 
+## [0.28.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Fixed
+- A course title that names the certification's family at another level ("Solutions
+  Architect - Professional" against the Associate certification) now reads as another exam
+  rather than none named. With the five Solutions Architect courses transcribed, the
+  Professional course, twice as long as any SAA-C03 course, had anchored every path.
+- A course made for this exam leads a learning path whenever it has two hours of mapped
+  lectures of its own, not only when it has half the depth of the deepest course.
+
 ## [0.27.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - Watch outcomes on Progress: an objective's row says how many of its mapped lectures were

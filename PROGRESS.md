@@ -23,7 +23,7 @@
 - One graded setup/check round trip on a `cka` lab from the deployed app waits for Pierce's word (K16S is live; `make labs-check` passes).
 - Human review of the SAA-C03 and CKA pack items (Pierce). Items are `source_checked`, not `human_reviewed`.
 - The content pipeline (#13), context cards (#27) and CK-X for CKAD (#48) are proposals in Inbox; nothing starts until Pierce says go.
-- The transcription run (#28, v0.24.0) is in progress on the share with Parakeet: the five Solutions Architect courses first; the rest of AWS and the Kubernetes folders (#36) follow, then the index and paths get rebuilt.
+- The five Solutions Architect courses are transcribed on the share (937 lectures, 2026-10-16); the deployed app needs a "Rebuild index" click, and the rest of AWS and the Kubernetes folders (#36) wait for Pierce's go.
 
 ## How to resume (for a fresh agent)
 

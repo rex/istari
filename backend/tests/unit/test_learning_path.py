@@ -103,6 +103,20 @@ def test_a_course_for_this_exam_anchors_over_a_longer_one_for_another() -> None:
     assert compose_path(other + own[:1])[0].course_slug == "devops"
 
 
+def test_a_course_for_this_exam_with_a_path_of_its_own_beats_a_much_longer_other() -> None:
+    other = [
+        _lecture("pro", f"01/0{i} Pro {i}.mp4", f"Pro {i}", minutes=60, currency="other")
+        for i in range(1, 9)
+    ]
+    own = [
+        _lecture("saa", f"02/0{i} Own {i}.mp4", f"Own {i}", minutes=40, score=0.9)
+        for i in range(1, 5)
+    ]
+    # 160 own minutes against 480 other: under half the depth, but enough to fill two hours.
+    assert compose_path(other + own)[0].course_slug == "saa"
+    assert compose_path(other + own[:2])[0].course_slug == "pro"
+
+
 def test_the_anchor_run_starts_at_the_most_relevant_section() -> None:
     course = [
         _lecture("c", "01 - Welcome/001 Intro.mp4", "Intro", score=0.5, section="01 - Welcome"),

@@ -57,8 +57,13 @@ exclude a whole section or course at once (`s`, `c`; excluding asks twice). v0.2
 end and first-attempt accuracy before and after the first of them, on the objective's
 Progress row; per course, first attempts after watching its lectures as the comparison's
 "After watching" column (a rate from three attempts on). That completes #61's plan.
-Waiting on Pierce: the lab round trip, reviewing the AI-authored pack items, and yes/no on
-#13, #27, #39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
+The SAA transcription run finished at 10:16 (937 lectures, 0 failures, 2 h 41 min); the dev
+index rebuilt to 5,534 captioned lectures and 14,687 mappings, and v0.28.0 fixed what that
+showed (a Professional course of the same family is another exam; an own-exam course with
+two hours of its own leads a path). The deployed app needs one "Rebuild index" click on
+Content → Lecture mapping (no owner credentials here). Waiting on Pierce: that click, the lab
+round trip, the rest of the transcription order (remaining `Cloud/AWS`, then Kubernetes,
+#36), reviewing the AI-authored pack items, and yes/no on #13, #27, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -136,7 +141,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 ## 5. Next actions (ordered)
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
-2. Agent: when the SAA transcription run finishes (`.istari-captions.json` in each of the five course directories), rebuild the lecture index and the paths on the deployed app, then run the rest of `Cloud/AWS` and the Kubernetes folders (#36) with `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`.
+2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
