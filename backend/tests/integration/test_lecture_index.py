@@ -251,3 +251,30 @@ async def test_rebuild_is_refused_while_one_runs_and_status_reads_before_any_run
     await runner.task
     runs = (await client.get("/api/lecture-index")).json()
     assert runs["lectures_indexed"] == 3 and runs["running"] is False
+
+
+async def test_course_comparison_measures_coverage_captions_and_currency(
+    indexed_client: tuple[AsyncClient, object],
+) -> None:
+    client, app = indexed_client
+    before = (await client.get("/api/lecture-index/courses")).json()
+    assert before["indexed_at"] is None and len(before["courses"]) == 2
+
+    await _rebuild(client, app)
+    view = (await client.get("/api/lecture-index/courses")).json()
+    assert view["exam_code"] == "TST-C01" and view["indexed_at"] is not None
+    assert [d["code"] for d in view["domains"]] == ["1", "2"] and view["objectives_total"] == 3
+
+    # Best coverage first. The fixture course names the track's code; the other names none.
+    identity, other = view["courses"]
+    assert identity["course_title"] == "Identity Course 2024 [TST-C01]"
+    assert (identity["currency"], other["currency"]) == ("current", "unknown")
+    assert (identity["lectures_total"], identity["lectures_captioned"]) == (3, 2)
+    assert identity["lectures_mapped"] == 2 and identity["objectives_touched"] >= 2
+    # Two captioned lectures of 15.5 s each; the welcome lecture has no captions, so no time.
+    assert (identity["minutes_captioned"], identity["minutes_mapped"]) == (0.5, 0.5)
+    first_domain, second_domain = identity["domains"]
+    assert first_domain["domain_code"] == "1" and first_domain["objectives_touched"] >= 1
+    assert second_domain["domain_code"] == "2" and second_domain["lectures"] == 1
+    assert identity["lectures_completed"] == 0
+    assert other["lectures_total"] == 1 and other["objectives_touched"] >= 1

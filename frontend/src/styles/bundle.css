@@ -2215,3 +2215,40 @@ details.disclosure[open] summary {
     display: none;
   }
 }
+
+/* ---------- Sortable table headers, and the courses table on phones ----------
+   `.table__sort` is the header's own text as a button; `aria-sort` on the th shows the
+   direction. `.table--courses` keeps Course · Objectives · Watched under 720px and hides
+   currency, captions, mapped minutes and the per-domain cells; the desk shows the matrix. */
+.table__sort {
+  all: unset;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.table__sort:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-xs);
+}
+.table th[aria-sort="ascending"] .table__sort::after {
+  content: " ↑";
+}
+.table th[aria-sort="descending"] .table__sort::after {
+  content: " ↓";
+}
+.table--courses td.num {
+  white-space: nowrap;
+} /* figures never wrap; the matrix scrolls sideways inside .table-wrap instead */
+@media (max-width: 720px) {
+  .table--courses th:nth-child(n + 3):not(:last-child),
+  .table--courses td:nth-child(n + 3):not(:last-child) {
+    display: none;
+  }
+  .table--courses th,
+  .table--courses td {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+}

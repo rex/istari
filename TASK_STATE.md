@@ -30,12 +30,16 @@ and rules, the code for markup (`docs/architecture.md`, Styles). v0.20.0 to v0.2
 share's captions ranked against the track's objectives, title rules for the track's own
 exam, a one-lecture-at-a-time review queue whose pins and exclusions survive rebuilds, and
 objective badges on the player; on the real share it indexes 59 AWS courses and 4,597
-captioned lectures for SAA-C03. Next under #61: #63 (comparison view) or #64 (master
-path), Pierce's pick; #66 (queue ordering, course-level decisions) and #67 (ranking tuning)
-are its follow-ups in Inbox. Next agent slice otherwise: #26 (related-in-Istari rail,
-Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
-Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, the #61
-pick, reviewing the AI-authored pack items, and yes/no on #13, #27, #28, #39, #48. Do NOT rename
+captioned lectures for SAA-C03. v0.22.0 (2026-10-16) added courses compared (#63) at
+`/watch/compare`: one row per course with objectives touched, currency (the certification's
+name in a title counts), captions, minutes mapped per domain and lectures watched; never a
+quality score. Next under #61: #64 (master path) when Pierce says; #66 (queue ordering,
+course-level decisions) and #67 (ranking tuning, which is what will separate courses whose
+objectives column saturates at 14/14) are follow-ups in Inbox. Next agent slice otherwise:
+#26 (related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
+Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, go on
+#64, the Whisper decision (#28), reviewing the AI-authored pack items, and yes/no on #13,
+#27, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -113,7 +117,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 ## 5. Next actions (ordered)
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
-2. Pierce: pick #63 (comparison view) or #64 (master path) under #61, and review a few courses on `/content/lectures` (pins and exclusions are the ground truth #67 needs).
+2. Pierce: say go on #64 (master path) under #61; decide the Whisper run (#28: model size, output location) that would let the 25 uncaptioned AWS courses be measured; review a few courses on `/content/lectures` (pins and exclusions are the ground truth #67 needs).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
@@ -143,6 +147,19 @@ ruff/mypy/import-linter/tsc/eslint/prettier clean, pytest 157, vitest 40, Playwr
 desktop, mobile and ultrawide, `make validate` clean. K16S went live in the ring during the
 session (another agent's work): `make labs-check` maps all 36 CKA labs; the graded round
 trip waits for Pierce.
+
+Later the same morning: #63 shipped as v0.22.0, courses compared at `/watch/compare`
+(`services/course_comparison.py`, `GET /api/lecture-index/courses`,
+`pages/CourseComparisonPage.tsx`; the design system gained sortable headers and
+`table--courses`, artifact version 11). On the real share every captioned AWS course touches
+all 14 SAA-C03 objectives, so the objectives column saturates and the minutes per domain
+carry the comparison; #67's tuning is what will separate them. Currency reads the
+certification's name out of a title (`names_certification`), which turns "no exam named"
+into "same exam, no version named" for most Solutions Architect courses. 25 of the 59 AWS
+courses have no captions at all (2,338 lectures, among them the SA Professional,
+ZeroToMastery and A Cloud Guru 2020 SAA courses); #28 and #36 (Whisper into the corpus) are
+the way to measure those and wait on Pierce's model-size and output-location decision.
+Gates: pytest 160, vitest 44, Playwright 19 on three viewports.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The

@@ -108,6 +108,19 @@ lectures. One build runs at a time, in the background, with its own session, and
 the catalog before it reads a caption, so a rebuild is how new courses get in; its status
 is a row in `lecture_index_runs`.
 
+### Courses compared
+
+`services/course_comparison.py` answers which courses are worth the time for a track: every
+candidate course of the index with its lectures and captions from the catalog, the minutes of
+captioned lecture time mapped to each domain and the objectives touched from
+`lecture_objectives` (excluded rows left out), its exam against the track's (`currency`: the
+same version, an older or newer one, the same certification with no version named, another
+exam, or none named in its folder; `domain/naming.py` reads the certification's name out of
+a title, since most downloaded courses carry the name and no code) and the lectures the
+owner has completed. Figures only; the page at `/watch/compare` sorts them and
+says in words that coverage and currency are not quality. Minutes come from captions, so a
+course without them cannot be measured and the page says so.
+
 ### Observability
 
 Structured JSON logs with a request id on every line and in the `X-Request-ID` header;

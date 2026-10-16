@@ -45,6 +45,7 @@ export default function SettingsPage() {
           ) : (
             <span className="muted">no track</span>
           )}
+          <Link to="/watch/compare">Compare courses</Link>
           <Link to="/content">Content administration</Link>
         </p>
       </div>

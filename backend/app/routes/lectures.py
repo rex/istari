@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request, status
 
+from app.contracts.comparison import CourseComparisonView
 from app.contracts.lectures import (
     IndexStatusView,
     LectureMappingView,
@@ -14,6 +15,7 @@ from app.contracts.lectures import (
 )
 from app.deps import ActiveExam, ClockDep, DbSession, require_auth
 from app.services.catalog import CatalogCache
+from app.services.course_comparison import course_comparison
 from app.services.lecture_index import IndexRunner
 from app.services.lecture_mapping import (
     index_status,
@@ -84,3 +86,14 @@ async def lectures_for_objective(
     code: str, db: DbSession, exam: ActiveExam
 ) -> ObjectiveLecturesView:
     return await objective_lectures(db, exam, code)
+
+
+@router.get("/courses", response_model=CourseComparisonView)
+async def compare_courses(
+    request: Request, db: DbSession, exam: ActiveExam
+) -> CourseComparisonView:
+    """Every candidate course of the track with its coverage per domain, depth and currency."""
+    catalog = _catalog(request)
+    if catalog.configured and catalog.scanned_at is None and not catalog.scanning:
+        request.app.state.catalog_task = catalog.start_background_refresh()
+    return await course_comparison(db, catalog, exam)

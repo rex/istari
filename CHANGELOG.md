@@ -30,6 +30,20 @@ version bumps).
 
 ---
 
+## [0.22.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- Courses compared (`/watch/compare`, linked from Watch and from Settings beside the track
+  chip): one row per course on the share for the track with the objectives it touches, how
+  current its exam is (current, older or newer version, same exam with no version named,
+  other exam, none named), captions,
+  minutes of captioned lecture time mapped to any objective and to each domain, and the
+  lectures watched. Sortable by any column; best coverage first. Coverage and currency,
+  never a quality score; a course without captions shows a dash and the page says why.
+- `GET /api/lecture-index/courses` serves the matrix from the catalog, the lecture index
+  and watch progress; excluded mappings are left out.
+- The design system gains sortable table headers (`table__sort`, `aria-sort`) and the
+  courses table's phone column set (`table--courses`).
+
 ## [0.21.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - Lecture mapping in the Content area (`/content/lectures`): the index's status with a

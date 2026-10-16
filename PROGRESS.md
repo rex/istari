@@ -6,12 +6,12 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs, 13 design system and the lecture index #62 done; K16S is live and the graded round trip waits for Pierce; #63/#64 under #61 are Pierce's pick; #26 is the next Ready agent slice; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.21.0 the lecture-to-objective index and review queue, rex/istari#61 with #62; follow-ups #66 and #67). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
+- **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs, 13 design system, the lecture index #62 and courses compared #63 done; K16S is live and the graded round trip waits for Pierce; #64 under #61 waits for his go; #26 is the next Ready agent slice; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.22.0: the lecture-to-objective index and review queue, then courses compared, rex/istari#61 with #62 and #63; follow-ups #66 and #67). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
 
 ## Last three decisions
 
-- 2026-10-16 Lectures map to objectives by their captions: BM25 against per-objective queries plus title rules for the track's own exam; the owner's pins and exclusions outrank the ranking and survive rebuilds; transcripts are never stored, only term counts.
+- 2026-10-16 Lectures map to objectives by their captions: BM25 against per-objective queries plus title rules for the track's own exam; the owner's pins and exclusions outrank the ranking and survive rebuilds; transcripts are never stored, only term counts. Courses compare on coverage, currency and captions, never a score.
 - 2026-10-15 The UI identity is the Istari design system on claude.ai/design: it owns tokens and rules (`styles/tokens.css`, `styles/bundle.css` are its files), the code owns markup; course cards show coverage in words, never a readiness score.
 - 2026-10-15 Verified labs: K16S sets up and grades them over REST; no K16S text in the repo (question ids only, text fetched live); the first graded attempt is the evidence; the planner schedules a lab only while the cluster answers.
 - 2026-10-08 GitHub-first: the lab's Gitea repo is a pull mirror; CI builds on mirror sync; the container entrypoint migrates, seeds and bootstraps the owner once.

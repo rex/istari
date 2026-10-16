@@ -72,6 +72,7 @@ const playerRoute = createRoute({
 const routes = [
   page("/", () => import("@/pages/TodayPage")),
   page("/watch", () => import("@/pages/WatchPage")),
+  page("/watch/compare", () => import("@/pages/CourseComparisonPage")),
   page("/watch/$course", () => import("@/pages/CoursePage")),
   playerRoute,
   page("/onboarding", () => import("@/pages/OnboardingPage")),

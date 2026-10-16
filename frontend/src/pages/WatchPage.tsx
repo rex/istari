@@ -58,6 +58,7 @@ export default function WatchPage() {
             : status.scanned_at
               ? `Scanned ${formatDateTime(status.scanned_at, ZONE)}`
               : "Not scanned yet"}
+          <Link to="/watch/compare">Compare the courses for the track</Link>
           <Button
             size="sm"
             variant="ghost"
