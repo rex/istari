@@ -20,7 +20,7 @@ cd backend && uv run python -m app.cli validate-pack ../content/packs/aws-saa-c0
 | `pack` | `slug`, `name`, `version` (semver), `authored_by` (`ai` / `human`) | `coverage_notes_md` is shown in the app; say what the pack does and does not cover |
 | `subject` | `slug`, `name` | e.g. `aws` |
 | `certification` | `slug`, `name`, `provider` | |
-| `exam_version` | `code`, `name`, `duration_minutes`, `scored_questions`, `unscored_questions`, `passing_scaled_score`, `score_scale` | `verification.status` is `unverified` unless `checked_on` and at least one source are present |
+| `exam_version` | `code`, `name`, `duration_minutes`, `scored_questions`, `unscored_questions`, `passing_scaled_score`, `score_scale` | `verification.status` is `unverified` unless `checked_on` and at least one source are present; `current_since` (optional date) is when this version replaced the previous one, so a course that names the certification and an earlier year counts as an older version |
 | `domains[]` | `code`, `name`, `weight_percent`, `objectives[]` | objective codes must start with the domain code (`1.2` belongs to domain `1`) |
 | `lessons[]`, `questions[]`, `flashcards[]`, `labs[]` | see below | may be empty lists |
 

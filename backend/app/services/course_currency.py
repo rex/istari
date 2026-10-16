@@ -4,6 +4,7 @@ one, the same certification with no version named, another exam, or none named."
 from __future__ import annotations
 
 import re
+from datetime import date
 
 from app.adapters.db.models import ExamVersion
 from app.contracts.comparison import Currency
@@ -34,12 +35,14 @@ def version_key(code: str) -> tuple[int, ...]:
 
 def currency(course: Course, exam: ExamVersion, *, certification: str) -> Currency:
     """A course without a parsed code still counts as current when the track's exact code is
-    in its title, and as the same exam (version unknown) when the certification's name is."""
+    in its title, and as the same exam when the certification's name is; then the year in
+    its name, read against the date this exam version replaced the previous one, says
+    whether it is for an older version (dated before) or this one (dated after)."""
     if course.exam_code is None:
         if own_exam(course, exam):
             return "current"
         if names_certification(course.title, certification):
-            return "same_exam"
+            return _dated(course.year, exam.current_since)
         return "other" if names_other_level(course.title, certification) else "unknown"
     if exam_family(course.exam_code) != exam_family(exam.code):
         return "other"
@@ -47,3 +50,11 @@ def currency(course: Course, exam: ExamVersion, *, certification: str) -> Curren
     if theirs == mine:
         return "current"
     return "older" if theirs < mine else "newer"
+
+
+def _dated(year: int | None, current_since: date | None) -> Currency:
+    """Version unknown unless the course's year and the exam's date are both known and
+    differ: the year the version changed could be either side of it."""
+    if year is None or current_since is None or year == current_since.year:
+        return "same_exam"
+    return "older" if year < current_since.year else "current"

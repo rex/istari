@@ -47,6 +47,9 @@ class ExamVersionSpec(StrictModel):
     code: NonEmpty
     name: NonEmpty
     guide_revision: str | None = None
+    # When this version replaced the previous one. A course that names the certification
+    # and a year, with no code, is for an older version when dated before it.
+    current_since: date | None = None
     duration_minutes: int = Field(gt=0)
     scored_questions: int = Field(ge=0)
     unscored_questions: int = Field(ge=0)

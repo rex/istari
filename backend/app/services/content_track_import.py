@@ -11,6 +11,7 @@ from app.domain.content.schemas.pack import ContentPackSpec
 _EXAM_FIELDS = (
     "name",
     "guide_revision",
+    "current_since",
     "duration_minutes",
     "scored_questions",
     "unscored_questions",
@@ -74,6 +75,7 @@ async def _upsert_exam(
             code=ev.code,
             name=ev.name,
             guide_revision=ev.guide_revision,
+            current_since=ev.current_since,
             duration_minutes=ev.duration_minutes,
             scored_questions=ev.scored_questions,
             unscored_questions=ev.unscored_questions,

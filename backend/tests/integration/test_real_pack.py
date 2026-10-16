@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from httpx import AsyncClient
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapters.db.models import ContentItem
+from app.adapters.db.models import ContentItem, ExamVersion
 from app.contracts.auth import OnboardingRequest
 from app.domain.content.schemas.pack import ContentPackSpec
 from app.domain.content.validate import parse_pack, validate_pack
@@ -49,6 +49,7 @@ def test_pack_validates_and_matches_the_brief() -> None:
     assert sum(d.weight_percent for d in spec.domains) == 100
     assert spec.exam_version.verification.status == "verified"
     assert spec.exam_version.scored_questions + spec.exam_version.unscored_questions == 65
+    assert spec.exam_version.current_since == date(2022, 8, 30)
 
     for item in (*spec.lessons, *spec.questions, *spec.flashcards, *spec.labs):
         assert item.provenance.authored_by == "ai", item.slug
@@ -69,6 +70,7 @@ async def test_pack_imports_and_reimport_is_a_no_op(db: AsyncSession) -> None:
         second = await import_pack(db, spec, dry_run=False, now=now)
     assert second.counts() == {"created": 0, "updated": 0, "unchanged": TOTAL_ITEMS, "retired": 0}
     assert await db.scalar(select(func.count(ContentItem.id))) == TOTAL_ITEMS
+    assert await db.scalar(select(ExamVersion.current_since)) == date(2022, 8, 30)
 
 
 async def test_progress_counts_each_lesson_once(auth_client: AsyncClient, db: AsyncSession) -> None:

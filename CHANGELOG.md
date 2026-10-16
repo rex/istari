@@ -30,6 +30,18 @@ version bumps).
 
 ---
 
+## [0.29.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- `exam_version.current_since` in the pack schema: the date this exam version replaced the
+  previous one (SAA-C03: 2022-08-30; the revised CKA curriculum: 2025-02-18, both with a
+  source in the pack), imported and stored with the exam version (migration 0006).
+### Changed
+- A course that names the certification and a year, with no exam code, reads its year
+  against `current_since`: dated before, it is an older version; dated after, this one; the
+  same year or no year still reads "same exam, no version named". The 2018 Solutions
+  Architect Associate course that anchored path 1.1 after the transcription run is now an
+  older version and steps aside wherever a current course covers half its minutes.
+
 ## [0.28.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Fixed
 - A course title that names the certification's family at another level ("Solutions

@@ -128,7 +128,10 @@ captioned lecture time mapped to each domain and the objectives touched from
 same version, an older or newer one, the same certification with no version named, another
 exam, or none named in its folder; `domain/naming.py` reads the certification's name out of
 a title, since most downloaded courses carry the name and no code, and reads the same
-family at another level, Professional against Associate, as another exam) and the lectures
+family at another level, Professional against Associate, as another exam; a year in such a
+title is read against the pack's `current_since`, the date this exam version replaced the
+previous one, so a 2018 Solutions Architect Associate course is an older version and a 2024
+one is this version, while the same year or no year says nothing) and the lectures
 the owner has completed. Figures only; the page at `/watch/compare` sorts them and
 says in words that coverage and currency are not quality. Minutes come from captions, so a
 course without them cannot be measured and the page says so.

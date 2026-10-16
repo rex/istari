@@ -21,6 +21,7 @@
     "code": "CKA-1.35",
     "name": "Certified Kubernetes Administrator (Kubernetes v1.35)",
     "guide_revision": "v1.35",
+    "current_since": "2025-02-18",
     "duration_minutes": 120,
     "scored_questions": 17,
     "unscored_questions": 0,
@@ -43,9 +44,14 @@
           "title": "CNCF CKA Curriculum v1.35 (CC-BY-4.0)",
           "url": "https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.35.pdf",
           "checked_on": "2026-10-15"
+        },
+        {
+          "title": "Linux Foundation: CKA program changes, effective 2025-02-18",
+          "url": "https://training.linuxfoundation.org/certified-kubernetes-administrator-cka-program-changes/",
+          "checked_on": "2026-10-16"
         }
       ],
-      "notes": "Duration, format and the Kubernetes version come from the Linux Foundation page; the 66% passing score from its candidate instructions. The task count is not published (15 to 20 is typical), so scored_questions is an estimate, not a fact."
+      "notes": "Duration, format and the Kubernetes version come from the Linux Foundation page; the 66% passing score from its candidate instructions. The task count is not published (15 to 20 is typical), so scored_questions is an estimate, not a fact. current_since is 2025-02-18, when the revised curriculum (Helm, Kustomize, the Gateway API, CRDs and operators) took effect per the Linux Foundation notice; a CKA course dated before 2025 teaches the previous curriculum."
     }
   },
   "domains": [

@@ -39,6 +39,7 @@ class ExamVersion(Base):
     code: Mapped[str] = mapped_column(String(32))
     name: Mapped[str] = mapped_column(String(200))
     guide_revision: Mapped[str | None] = mapped_column(String(100), default=None)
+    current_since: Mapped[date | None] = mapped_column(default=None)
     duration_minutes: Mapped[int] = mapped_column(Integer)
     scored_questions: Mapped[int] = mapped_column(Integer)
     unscored_questions: Mapped[int] = mapped_column(Integer)

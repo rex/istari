@@ -18,6 +18,7 @@
     "code": "SAA-C03",
     "name": "AWS Certified Solutions Architect - Associate (SAA-C03)",
     "guide_revision": null,
+    "current_since": "2022-08-30",
     "duration_minutes": 130,
     "scored_questions": 50,
     "unscored_questions": 15,
@@ -37,9 +38,14 @@
           "title": "AWS Certified Solutions Architect - Associate certification page",
           "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
           "checked_on": "2026-10-05"
+        },
+        {
+          "title": "Tutorials Dojo: What's new with the SAA-C03 exam (launched 2022-08-30)",
+          "url": "https://tutorialsdojo.com/whats-new-with-the-saa-c03-aws-certified-solutions-architect-associate-exam-this-2022/",
+          "checked_on": "2026-10-16"
         }
       ],
-      "notes": "Question counts, scoring, response types and domain weightings read from the exam guide; the 130-minute duration and 65-question format from the certification page. The HTML exam guide shows no version string, so guide_revision is left unset. The certification page notes the Italian-language version retires after 2026-12-31."
+      "notes": "Question counts, scoring, response types and domain weightings read from the exam guide; the 130-minute duration and 65-question format from the certification page. The HTML exam guide shows no version string, so guide_revision is left unset. The certification page notes the Italian-language version retires after 2026-12-31. current_since is 2022-08-30, the day SAA-C03 replaced SAA-C02 (registration opened 2022-07-26 and SAA-C02 could be taken until 2022-08-29, per the Tutorials Dojo launch note; AWS's own launch post is no longer online). On 2026-10-16 the certification page still linked SAA-C03 resources only, so no newer version exists."
     }
   },
   "domains": [
