@@ -6,8 +6,8 @@
 - **Project**: Istari (FastAPI + SQLAlchemy async backend, React 19 + Vite SPA, Postgres 18)
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
-- **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs, 13 design system, and the first pass of #61 done: lecture index #62, courses compared #63, master path #64; K16S is live and the graded round trip waits for Pierce; the Whisper decision (#28) and the next of #65/#66/#67 are his; #26 is the next Ready agent slice; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.25.0: the lecture-to-objective index and review queue, courses compared, the master path per objective, rex/istari#61 with #62, #63 and #64; the transcription command, #28, with the SAA run started on the share; the ranking tuned and measured, #67; the review queue made finishable, #66). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
+- **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs, 13 design system, and all of #61 done: lecture index #62, courses compared #63, master path #64, outcomes #65, queue #66, tuning #67; K16S is live and the graded round trip waits for Pierce; the transcription run is on the share; #26 is the next Ready agent slice; phases 5 and 7 wait on Pierce)
+- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.25.0: the lecture-to-objective index and review queue, courses compared, the master path per objective, rex/istari#61 with #62, #63 and #64; the transcription command, #28, with the SAA run started on the share; the ranking tuned and measured, #67; the review queue made finishable, #66; watch outcomes on Progress and the comparison, #65. All of #61's slices are shipped). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
 
 ## Last three decisions
 

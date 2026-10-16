@@ -147,6 +147,15 @@ follows a path when the `path` search parameter names one, and the planner takes
 unwatched lecture of the weakest objective's path into a 30-minute plan. Never a merged
 video: every entry is one lecture of one course, attributed to it.
 
+### Watch outcomes
+
+`services/watch_outcomes.py` says what watching did, with the samples in plain sight. Per
+objective: the mapped lectures watched to the end and the first-attempt answers on that
+objective split at the first of those watches (`watch` on the objective's Progress row,
+labelled correlation, never mastery). Per course: the first attempts on an objective after
+a lecture of that course mapped to it was watched, the comparison's "After watching"
+column, which reads as a rate only from three attempts on.
+
 ### Observability
 
 Structured JSON logs with a request id on every line and in the `X-Request-ID` header;

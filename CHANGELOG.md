@@ -30,6 +30,17 @@ version bumps).
 
 ---
 
+## [0.27.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- Watch outcomes on Progress: an objective's row says how many of its mapped lectures were
+  watched to the end and the first-attempt accuracy before and after the first of them,
+  samples in plain sight, labelled correlation and never mastery.
+- "After watching" on the course comparison: first attempts on an objective after a
+  lecture of that course mapped to it was watched; a rate only from three attempts on,
+  otherwise "nothing answered since" or "n answered, too few". Sortable.
+### Changed
+- Answer facts carry when the answer was given, so outcomes can be split at a watch.
+
 ## [0.26.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Changed
 - The lecture review queue puts the courses for the track's own exam first (current

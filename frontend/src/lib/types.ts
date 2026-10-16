@@ -259,6 +259,16 @@ export interface ObjectiveProgress {
   labs_total: number;
   labs_attempted: number;
   labs_passed_first: number;
+  /** what watching did, once a mapped lecture has been watched to the end */
+  watch: WatchOutcome | null;
+}
+export interface WatchOutcome {
+  lectures_watched: number;
+  first_watched_at: string | null;
+  before_attempts: number;
+  before_correct: number;
+  after_attempts: number;
+  after_correct: number;
 }
 export interface DomainProgress {
   code: string;

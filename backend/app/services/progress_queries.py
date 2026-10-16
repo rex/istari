@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,6 +45,7 @@ class AnswerFacts:
     is_correct: bool
     first_attempt: bool
     session_kind: str
+    answered_at: datetime
     objectives: list[str] = field(default_factory=list)
 
 
@@ -56,6 +58,7 @@ async def answer_facts(db: AsyncSession, *, exam_version_id: int) -> list[Answer
             Answer.is_correct,
             Answer.first_attempt,
             Answer.session_kind,
+            Answer.answered_at,
             Objective.code,
         )
         .join(ContentItem, ContentItem.id == Answer.item_id)
@@ -66,10 +69,10 @@ async def answer_facts(db: AsyncSession, *, exam_version_id: int) -> list[Answer
         .order_by(Answer.id)
     )
     by_id: dict[int, AnswerFacts] = {}
-    for answer_id, family, correct, first, kind, code in rows.all():
+    for answer_id, family, correct, first, kind, answered_at, code in rows.all():
         fact = by_id.get(answer_id)
         if fact is None:
-            fact = AnswerFacts(family, bool(correct), bool(first), kind)
+            fact = AnswerFacts(family, bool(correct), bool(first), kind, answered_at)
             by_id[answer_id] = fact
         if code is not None:
             fact.objectives.append(code)

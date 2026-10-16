@@ -19,6 +19,7 @@ from app.contracts.progress import (
     ProgressTotals,
     ProgressView,
 )
+from app.contracts.watch_outcomes import WatchOutcome
 from app.domain.recommendation import MIN_EVIDENCE, WEAK_THRESHOLD
 from app.domain.timeframes import local_date
 from app.services.content_query import content_str, objective_refs
@@ -38,6 +39,7 @@ from app.services.progress_queries import (
 )
 from app.services.today import block_view, build_plan
 from app.services.track import track_view
+from app.services.watch_outcomes import objective_outcomes
 
 EVIDENCE_NOTE = (
     "First-attempt accuracy counts the first time you answered each question family. "
@@ -64,7 +66,10 @@ def evidence_level(first_attempts: int, first_correct: int) -> EvidenceLevel:
 
 
 def _objective_progress(
-    ref: ObjectiveRef, counts: ObjectiveCounts, familiar: set[str]
+    ref: ObjectiveRef,
+    counts: ObjectiveCounts,
+    familiar: set[str],
+    watch: WatchOutcome | None = None,
 ) -> ObjectiveProgress:
     return ObjectiveProgress(
         code=ref.code,
@@ -87,6 +92,7 @@ def _objective_progress(
         labs_total=counts.labs_total,
         labs_attempted=counts.labs_attempted,
         labs_passed_first=counts.labs_passed_first,
+        watch=watch,
     )
 
 
@@ -134,12 +140,16 @@ async def build_progress(
     totals.lessons_total, totals.lessons_completed = lesson_totals
 
     familiar = set(settings.familiar_objective_codes)
+    outcomes = await objective_outcomes(db, exam, facts)
     domains: list[DomainProgress] = []
     all_objectives: list[ObjectiveProgress] = []
     for domain in track.domains:
         objectives = [
             _objective_progress(
-                objective_map[o.code], counts.get(o.code, ObjectiveCounts()), familiar
+                objective_map[o.code],
+                counts.get(o.code, ObjectiveCounts()),
+                familiar,
+                outcomes.get(o.code),
             )
             for o in domain.objectives
             if o.code in objective_map

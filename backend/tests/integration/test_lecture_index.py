@@ -278,6 +278,39 @@ async def test_a_whole_section_or_course_is_decided_at_once(
     assert again["reviewed"] == 2
 
 
+async def test_a_watched_lecture_shows_on_progress_and_the_comparison(
+    indexed_client: tuple[AsyncClient, object],
+) -> None:
+    client, app = indexed_client
+    await _rebuild(client, app)
+    queue = (await client.get("/api/lecture-index/review")).json()
+    lecture = queue["lecture"]
+
+    # Nothing watched yet: no outcome on the objective, none after watching on the course.
+    before = (await client.get("/api/progress")).json()
+    first = next(o for d in before["domains"] for o in d["objectives"] if o["code"] == "1.1")
+    assert first["watch"] is None
+
+    done = await client.put(
+        f"/api/courses/{lecture['course_slug']}/progress",
+        json={
+            "lecture_path": lecture["lecture_path"],
+            "position_seconds": 15.0,
+            "duration_seconds": 15.5,
+            "completed": True,
+        },
+    )
+    assert done.status_code == 200, done.text
+    after = (await client.get("/api/progress")).json()
+    first = next(o for d in after["domains"] for o in d["objectives"] if o["code"] == "1.1")
+    assert first["watch"]["lectures_watched"] == 1
+    assert first["watch"]["first_watched_at"] is not None
+    assert (first["watch"]["before_attempts"], first["watch"]["after_attempts"]) == (0, 0)
+    rows = (await client.get("/api/lecture-index/courses")).json()["courses"]
+    mine = next(r for r in rows if r["course_slug"] == lecture["course_slug"])
+    assert (mine["lectures_completed"], mine["outcome_attempts"]) == (1, 0)
+
+
 async def test_rebuild_is_refused_while_one_runs_and_status_reads_before_any_run(
     indexed_client: tuple[AsyncClient, object],
 ) -> None:

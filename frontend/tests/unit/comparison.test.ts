@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { defaultDirection, formatMinutes, sortRows } from "@/lib/comparison";
+import { defaultDirection, formatMinutes, formatOutcome, sortRows } from "@/lib/comparison";
 import type { CourseRow } from "@/lib/types-comparison";
 
 const row = (over: Partial<CourseRow>): CourseRow => ({
@@ -18,6 +18,8 @@ const row = (over: Partial<CourseRow>): CourseRow => ({
   minutes_mapped: 50,
   objectives_touched: 3,
   domains: [],
+  outcome_attempts: 0,
+  outcome_correct: 0,
   ...over,
 });
 
@@ -61,5 +63,20 @@ describe("sortRows", () => {
       row({ course_slug: "z", course_title: "Z", domains: [] }),
     ];
     expect(slugs(sortRows(rows, "domain:2", "desc"))).toEqual(["y", "x", "z"]);
+  });
+});
+
+describe("formatOutcome", () => {
+  it("reads as a rate only once three first attempts exist", () => {
+    expect(formatOutcome({ outcome_attempts: 0, outcome_correct: 0 })).toBe(
+      "nothing answered since",
+    );
+    expect(formatOutcome({ outcome_attempts: 2, outcome_correct: 2 })).toBe("2 answered, too few");
+    expect(formatOutcome({ outcome_attempts: 6, outcome_correct: 4 })).toBe("4/6 (67%)");
+    const rows = [
+      row({ course_slug: "few", outcome_attempts: 2, outcome_correct: 2 }),
+      row({ course_slug: "many", outcome_attempts: 6, outcome_correct: 4 }),
+    ];
+    expect(slugs(sortRows(rows, "outcome", "desc"))).toEqual(["many", "few"]);
   });
 });

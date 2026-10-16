@@ -52,9 +52,13 @@ out, scores divided by query mass, housekeeping lectures unmapped; top-1 67% to 
 top-3 91% to 93%, course intros left unmapped 0% to 33%; `make lectures-eval` is the harness.
 v0.26.0 (2026-10-16) made the review queue finishable (#66): courses for the track's own
 exam first, the lecture's place among the pending courses on the card, and accept or
-exclude a whole section or course at once (`s`, `c`; excluding asks twice). Waiting on
-Pierce: the lab round trip, reviewing the AI-authored pack items, and yes/no on #13, #27,
-#39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
+exclude a whole section or course at once (`s`, `c`; excluding asks twice). v0.27.0
+(2026-10-16) added watch outcomes (#65): per objective, the mapped lectures watched to the
+end and first-attempt accuracy before and after the first of them, on the objective's
+Progress row; per course, first attempts after watching its lectures as the comparison's
+"After watching" column (a rate from three attempts on). That completes #61's plan.
+Waiting on Pierce: the lab round trip, reviewing the AI-authored pack items, and yes/no on
+#13, #27, #39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -227,6 +231,18 @@ three gains are the build's defaults now; the harness keeps the other levers. Th
 left are judgment calls between sibling objectives (1.2 over network topics, 2.2 over
 database and storage topics), shaped by which objectives the pack's lessons and questions
 cover; the pack and Pierce's pins are the levers after this.
+
+Then, on Pierce's "go on #66, then #65": v0.26.0 moved the review queue into
+`services/lecture_queue.py` (own-exam courses first by currency, the course's place among
+the pending courses and what is left of it and its section on the card, whole-section and
+whole-course accept or exclude as one review row per lecture; the review contracts moved to
+`contracts/lecture_review.py`, the card's new block is `ReviewWhole`). v0.27.0 added
+`services/watch_outcomes.py`: `AnswerFacts` gained `answered_at`, each objective's Progress
+row carries `watch` (lectures watched, first attempts before and after the first watch),
+and the comparison's `outcome_attempts`/`outcome_correct` count first attempts after
+watching a lecture of that course mapped to the objective. Both are correlation on small
+samples and say so. #61's five slices are all shipped; the levers left are the pack's
+coverage, Pierce's pins, and the transcripts landing on the share.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The

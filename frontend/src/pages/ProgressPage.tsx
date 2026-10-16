@@ -40,6 +40,14 @@ function ObjectiveRow({ o, path }: { o: ObjectiveProgress; path?: PathSummaryVie
             </Link>
           </span>
         ) : null}
+        {o.watch && o.watch.lectures_watched > 0 ? (
+          <span className="muted small">
+            {" · "}watched {o.watch.lectures_watched}{" "}
+            {o.watch.lectures_watched === 1 ? "lecture" : "lectures"}; first attempts before{" "}
+            {o.watch.before_correct}/{o.watch.before_attempts}, after {o.watch.after_correct}/
+            {o.watch.after_attempts} (correlation, not mastery)
+          </span>
+        ) : null}
       </td>
       <td className="num">
         {o.lessons_completed}/{o.lessons_total}

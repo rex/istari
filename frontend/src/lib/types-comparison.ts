@@ -24,6 +24,9 @@ export interface CourseRow {
   minutes_mapped: number;
   objectives_touched: number;
   domains: DomainCoverage[];
+  /** first attempts on an objective after a lecture of this course mapped to it was watched */
+  outcome_attempts: number;
+  outcome_correct: number;
 }
 
 export interface ComparisonDomain {

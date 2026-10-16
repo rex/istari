@@ -3,7 +3,28 @@
 import type { CourseRow, Currency } from "@/lib/types-comparison";
 
 export type SortKey =
-  "title" | "objectives" | "currency" | "captions" | "minutes" | "watched" | `domain:${string}`;
+  | "title"
+  | "objectives"
+  | "currency"
+  | "captions"
+  | "minutes"
+  | "watched"
+  | "outcome"
+  | `domain:${string}`;
+
+/** Fewer first attempts than this after watching says nothing yet. */
+export const MIN_OUTCOME_ATTEMPTS = 3;
+
+/** "4/6 (67%)" once there is enough to read, else why there is not. */
+export function formatOutcome(
+  row: Pick<CourseRow, "outcome_attempts" | "outcome_correct">,
+): string {
+  if (row.outcome_attempts === 0) return "nothing answered since";
+  if (row.outcome_attempts < MIN_OUTCOME_ATTEMPTS)
+    return `${row.outcome_attempts} answered, too few`;
+  const pct = Math.round((100 * row.outcome_correct) / row.outcome_attempts);
+  return `${row.outcome_correct}/${row.outcome_attempts} (${pct}%)`;
+}
 export type SortDirection = "asc" | "desc";
 
 export const CURRENCY_LABEL: Record<Currency, string> = {
@@ -57,6 +78,10 @@ function metric(row: CourseRow, key: SortKey): number | string {
       return row.minutes_mapped;
     case "watched":
       return row.lectures_total ? row.lectures_completed / row.lectures_total : 0;
+    case "outcome":
+      return row.outcome_attempts >= MIN_OUTCOME_ATTEMPTS
+        ? row.outcome_correct / row.outcome_attempts
+        : -1;
     default: {
       const code = key.slice("domain:".length);
       const cell = row.domains.find((d) => d.domain_code === code);

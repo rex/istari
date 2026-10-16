@@ -12,6 +12,7 @@ import {
   type SortKey,
   defaultDirection,
   formatMinutes,
+  formatOutcome,
   sortRows,
 } from "@/lib/comparison";
 import { formatRelative } from "@/lib/format";
@@ -102,6 +103,7 @@ function CourseCells({
           </td>
         );
       })}
+      <td className="num">{formatOutcome(row)}</td>
       <td className="num">
         {row.lectures_completed}/{row.lectures_total}
       </td>
@@ -196,6 +198,13 @@ export default function CourseComparisonPage() {
                   {...header}
                 />
               ))}
+              <SortHeader
+                label="After watching"
+                title="Your first-attempt accuracy on an objective after watching a lecture of this course mapped to it; correlation on small samples, not mastery"
+                sortKey="outcome"
+                numeric
+                {...header}
+              />
               <SortHeader label="Watched" sortKey="watched" numeric {...header} />
             </tr>
           </thead>

@@ -7,6 +7,7 @@ from typing import Literal
 
 from app.contracts.common import ApiModel, ObjectiveRef
 from app.contracts.today import PlanBlockView
+from app.contracts.watch_outcomes import WatchOutcome
 
 EvidenceLevel = Literal["insufficient", "weak", "developing", "solid"]
 
@@ -34,6 +35,8 @@ class ObjectiveProgress(ApiModel):
     labs_total: int = 0
     labs_attempted: int = 0
     labs_passed_first: int = 0
+    # What watching did, once a mapped lecture has been watched to the end.
+    watch: WatchOutcome | None = None
 
 
 class DomainProgress(ApiModel):

@@ -36,6 +36,9 @@ class CourseRow(ApiModel):
     minutes_mapped: float
     objectives_touched: int
     domains: list[DomainCoverage]
+    # First attempts on an objective after a lecture of this course mapped to it was watched.
+    outcome_attempts: int = 0
+    outcome_correct: int = 0
 
 
 class ComparisonDomain(ApiModel):

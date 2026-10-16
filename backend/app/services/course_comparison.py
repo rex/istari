@@ -34,6 +34,8 @@ from app.domain.watch import Course
 from app.services.catalog import CatalogCache
 from app.services.course_currency import currency
 from app.services.lecture_index import candidate_courses, track_subject
+from app.services.progress_queries import answer_facts
+from app.services.watch_outcomes import course_outcomes
 from app.services.watch_progress import completed_counts
 
 Durations = dict[tuple[str, str], float]
@@ -58,6 +60,7 @@ def _row(
     by_domain: dict[int, _Tally],
     total: _Tally,
     completed: int,
+    outcome: tuple[int, int] = (0, 0),
 ) -> CourseRow:
     lectures = [lecture for section in course.sections for lecture in section.lectures]
     captioned = [lecture.path for lecture in lectures if lecture.caption_path]
@@ -87,6 +90,8 @@ def _row(
         minutes_mapped=_minutes(course.slug, total.lectures, durations),
         objectives_touched=len(total.objectives),
         domains=coverage,
+        outcome_attempts=outcome[0],
+        outcome_correct=outcome[1],
     )
 
 
@@ -144,6 +149,7 @@ async def course_comparison(
             tally.lectures.add(str(path))
             tally.objectives.add(int(objective_id))
     completed = await completed_counts(db)
+    outcomes = await course_outcomes(db, exam, await answer_facts(db, exam_version_id=exam.id))
     last = await db.scalar(
         select(LectureIndexRun)
         .where(LectureIndexRun.exam_version_id == exam.id, LectureIndexRun.status == "done")
@@ -160,6 +166,7 @@ async def course_comparison(
             by_domain[course.slug],
             by_course[course.slug],
             completed.get(course.slug, 0),
+            outcomes.get(course.slug, (0, 0)),
         )
         for course in courses
     ]
