@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { LectureObjectives } from "@/components/feature/LectureObjectives";
 import { TranscriptPanel } from "@/components/feature/TranscriptPanel";
 import { Button } from "@/components/ui/Button";
 import { Kbd } from "@/components/ui/Kbd";
@@ -132,6 +133,7 @@ function LecturePlayer({ course, lecture, index, total, prev, next }: LecturePla
           </Link>
         </p>
         <h1 className="player__title">{lecture.title}</h1>
+        <LectureObjectives course={course.slug} path={lecture.path} />
         <video
           ref={videoRef}
           className="player__video"

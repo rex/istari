@@ -30,6 +30,29 @@ version bumps).
 
 ---
 
+## [0.21.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- Lecture mapping in the Content area (`/content/lectures`): the index's status with a
+  Rebuild button (polls while a build runs), then one unreviewed lecture at a time with its
+  course, section, length, an excerpt of the captions and its candidate objectives, each
+  with a match meter, the mapping's source and the terms that matched. Accept as ranked,
+  pin the selected objectives (any objective of the track can be added), exclude the
+  lecture, or skip it; `a`, `p`, `x`, `n` and `1` to `9` do the same from the keyboard.
+- The player shows what a lecture teaches: its mapped objectives as badges under the title,
+  pinned in gold, title rules in green, ranked matches in blue.
+- The Playwright suite gets a one-lecture fixture course on the fixture track and a spec
+  that rebuilds the index, reviews the lecture and sees the badge on the player.
+### Changed
+- A rebuild rescans the catalog before it reads a caption, so the index no longer depends
+  on a Watch page having been opened first and picks up courses that landed since.
+### Fixed
+- Title rules fire only for courses in the track's exam family. The Cloud Practitioner
+  course's "(OBJ 4.3)" file names name that exam's objectives and put 138 wrong `rule` rows
+  on SAA-C03's first real run.
+- The index status counted candidate courses by exam family only until the first run had
+  finished, so it showed 3 for SAA-C03 while the build read all 59 AWS courses; it now uses
+  the track's subject like the build does.
+
 ## [0.20.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - A lecture-to-objective index for the active track: the candidate courses on the share

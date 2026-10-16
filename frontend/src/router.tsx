@@ -86,6 +86,7 @@ const routes = [
   page("/labs/$key", () => import("@/pages/LabPage")),
   page("/settings", () => import("@/pages/SettingsPage")),
   page("/content", () => import("@/pages/ContentPage")),
+  page("/content/lectures", () => import("@/pages/LectureReviewPage")),
   page("/content/$key", () => import("@/pages/ContentItemPage")),
 ];
 

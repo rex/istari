@@ -44,6 +44,10 @@ STORAGE_SRT = _srt(
     "EBS is a block volume attached to one instance; EFS is a shared file system.",
     "Pick the storage class by access frequency and cost.",
 )
+KEYS_SRT = _srt(
+    "KMS customer managed keys encrypt the data at rest; rotate the key every year.",
+    "TLS certificates from ACM protect data in transit; the private key never leaves.",
+)
 
 
 def lecture_pack() -> dict[str, object]:
@@ -93,6 +97,11 @@ def learning_root(tmp_path: Path) -> Path:
     )
     (course / "03 - Extras").mkdir()
     (course / "03 - Extras" / "001 Welcome.mp4").write_bytes(VIDEO)
+    # On the subject but another exam: its "obj-1-2" names that exam's objective, not ours.
+    other_exam = tmp_path / "Cloud" / "Testing" / "Other Cert Prep 2023 [OTH-C01]"
+    other_exam.mkdir()
+    (other_exam / "001 Keys and certificates obj-1-2.mp4").write_bytes(VIDEO)
+    (other_exam / "001 Keys and certificates obj-1-2.srt").write_text(KEYS_SRT, encoding="utf-8")
     other = tmp_path / "Hobbies" / "Woodworking" / "Chisels 2020"
     other.mkdir(parents=True)
     (other / "001 Sharpening.mp4").write_bytes(VIDEO)
@@ -140,13 +149,13 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
 ) -> None:
     client, app = indexed_client
     status = await _rebuild(client, app)
-    assert status["candidate_courses"] == 1  # the woodworking course is not on the track
-    assert (status["lectures_total"], status["lectures_with_captions"]) == (3, 2)
-    assert status["lectures_indexed"] == 2 and status["mappings"] >= 2
+    assert status["candidate_courses"] == 2  # the woodworking course is not on the track
+    assert (status["lectures_total"], status["lectures_with_captions"]) == (4, 3)
+    assert status["lectures_indexed"] == 3 and status["mappings"] >= 3
 
-    # The queue walks the course in order: the IAM lecture first, mapped by its title rule.
+    # The queue walks the courses in order: the IAM lecture first, mapped by its title rule.
     queue = (await client.get("/api/lecture-index/review")).json()
-    assert queue["remaining"] == 2 and queue["reviewed"] == 0 and queue["indexed"] == 2
+    assert queue["remaining"] == 3 and queue["reviewed"] == 0 and queue["indexed"] == 3
     first = queue["lecture"]
     assert first["lecture_title"] == "Roles and least privilege obj-1-1"
     assert first["duration_seconds"] == 15.5 and first["word_count"] > 10
@@ -169,7 +178,7 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
     # Next: the storage lecture, ranked by its words alone, under the storage objective.
     queue = (await client.get("/api/lecture-index/review")).json()
     second = queue["lecture"]
-    assert second["lecture_title"] == "Buckets and volumes" and queue["remaining"] == 1
+    assert second["lecture_title"] == "Buckets and volumes" and queue["remaining"] == 2
     best = second["candidates"][0]
     assert (best["objective_code"], best["source"]) == ("2.1", "lexical")
     assert "s3" in best["matched_terms"] and "storage" in best["matched_terms"]
@@ -186,8 +195,23 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
         )
     ).json()
     assert all(c["source"] == "excluded" for c in excluded["candidates"])
+
+    # Last: the other exam's lecture. Its "obj-1-2" is not our title rule; its words rank it.
     queue = (await client.get("/api/lecture-index/review")).json()
-    assert queue["lecture"] is None and queue["remaining"] == 0 and queue["reviewed"] == 2
+    third = queue["lecture"]
+    assert third["lecture_title"] == "Keys and certificates obj-1-2" and queue["remaining"] == 1
+    assert third["candidates"][0]["objective_code"] == "1.2"
+    assert all(c["source"] == "lexical" for c in third["candidates"])
+    await client.post(
+        "/api/lecture-index/review",
+        json={
+            "course_slug": third["course_slug"],
+            "lecture_path": third["lecture_path"],
+            "exclude": True,
+        },
+    )
+    queue = (await client.get("/api/lecture-index/review")).json()
+    assert queue["lecture"] is None and queue["remaining"] == 0 and queue["reviewed"] == 3
 
     # Lookups: an excluded lecture is gone from its objective; the pinned one leads.
     storage = (await client.get("/api/lecture-index/objectives/2.1")).json()
@@ -206,7 +230,7 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
 
     # A rebuild rewrites the machine rows and keeps the owner's.
     again = await _rebuild(client, app)
-    assert again["reviewed"] == 2
+    assert again["reviewed"] == 3
     iam = (await client.get("/api/lecture-index/objectives/1.1")).json()
     assert [row["source"] for row in iam["lectures"]] == ["pinned"]
     assert (await client.get("/api/lecture-index/objectives/2.1")).json()["lectures"] == []
@@ -219,10 +243,11 @@ async def test_rebuild_is_refused_while_one_runs_and_status_reads_before_any_run
     client, app = indexed_client
     before = (await client.get("/api/lecture-index")).json()
     assert before["lectures_indexed"] == 0 and before["running"] is False
+    assert before["candidate_courses"] == 2  # counted by subject before any run, like a build
     first = await client.post("/api/lecture-index/rebuild")
     second = await client.post("/api/lecture-index/rebuild")
     assert first.status_code == 202 and second.status_code == 202
     runner = app.state.lecture_index  # type: ignore[attr-defined]
     await runner.task
     runs = (await client.get("/api/lecture-index")).json()
-    assert runs["lectures_indexed"] == 2 and runs["running"] is False
+    assert runs["lectures_indexed"] == 3 and runs["running"] is False

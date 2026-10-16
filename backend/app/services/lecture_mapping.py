@@ -32,7 +32,7 @@ from app.services.lecture_index import (
     MACHINE_SOURCES,
     IndexRunner,
     candidate_courses,
-    exam_family,
+    track_subject,
 )
 
 SOURCE_RANK = {"pinned": 0, "rule": 1, "lexical": 2, "excluded": 3}
@@ -102,10 +102,9 @@ async def index_status(
         .order_by(LectureIndexRun.id.desc())
         .limit(1)
     )
-    family = exam_family(exam.code)
-    courses = [c for c in catalog.courses if family and exam_family(c.exam_code) == family]
-    if not courses:
-        courses = candidate_courses(catalog, exam_code=exam.code, subject_slug="")
+    courses = candidate_courses(
+        catalog, exam_code=exam.code, subject_slug=await track_subject(db, exam)
+    )
     mappings = await db.scalar(
         select(func.count(LectureObjective.id)).where(
             LectureObjective.exam_version_id == exam.id,

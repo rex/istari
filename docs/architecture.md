@@ -97,14 +97,16 @@ their captions off the share in a worker thread, and stores each lecture as term
 tokenizer that keeps service names whole, a BM25 index over the lectures, a weighted query
 per objective from its title, knowledge and skills statements and the lessons and questions
 mapped to it, an objective-specificity weight that zeroes the words every objective shares,
-and title rules (an objective code named in a file name outranks the ranking; a domain's
-distinctive word in a section title lifts its objectives). Results land in
+and title rules (an objective code named in a file name outranks the ranking, but only in
+a course of the track's own exam family, since another exam's "(OBJ 4.3)" names that exam's
+objective; a domain's distinctive word in a section title lifts its objectives). Results land in
 `lecture_objectives` with a source: `rule`, `lexical`, or the owner's `pinned` and
 `excluded`, which every rebuild keeps. `services/lecture_mapping.py` serves the review queue
 (one unreviewed lecture at a time with its candidates and an excerpt), records decisions in
 `lecture_reviews`, and answers the two lookups: a lecture's objectives and an objective's
-lectures. One build runs at a time, in the background, with its own session; its status is
-a row in `lecture_index_runs`.
+lectures. One build runs at a time, in the background, with its own session, and rescans
+the catalog before it reads a caption, so a rebuild is how new courses get in; its status
+is a row in `lecture_index_runs`.
 
 ### Observability
 

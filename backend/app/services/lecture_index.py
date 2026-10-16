@@ -51,6 +51,15 @@ def exam_family(code: str | None) -> str | None:
     return code.split("-")[0].upper() if code else None
 
 
+def own_exam(course: Course, exam: ExamVersion) -> bool:
+    """Whether a course is for this track's exam: its family, or the exact code in its title
+    (the catalog only parses the codes it knows)."""
+    family = exam_family(exam.code)
+    return family is not None and (
+        exam_family(course.exam_code) == family or exam.code.lower() in course.title.lower()
+    )
+
+
 def candidate_courses(catalog: CatalogCache, *, exam_code: str, subject_slug: str) -> list[Course]:
     """Courses worth ranking for a track: same exam family, or filed under the subject."""
     family = exam_family(exam_code)
@@ -93,7 +102,8 @@ def _read_all(courses: list[Course]) -> list[_Read]:
     return reads
 
 
-async def _subject_slug(db: AsyncSession, exam: ExamVersion) -> str:
+async def track_subject(db: AsyncSession, exam: ExamVersion) -> str:
+    """The slug of the track's subject ("aws"), the folder name its courses are filed under."""
     slug = await db.scalar(
         select(Subject.slug)
         .join(Certification, Certification.subject_id == Subject.id)
@@ -182,15 +192,16 @@ async def _upsert_lectures(db: AsyncSession, reads: list[_Read], now: datetime) 
 
 
 async def build_index(
-    db: AsyncSession, catalog: CatalogCache, exam: ExamVersion, *, now: datetime
+    db: AsyncSession, catalog: CatalogCache, exam: ExamVersion, *, clock: Clock
 ) -> LectureIndexRun:
     """One run: read, rank, rewrite the machine rows; the owner's rows are untouched."""
+    now = clock.now()
     run = LectureIndexRun(exam_version_id=exam.id, status="running")
     db.add(run)
     await db.flush()
     try:
         courses = candidate_courses(
-            catalog, exam_code=exam.code, subject_slug=await _subject_slug(db, exam)
+            catalog, exam_code=exam.code, subject_slug=await track_subject(db, exam)
         )
         reads = await anyio.to_thread.run_sync(_read_all, courses)
         queries, objectives, domains = await _queries(db, exam.id)
@@ -226,7 +237,10 @@ async def build_index(
             key = (read.course.slug, read.lecture.path)
             titles = [read.lecture.title, read.lecture.path, read.section_title]
             placed: set[str] = set()
-            for code in rule_codes(titles, objectives):
+            # A code in a file name names this track's objective only in a course for this
+            # exam; another exam's "(OBJ 4.3)" is that exam's objective.
+            codes = rule_codes(titles, objectives) if own_exam(read.course, exam) else []
+            for code in codes:
                 if (*key, objectives[code].id) in owned:
                     continue
                 db.add(_mapping(exam.id, key, objectives[code].id, "rule", 1.0, 1.0, []))
@@ -262,7 +276,7 @@ async def build_index(
         log.exception("lecture index build failed", extra={"event": "lectures.index.failed"})
         run.status = "failed"
         run.error = str(exc)[:1000]
-    run.finished_at = now
+    run.finished_at = clock.now()
     await db.flush()
     log.info(
         "lecture index built",
@@ -299,7 +313,11 @@ def _mapping(
 
 @dataclass
 class IndexRunner:
-    """One build at a time, in the background, with its own session; status is in the db."""
+    """One build at a time, in the background, with its own session; status is in the db.
+
+    Each run rescans the catalog before it builds, so the index never depends on a page
+    having been opened first and picks up what landed on the share since the last run.
+    """
 
     task: asyncio.Task[None] | None = None
     last_error: str | None = field(default=None)
@@ -320,10 +338,12 @@ class IndexRunner:
 
         async def go() -> None:
             try:
+                # Rescan the share first: a rebuild is how new courses and captions get in.
+                await catalog.refresh()
                 async with session_factory() as db, db.begin():
                     exam = await db.get(ExamVersion, exam_version_id)
                     if exam is not None:
-                        await build_index(db, catalog, exam, now=clock.now())
+                        await build_index(db, catalog, exam, clock=clock)
                 self.last_error = None
             except Exception as exc:
                 self.last_error = str(exc)[:500]

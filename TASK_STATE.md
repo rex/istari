@@ -16,18 +16,26 @@ hands-on labs (#8: #42–#47): a lab brief may carry a `verifier` (backend `k16s
 question id) and is then set up and graded by the owner's K16S exam server over REST;
 attempts are recorded, the first graded attempt is the evidence, the planner schedules a
 lab only while the cluster answers, and `content/packs/k8s-cka-k16s` ships the CKA v1.35
-track with 36 such labs (question ids only, never K16S text; `docs/labs-k16s.md`). No K16S
-instance exists in the ring yet: the build was verified against the stub
-(`tests/k16s_stub.py`); the real-instance check (`make labs-check` plus one setup/check
-round trip) waits for a VM and its URL from Pierce. v0.15.0 to v0.19.0 (2026-10-15) adopted
+track with 36 such labs (question ids only, never K16S text; `docs/labs-k16s.md`). K16S
+runs in the ring since 2026-10-16 (its URL lives in the private inventory; the deployed
+app points at it) and `make labs-check` maps all 36 labs against it; the one setup/check
+round trip from the deployed app waits for Pierce's word, since it records a graded
+attempt. v0.15.0 to v0.19.0 (2026-10-15) adopted
 the Istari design system Pierce built in Claude Design (#55: #56–#60): the system's tokens,
 stylesheet and fonts replace the v0 styles, markup is aligned, a course picker with per-track
 counts and progress replaces the onboarding radio list and sits behind a chip on Settings,
 and phones get the bottom tab bar with a More sheet. The system is the source for tokens
-and rules, the code for markup (`docs/architecture.md`, Styles). Next agent slice: #26
-(related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in
-Inbox; the Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the K16S VM,
-reviewing the AI-authored pack items, and yes/no on #13, #27, #28, #39, #48. Do NOT rename
+and rules, the code for markup (`docs/architecture.md`, Styles). v0.20.0 to v0.21.0
+(2026-10-16) added the lecture-to-objective index and its review page (#61: #62): the
+share's captions ranked against the track's objectives, title rules for the track's own
+exam, a one-lecture-at-a-time review queue whose pins and exclusions survive rebuilds, and
+objective badges on the player; on the real share it indexes 59 AWS courses and 4,597
+captioned lectures for SAA-C03. Next under #61: #63 (comparison view) or #64 (master
+path), Pierce's pick; #66 (queue ordering, course-level decisions) and #67 (ranking tuning)
+are its follow-ups in Inbox. Next agent slice otherwise: #26 (related-in-Istari rail,
+Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
+Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, the #61
+pick, reviewing the AI-authored pack items, and yes/no on #13, #27, #28, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -104,8 +112,8 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 5. Next actions (ordered)
 
-1. Pierce: stand up a K16S VM for the ring (the install is K16S's own; Istari never provisions it), set `K16S_BASE_URL` and `K16S_PUBLIC_URL` in `stacks/istari.yml` (private inventory), and give the agent the URL.
-2. Agent, once the URL exists: `make labs-check BASE_URL=<url>`, then one setup → terminal → check round trip on a `cka` lab from the deployed app; fix whatever the real server does differently from the stub.
+1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
+2. Pierce: pick #63 (comparison view) or #64 (master path) under #61, and review a few courses on `/content/lectures` (pins and exclusions are the ground truth #67 needs).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
@@ -113,6 +121,28 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-16, early morning (Claude Fable 5.1): the lecture-to-objective index shipped as
+v0.20.0 (`domain/lecture_text.py`, `lecture_index.py`, `lecture_rules.py`, the service,
+four tables in migration 0004, `/api/lecture-index`) and v0.21.0 (the review page at
+`/content/lectures`, `LectureObjectives` badges on the player, the Playwright fixture
+course); #61 is the parent, #62 closes with v0.21.0. The first run on the real share (dev
+API with `LEARNING_TOPICS=Cloud/AWS`) took about five minutes from the laptop over SMB: 59
+candidate courses (the track's subject is `aws`, so every course under `Cloud/AWS`), 6,935
+lectures, 4,597 with captions, roughly 12,000 mappings. It found three defects, fixed
+before the commit: the runner rescans the catalog first (the e2e API had never scanned, so
+Rebuild found nothing); title rules fire only for a course of the track's own exam
+(`own_exam`: the Cloud Practitioner course's "(OBJ 4.3)" file names put 138 wrong `rule`
+rows on SAA-C03); the status counts candidates by subject before the first run. Lexical
+precision on a random sample of twelve reads as about half right, with generic words
+(`five`, `another`, `work`) reaching the queries through lesson bodies and question stems;
+#67 lists the levers in order. The queue is one lecture at a time in course order, which
+does not finish at 4,600 lectures; #66 proposes exam-matched courses first and
+course-level decisions. Book chapters are not indexed (captions only). Gates:
+ruff/mypy/import-linter/tsc/eslint/prettier clean, pytest 157, vitest 40, Playwright 16 on
+desktop, mobile and ultrawide, `make validate` clean. K16S went live in the ring during the
+session (another agent's work): `make labs-check` maps all 36 CKA labs; the graded round
+trip waits for Pierce.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The

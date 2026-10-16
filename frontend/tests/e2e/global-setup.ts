@@ -2,7 +2,7 @@
    Runs the same CLI an operator would, against TEST_DATABASE_URL (never the dev db). */
 
 import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,4 +46,21 @@ export default function globalSetup(): void {
   run(["python", "-m", "app.cli", "bootstrap-owner", "--username", E2E_USERNAME], {
     ISTARI_OWNER_PASSWORD: E2E_PASSWORD,
   });
+  // A one-lecture course on the fixture track, so the lecture index has something to read.
+  // playwright.config.ts points the API's LEARNING_ROOT at the same folder.
+  const course = join(
+    tmpdir(),
+    "istari-e2e-learning",
+    "Cloud",
+    "Testing",
+    "Mapping Course 2024 [TST-C01]",
+    "01 - IAM",
+  );
+  mkdirSync(course, { recursive: true });
+  writeFileSync(join(course, "001 Roles and least privilege obj-1-1.mp4"), Buffer.alloc(1024));
+  writeFileSync(
+    join(course, "001 Roles and least privilege obj-1-1.srt"),
+    "1\n00:00:01,000 --> 00:00:04,000\nIAM roles and least privilege.\n\n" +
+      "2\n00:00:04,000 --> 00:00:08,500\nA role hands out temporary credentials through STS.\n",
+  );
 }

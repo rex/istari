@@ -39,7 +39,11 @@ export default function ContentPage() {
     <div className="stack">
       <div className="page-head">
         <h1>Content</h1>
-        <p>Packs, items and revisions. Imports never touch notes, answers or review history.</p>
+        <p>
+          Packs, items and revisions. Imports never touch notes, answers or review history.{" "}
+          <Link to="/content/lectures">Lecture mapping</Link> ranks the share's lectures under this
+          track's objectives.
+        </p>
       </div>
       <section className="card stack">
         <h2>Packs</h2>

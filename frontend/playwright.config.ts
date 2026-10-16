@@ -1,4 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 // E2E runs against the API serving the built SPA on one origin (same as production).
 // `make e2e` builds first; the API must have a migrated database with the seed
@@ -8,6 +10,8 @@ const stubPort = Number(process.env["E2E_K16S_PORT"] ?? 8082);
 const baseURL = process.env["E2E_BASE_URL"] ?? `http://127.0.0.1:${port}`;
 // `make e2e` derives this from the backend settings; no DSN literal lives here.
 const databaseUrl = process.env["E2E_DATABASE_URL"] ?? "";
+// The fixture learning root global-setup.ts fills with one captioned course.
+const learningRoot = join(tmpdir(), "istari-e2e-learning");
 if (!process.env["E2E_BASE_URL"] && !databaseUrl) {
   throw new Error("Set E2E_DATABASE_URL (`make e2e` does) or E2E_BASE_URL for a running app.");
 }
@@ -38,7 +42,7 @@ export default defineConfig({
             timeout: 60_000,
           },
           {
-            command: `cd ../backend && DATABASE_URL='${databaseUrl}' STATIC_DIR=static K16S_BASE_URL=http://127.0.0.1:${stubPort} K16S_PUBLIC_URL=http://127.0.0.1:${stubPort} uv run uvicorn app.main:app --host 127.0.0.1 --port ${port}`,
+            command: `cd ../backend && DATABASE_URL='${databaseUrl}' STATIC_DIR=static K16S_BASE_URL=http://127.0.0.1:${stubPort} K16S_PUBLIC_URL=http://127.0.0.1:${stubPort} LEARNING_ROOT='${learningRoot}' LEARNING_TOPICS='Cloud/Testing' uv run uvicorn app.main:app --host 127.0.0.1 --port ${port}`,
             url: `${baseURL}/api/health`,
             reuseExistingServer: false,
             timeout: 60_000,
