@@ -30,6 +30,20 @@ version bumps).
 
 ---
 
+## [0.25.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Changed
+- The lecture ranking leaves out terms found in more than 40% of the lectures, divides
+  each objective's score by its query's mass (so the objectives with the most lessons and
+  questions no longer win on count alone), and maps a welcome, a course tour or a support
+  lecture to nothing. On a hand-labelled sample of 57 SAA lectures: top-1 67% to 69%, any
+  of top-3 91% to 93%, course intros left unmapped 0 to 4 of 12.
+### Added
+- `make lectures-eval SAMPLE=corpus/eval/<exam>.json` (`app.cli lectures eval`): re-ranks
+  a hand-labelled sample from the index's stored term counts under any parameter set
+  (floor, percentile ceiling, generic share, query-mass power, body and stem weights,
+  section prior, housekeeping) and prints the rates and every miss. The sample stays with
+  the corpus.
+
 ## [0.24.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - `make transcribe SRC="<course or topic dir>" [ALL=1] [SHARE=1] [BACKEND=…] [MODEL=…]

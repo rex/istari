@@ -27,7 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
-from app.cli import corpus_cmds, labs_cmds, transcribe_cmds
+from app.cli import corpus_cmds, labs_cmds, lectures_cmds, transcribe_cmds
 from app.cli.owner import bootstrap_owner
 from app.config import settings
 from app.domain.content.schemas.pack import ContentPackSpec
@@ -207,6 +207,7 @@ def main(argv: list[str] | None = None) -> int:
 
     corpus_cmds.register(sub)
     labs_cmds.register(sub)
+    lectures_cmds.register(sub)
     transcribe_cmds.register(sub)
 
     p = sub.add_parser("validate-pack")

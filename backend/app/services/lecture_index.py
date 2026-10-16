@@ -32,8 +32,22 @@ from app.adapters.db.models import (
 )
 from app.corpus.captions import caption_duration_seconds, caption_lines
 from app.domain.clock import Clock
-from app.domain.lecture_index import Index, Query, objective_query, rank_lecture, specificity
-from app.domain.lecture_rules import distinctive_domain_terms, domain_hints, rule_codes
+from app.domain.lecture_index import (
+    GENERIC_SHARE,
+    MASS_POWER,
+    Index,
+    Query,
+    objective_query,
+    query_mass,
+    rank_lecture,
+    specificity,
+)
+from app.domain.lecture_rules import (
+    distinctive_domain_terms,
+    domain_hints,
+    is_housekeeping,
+    rule_codes,
+)
 from app.domain.lecture_text import document
 from app.domain.watch import Course, Lecture
 from app.services.catalog import CatalogCache
@@ -100,9 +114,14 @@ async def track_subject(db: AsyncSession, exam: ExamVersion) -> str:
     return slug or ""
 
 
-async def _queries(
-    db: AsyncSession, exam_version_id: int
+async def objective_queries(
+    db: AsyncSession,
+    exam_version_id: int,
+    *,
+    body_weight: float = 1.0,
+    stem_weight: float = 1.0,
 ) -> tuple[list[Query], dict[str, Objective], dict[str, str]]:
+    """One weighted query per objective of the track, with the objectives and domain names."""
     rows = (
         await db.execute(
             select(Objective, Domain)
@@ -142,6 +161,8 @@ async def _queries(
                 lesson_titles.get(objective.code, []),
                 lesson_bodies.get(objective.code, []),
                 stems.get(objective.code, []),
+                body_weight=body_weight,
+                stem_weight=stem_weight,
             )
         )
     return queries, objectives, domains
@@ -192,7 +213,7 @@ async def build_index(
             catalog, exam_code=exam.code, subject_slug=await track_subject(db, exam)
         )
         reads = await anyio.to_thread.run_sync(_read_all, courses)
-        queries, objectives, domains = await _queries(db, exam.id)
+        queries, objectives, domains = await objective_queries(db, exam.id)
         spec = specificity(queries)
         distinctive = distinctive_domain_terms(domains)
         await _upsert_lectures(db, reads, now)
@@ -220,11 +241,22 @@ async def build_index(
             if read.text is not None
         }
         index = Index(docs.values())
+        generic = index.generic(GENERIC_SHARE)
+        mass = {query.code: query_mass(query, spec) for query in queries}
+        first_sections = {
+            course.slug: course.sections[0].title if course.sections else "" for course in courses
+        }
         mappings = 0
         for read in reads:
             key = (read.course.slug, read.lecture.path)
             titles = [read.lecture.title, read.lecture.path, read.section_title]
             placed: set[str] = set()
+            # A welcome or a tour of the course teaches no objective; it maps to nothing.
+            if is_housekeeping(
+                read.lecture.title,
+                first_section=read.section_title == first_sections.get(read.course.slug),
+            ):
+                continue
             # A code in a file name names this track's objective only in a course for this
             # exam; another exam's "(OBJ 4.3)" is that exam's objective.
             codes = rule_codes(titles, objectives) if own_exam(read.course, exam) else []
@@ -238,7 +270,9 @@ async def build_index(
             if doc is None:
                 continue
             hints = domain_hints(titles, distinctive)
-            for hit in rank_lecture(index, doc, queries, spec, hints):
+            for hit in rank_lecture(
+                index, doc, queries, spec, hints, generic=generic, mass=mass, mass_power=MASS_POWER
+            ):
                 objective_id = objectives[hit.code].id
                 if hit.code in placed or (*key, objective_id) in owned:
                     continue

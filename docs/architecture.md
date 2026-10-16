@@ -99,7 +99,15 @@ per objective from its title, knowledge and skills statements and the lessons an
 mapped to it, an objective-specificity weight that zeroes the words every objective shares,
 and title rules (an objective code named in a file name outranks the ranking, but only in
 a course of the track's own exam family, since another exam's "(OBJ 4.3)" names that exam's
-objective; a domain's distinctive word in a section title lifts its objectives). Results land in
+objective; a domain's distinctive word in a section title lifts its objectives). Two measured
+adjustments (rex/istari#67): a term in more than 40% of the lectures is left out of the
+scoring, and each objective's score is divided by its query's mass, so the objectives with
+the most lessons and questions do not win on count alone; a welcome, a tour of the course or
+a support lecture maps to nothing. `make lectures-eval` ranks a hand-labelled sample (kept
+with the corpus, never committed) under any parameter set and prints the rates and every
+miss; `services/lecture_eval.py` is that harness, and the levers it exposes but does not ship
+(an absolute floor, a section prior, lighter lesson bodies) were measured and gained
+nothing on the first sample. Results land in
 `lecture_objectives` with a source: `rule`, `lexical`, or the owner's `pinned` and
 `excluded`, which every rebuild keeps. `services/lecture_mapping.py` serves the review queue
 (one unreviewed lecture at a time with its candidates and an excerpt), records decisions in

@@ -355,10 +355,15 @@ seed:
 labs-check:
 	@$(UV) python -m app.cli labs check-map $(if $(BASE_URL),--base-url "$(BASE_URL)",) $(if $(PROFILE),--profile "$(PROFILE)",)
 
-## transcribe: Generated captions for lectures that have none — SRC="<course or topic dir>" [ALL=1] [SHARE=1 writes next to the video] [BACKEND=auto|parakeet|cpp|openai] [MODEL=<backend's model>] [LIMIT=n per course] [OUT=corpus]
+## transcribe: Generated captions for lectures that have none — SRC="<course or topic dir>" [ALL=1] [SHARE=1 writes next to the video] [ASR=auto|parakeet|cpp|openai] [MODEL=<backend's model>] [LIMIT=n per course] [OUT=corpus]
 transcribe:
-	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make transcribe SRC=\"<dir>\" [ALL=1] [SHARE=1] [MODEL=...] [LIMIT=n]$(RESET)"; exit 1; fi
-	@$(UV) python -m app.cli transcribe "$(SRC)" $(if $(ALL),--all,) $(if $(SHARE),--to-share,) $(if $(MODEL),--model "$(MODEL)",) $(if $(BACKEND),--backend "$(BACKEND)",) $(if $(LIMIT),--limit $(LIMIT),) --out "$(abspath $(or $(OUT),corpus))"
+	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make transcribe SRC=\"<dir>\" [ALL=1] [SHARE=1] [ASR=...] [MODEL=...] [LIMIT=n]$(RESET)"; exit 1; fi
+	@$(UV) python -m app.cli transcribe "$(SRC)" $(if $(ALL),--all,) $(if $(SHARE),--to-share,) $(if $(MODEL),--model "$(MODEL)",) $(if $(ASR),--backend "$(ASR)",) $(if $(LIMIT),--limit $(LIMIT),) --out "$(abspath $(or $(OUT),corpus))"
+
+## lectures-eval: Rank a hand-labelled sample under a parameter set — SAMPLE=corpus/eval/<exam>.json [EXAM=SAA-C03] [FLOOR=0.2] [QUANTILE=0.9] [GENERIC=0.4] [BODY=1] [STEM=1]
+lectures-eval:
+	@if [ -z "$(SAMPLE)" ]; then echo "$(RED)Usage: make lectures-eval SAMPLE=corpus/eval/saa-c03.json [EXAM=SAA-C03] [FLOOR=] [QUANTILE=] [GENERIC=] [BODY=] [STEM=]$(RESET)"; exit 1; fi
+	@$(UV) python -m app.cli lectures eval --sample "$(abspath $(SAMPLE))" $(if $(EXAM),--exam "$(EXAM)",) $(if $(FLOOR),--floor $(FLOOR),) $(if $(QUANTILE),--ceiling-quantile $(QUANTILE),) $(if $(GENERIC),--generic-df $(GENERIC),) $(if $(BODY),--body-weight $(BODY),) $(if $(STEM),--stem-weight $(STEM),) $(if $(MASS),--mass-power $(MASS),) $(if $(SECTION),--section-boost $(SECTION),) $(if $(HOUSEKEEPING),--housekeeping $(HOUSEKEEPING),)
 
 ## corpus-ingest: Course directory -> private Markdown corpus — SRC="<dir>" [ALL=1 for a topic folder] [OUT=corpus]
 corpus-ingest:

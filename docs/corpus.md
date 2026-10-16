@@ -38,9 +38,21 @@ transcript is never mistaken for the publisher's. Without `SHARE=1` the files la
 does n lectures per course. The backend is the first installed of `parakeet-mlx` (NVIDIA
 Parakeet TDT 0.6B v3 on MLX: English-first, the fastest on Apple silicon by a wide
 margin), whisper.cpp (`whisper-cli`, Metal; `large-v3-turbo`, 99 languages) and
-openai-whisper; `BACKEND` and `MODEL` override the choice. The run is idempotent and
+openai-whisper; `ASR` and `MODEL` override the choice. The run is idempotent and
 resumable: lectures with any caption, or whose VTT exists, are skipped, and the manifest is
 rewritten after every file.
+
+## Measuring the lecture ranking
+
+`corpus/eval/<exam>.json` is a hand-labelled sample: `{"lectures": [{"course_slug",
+"lecture_path", "title", "objectives": [...]}]}`, with an empty list for a lecture that
+teaches no objective. It names purchased lectures, so it stays with the corpus. `make
+lectures-eval SAMPLE=corpus/eval/saa-c03.json [EXAM=SAA-C03] [FLOOR=] [QUANTILE=] [GENERIC=]
+[MASS=] [BODY=] [STEM=] [SECTION=] [HOUSEKEEPING=keep]` re-ranks the sample from the index's
+stored term counts under those parameters and prints top-1 and any-of-top-3 rates, how many
+no-objective lectures stayed unmapped, and every miss. The defaults are what the build uses,
+so a plain run measures production. The owner's pins and exclusions on the review queue and
+the path pages are the ground truth to grow the sample from.
 
 ## Commands
 

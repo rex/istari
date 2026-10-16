@@ -14,6 +14,24 @@ _CHAINED_CODE = re.compile(r"[-_ ]*(?:and|&|,)[-_ ]*(\d{1,2})[-_.](\d{1,2})\b", 
 _LEADING_CODE = re.compile(r"^\s*(\d{1,2})\.(\d{1,2})(?![\d.])")
 
 
+_HOUSEKEEPING = re.compile(
+    r"\b(?:welcome|how to (?:use|take|get the most)|about (?:the|this) course|this course|"
+    r"connect with|support\b|q\s*&\s*a|faq|thank you|thanks|congratulations|what'?s next|"
+    r"next steps|bonus lecture|wrap[\s-]?up|course (?:introduction|overview|summary|conclusion|"
+    r"wrap)|conclusion)\b",
+    re.IGNORECASE,
+)
+# "Introduction" or "Overview" opens most sections and teaches the section's subject; it
+# is housekeeping only in the course's first section.
+_OPENING = re.compile(r"^\s*(?:\d+[\s.\-_)]*)?(?:introduction|intro|overview)\b", re.IGNORECASE)
+
+
+def is_housekeeping(title: str, *, first_section: bool = False) -> bool:
+    """A lecture about the course rather than the subject: a welcome, a tour of the course,
+    support, thanks. It teaches no objective, whatever services it name-drops."""
+    return bool(_HOUSEKEEPING.search(title)) or (first_section and bool(_OPENING.search(title)))
+
+
 def rule_codes(titles: Iterable[str], codes: Iterable[str]) -> list[str]:
     """Objective codes named outright in a lecture's or section's title or file name:
     "obj-1-1", "Objective 2.3", or a title that starts with "1.3". Only codes the track

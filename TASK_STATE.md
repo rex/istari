@@ -45,9 +45,13 @@ Inbox. Next agent slice otherwise: #26 (related-in-Istari rail, Ready). CKAD nee
 Watch roadmap is #29 with #30–#39 (Inbox). v0.24.0 (2026-10-16) added `make transcribe`
 (#28): generated captions for lectures that have none, written next to the video on the
 share with a manifest (Pierce's decision), backends parakeet-mlx, whisper.cpp and
-openai-whisper; the backend pick and the start of the SAA run are his (the research is in
-§6). Waiting on Pierce: the lab round trip, that pick, #67 next (agreed), then #65/#66,
-reviewing the AI-authored pack items, and yes/no on #13, #27, #39, #48. Do NOT rename
+openai-whisper; Pierce picked Parakeet and the SAA run onto the share started 2026-10-16
+(the five uncaptioned Solutions Architect courses, in order). v0.25.0 (2026-10-16) tuned
+the ranking (#67) on a hand-labelled 57-lecture sample kept in `corpus/eval/`: generic terms
+out, scores divided by query mass, housekeeping lectures unmapped; top-1 67% to 69%, any of
+top-3 91% to 93%, course intros left unmapped 0% to 33%; `make lectures-eval` is the harness.
+Waiting on Pierce: the lab round trip, go on #65/#66, reviewing the AI-authored pack items,
+and yes/no on #13, #27, #39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -125,8 +129,8 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 ## 5. Next actions (ordered)
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
-2. Pierce: pick the transcription backend (parakeet-mlx recommended; see §6) and say start, then the agent installs it and runs `make transcribe SRC=<course> SHARE=1` over the five uncaptioned SAA courses, then the rest of AWS, then Kubernetes (#36); review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>` (pins and exclusions are the ground truth #67 needs).
-3. Agent (agreed): #67, ranking tuning, measured on a hand-labelled sample and on Pierce's pins.
+2. Agent: when the SAA transcription run finishes (`.istari-captions.json` in each of the five course directories), rebuild the lecture index and the paths on the deployed app, then run the rest of `Cloud/AWS` and the Kubernetes folders (#36) with `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`.
+3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
@@ -202,6 +206,24 @@ lectures), Whisper turbo only for non-English material. Nothing installed and no
 started; the pick is Pierce's. A one-lecture trial with the installed openai-whisper
 `base.en` took 113 s for a short intro: fine for the pipeline check, far too slow for the
 backlog.
+
+Pierce then picked Parakeet; `parakeet-mlx` was installed as a uv tool, a one-lecture trial
+took 39 s including the model download, and the SAA run onto the share started at 07:35
+(about four lectures a minute from the laptop, the SMB read and ffmpeg decode dominating,
+so roughly four hours for the five courses). Then #67 as v0.25.0: a 57-lecture sample
+across the three SAA courses was labelled by the agent from title, section and excerpt
+(45 with an objective, 12 course intros with none) into `corpus/eval/saa-c03.json`, and
+`services/lecture_eval.py` plus `make lectures-eval` re-rank it from the stored term counts
+under any parameter set. Measured: an absolute floor against each objective's best (or 90th
+percentile) score cost top-1 accuracy at every setting; a section prior gained nothing;
+lighter lesson bodies and stems did not move it; leaving out terms in more than 40% of the
+lectures and dividing each score by the query's mass gained two points each on top-1 and
+any-of-top-3 (67% to 69%, 91% to 93%); a housekeeping rule (welcome, course tour, support,
+and a section opening only in the first section) leaves 4 of the 12 intros unmapped. The
+three gains are the build's defaults now; the harness keeps the other levers. The misses
+left are judgment calls between sibling objectives (1.2 over network topics, 2.2 over
+database and storage topics), shaped by which objectives the pack's lessons and questions
+cover; the pack and Pierce's pins are the levers after this.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The
