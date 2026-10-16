@@ -64,6 +64,9 @@ async def _upsert_exam(
     ev = spec.exam_version
     verification = ev.verification
     sources: list[object] = [s.model_dump(mode="json") for s in verification.sources]
+    technologies: list[object] = list(ev.scope.technologies)
+    in_scope: list[object] = [g.model_dump(mode="json") for g in ev.scope.in_scope]
+    out_of_scope: list[object] = [g.model_dump(mode="json") for g in ev.scope.out_of_scope]
     exam = await db.scalar(
         select(ExamVersion).where(
             ExamVersion.certification_id == certification_id, ExamVersion.code == ev.code
@@ -86,6 +89,9 @@ async def _upsert_exam(
             verification_status=verification.status,
             checked_on=verification.checked_on,
             sources=sources,
+            technologies=technologies,
+            in_scope_services=in_scope,
+            out_of_scope_services=out_of_scope,
         )
         db.add(exam)
         await db.flush()
@@ -110,6 +116,15 @@ async def _upsert_exam(
         exam.verification_status = verification.status
         exam.checked_on = verification.checked_on
     exam.sources = sources
+    if (exam.technologies, exam.in_scope_services, exam.out_of_scope_services) != (
+        technologies,
+        in_scope,
+        out_of_scope,
+    ):
+        notes.append("exam_version.scope changed")
+        exam.technologies = technologies
+        exam.in_scope_services = in_scope
+        exam.out_of_scope_services = out_of_scope
     return exam
 
 

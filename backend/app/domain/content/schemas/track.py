@@ -15,6 +15,7 @@ from app.domain.content.schemas.common import (
     SourceRef,
     StrictModel,
 )
+from app.domain.content.schemas.scope import ScopeSpec
 
 
 class SubjectSpec(StrictModel):
@@ -57,6 +58,7 @@ class ExamVersionSpec(StrictModel):
     score_scale: tuple[int, int]
     format_notes: str = ""
     verification: VerificationSpec = Field(default_factory=VerificationSpec)
+    scope: ScopeSpec = Field(default_factory=ScopeSpec)
 
     @model_validator(mode="after")
     def scale_is_ordered(self) -> ExamVersionSpec:

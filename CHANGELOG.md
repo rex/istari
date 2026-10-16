@@ -30,6 +30,21 @@ version bumps).
 
 ---
 
+## [0.30.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- `exam_version.scope` in the pack schema: the exam guide's appendix as `technologies`,
+  `in_scope` and `out_of_scope` (category and services), stored with the exam version
+  (migration 0007). The SAA-C03 pack carries the guide's 13 technology areas, 130 in-scope
+  and 61 out-of-scope services.
+### Changed
+- The SAA-C03 pack's objectives now carry the exam guide's statements verbatim (version
+  1.1): 107 knowledge and 82 skills statements across the 14 task statements, in place of
+  the 37 and 36 paraphrases the starter pack shipped with. The lecture index's objective
+  queries are built from them; measured on the 57-lecture sample, top-1 went from 69% to
+  64% and any-of-top-3 from 93% to 91%, because the guide repeats its boilerplate across
+  sibling objectives, and none of the harness's levers recovers it. The authoritative text
+  stays; the ranking follow-up is filed under rex/istari#70.
+
 ## [0.29.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - `exam_version.current_since` in the pack schema: the date this exam version replaced the

@@ -51,6 +51,11 @@ class ExamVersion(Base):
     verification_status: Mapped[str] = mapped_column(String(16), default="unverified")
     checked_on: Mapped[date | None] = mapped_column(default=None)
     sources: Mapped[JsonList] = mapped_column(default=list)
+    # The exam guide's appendix: technologies and concepts, in-scope and out-of-scope
+    # services, each as {category, services[]} groups.
+    technologies: Mapped[JsonList] = mapped_column(default=list)
+    in_scope_services: Mapped[JsonList] = mapped_column(default=list)
+    out_of_scope_services: Mapped[JsonList] = mapped_column(default=list)
 
     domains: Mapped[list[Domain]] = relationship(
         back_populates="exam_version", order_by="Domain.position", lazy="raise"

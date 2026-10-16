@@ -66,6 +66,18 @@ round trip, the rest of the transcription order (remaining `Cloud/AWS`, then Kub
 #36), reviewing the AI-authored pack items, and yes/no on #13, #27, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
+v0.29.0 (2026-10-16, evening) gave the pack `exam_version.current_since` (SAA-C03
+2022-08-30, the revised CKA curriculum 2025-02-18) and reads a dated course's year against
+it, so the 2018 Solutions Architect Associate course is an older version and steps aside
+(#68). v0.30.0 put the SAA-C03 exam guide into the pack verbatim (107 knowledge and 82
+skills statements; the 130 in-scope and 61 out-of-scope services as `exam_version.scope`,
+migration 0007; #71): the labelled sample's top-1 went from 69% to 64% because the guide
+repeats its boilerplate across sibling objectives and no existing lever recovers it; the
+fix belongs to the ranking, not the pack. Pierce's quality-first program is filed as #70
+with #71–#76 (checklist #72, LLM lecture assessment #73, master course #74, gap lessons
+#75, a verified lab for every lesson #76; #68 and #69 moved under it); the compute spend
+waits on his three decisions (assessment model and budget, consent to send the purchased
+transcripts to the API, the AWS lab substrate).
 
 ## Standing user directives
 
@@ -142,6 +154,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
+3. Pierce: the three #70 decisions (the assessment model and a budget cap; consent to send purchased-course transcripts to the Anthropic API; the AWS lab substrate: LocalStack, a sandbox account under separate authorization, or paper labs). Then the agent promotes #72–#76 to Ready and starts #72, the exam checklist.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
@@ -150,6 +163,26 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-16, evening (Claude Fable 5.1): Pierce's direction after the transcription run:
+quality is the core grading factor, the 2018 course must rank lower or be ignored, master
+courses must cover everything on the current exams, and every lesson gets a verified lab.
+Done: v0.29.0 (#68) `current_since` on the exam version and the year rule in
+`services/course_currency.py` (`tests/unit/test_course_currency.py`); v0.30.0 (#71) the
+exam guide in the pack verbatim and `exam_version.scope` (`schemas/scope.py`, three JSONB
+columns with a server default, migration 0007). The guide text came from the official
+SAA-C03 exam guide PDF (version 1.1) through `pdftotext` and a parser kept in the session
+scratchpad; `test_real_pack.py` pins the counts. The AWS certification page on 2026-10-16
+links SAA-C03 resources only, so there is no C04 to build against. Measured on the
+57-lecture sample after `make seed` against the index database (5434): top-1 69% to 64%
+(31 to 29 of 45), any-of-top-3 93% to 91%; GENERIC 0.3 and 0.5, MASS 0.5 and 1.5, BODY 2,
+STEM 2 and their pairs reach 67% at best (MASS 0.5 with BODY 2), so the defaults stayed and
+the follow-up (strip the guide's boilerplate from the objective queries, then re-measure)
+is filed under #70. Both local databases are migrated to 0007 and seeded. The program is
+#70 with #71–#76, in Inbox until Pierce answers the three decisions asked at the end of
+the turn. Gates for both commits: ruff/mypy/import-linter/tsc/eslint/prettier clean, pytest
+191, vitest 48, `make validate` clean; no page changed, so no Playwright run. The Cloud/AWS
+transcription run started at 14:28 and was still going at the end of the turn.
 
 2026-10-16, early morning (Claude Fable 5.1): the lecture-to-objective index shipped as
 v0.20.0 (`domain/lecture_text.py`, `lecture_index.py`, `lecture_rules.py`, the service,

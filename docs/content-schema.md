@@ -20,7 +20,7 @@ cd backend && uv run python -m app.cli validate-pack ../content/packs/aws-saa-c0
 | `pack` | `slug`, `name`, `version` (semver), `authored_by` (`ai` / `human`) | `coverage_notes_md` is shown in the app; say what the pack does and does not cover |
 | `subject` | `slug`, `name` | e.g. `aws` |
 | `certification` | `slug`, `name`, `provider` | |
-| `exam_version` | `code`, `name`, `duration_minutes`, `scored_questions`, `unscored_questions`, `passing_scaled_score`, `score_scale` | `verification.status` is `unverified` unless `checked_on` and at least one source are present; `current_since` (optional date) is when this version replaced the previous one, so a course that names the certification and an earlier year counts as an older version |
+| `exam_version` | `code`, `name`, `duration_minutes`, `scored_questions`, `unscored_questions`, `passing_scaled_score`, `score_scale` | `verification.status` is `unverified` unless `checked_on` and at least one source are present; `current_since` (optional date) is when this version replaced the previous one, so a course that names the certification and an earlier year counts as an older version; `scope` (optional) copies the guide's appendix: `technologies`, `in_scope` and `out_of_scope` as `{category, services[]}` groups |
 | `domains[]` | `code`, `name`, `weight_percent`, `objectives[]` | objective codes must start with the domain code (`1.2` belongs to domain `1`) |
 | `lessons[]`, `questions[]`, `flashcards[]`, `labs[]` | see below | may be empty lists |
 
@@ -142,7 +142,10 @@ The Content page lets the owner set two flags per item:
 
 `content/packs/aws-saa-c03-starter/pack.json`: 8 lessons, 40 questions (2 multiple-response),
 24 flashcards and 2 labs covering all 14 SAA-C03 task statements. Exam metadata was verified
-against the official exam guide and certification page on 2026-10-05. Every item is
+against the official exam guide and certification page on 2026-10-05; since pack version
+1.1.0 (2026-10-16) the objectives carry the guide's 107 knowledge and 82 skills statements
+verbatim (exam guide version 1.1) and `exam_version.scope` its appendix of 13 technology
+areas, 130 in-scope and 61 out-of-scope services. Every item is
 AI-authored (`Claude Fable 5.1`), `source_checked` against AWS documentation on the same date,
 and awaits human review. The test `tests/integration/test_real_pack.py` pins the counts,
 objective coverage and a clean import.

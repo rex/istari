@@ -50,6 +50,14 @@ def test_pack_validates_and_matches_the_brief() -> None:
     assert spec.exam_version.verification.status == "verified"
     assert spec.exam_version.scored_questions + spec.exam_version.unscored_questions == 65
     assert spec.exam_version.current_since == date(2022, 8, 30)
+    # The SAA-C03 exam guide, version 1.1: every statement and the service appendix.
+    objectives = [o for d in spec.domains for o in d.objectives]
+    assert sum(len(o.knowledge) for o in objectives) == 107
+    assert sum(len(o.skills) for o in objectives) == 82
+    scope = spec.exam_version.scope
+    assert len(scope.technologies) == 13
+    assert sum(len(g.services) for g in scope.in_scope) == 130
+    assert sum(len(g.services) for g in scope.out_of_scope) == 61
 
     for item in (*spec.lessons, *spec.questions, *spec.flashcards, *spec.labs):
         assert item.provenance.authored_by == "ai", item.slug
@@ -71,6 +79,7 @@ async def test_pack_imports_and_reimport_is_a_no_op(db: AsyncSession) -> None:
     assert second.counts() == {"created": 0, "updated": 0, "unchanged": TOTAL_ITEMS, "retired": 0}
     assert await db.scalar(select(func.count(ContentItem.id))) == TOTAL_ITEMS
     assert await db.scalar(select(ExamVersion.current_since)) == date(2022, 8, 30)
+    assert len(await db.scalar(select(ExamVersion.in_scope_services)) or []) == 16
 
 
 async def test_progress_counts_each_lesson_once(auth_client: AsyncClient, db: AsyncSession) -> None:
