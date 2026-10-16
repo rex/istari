@@ -30,6 +30,19 @@ version bumps).
 
 ---
 
+## [0.24.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- `make transcribe SRC="<course or topic dir>" [ALL=1] [SHARE=1] [BACKEND=…] [MODEL=…]
+  [LIMIT=n]` (`app.cli transcribe`): generated captions for the lectures that have none.
+  ffmpeg extracts mono 16 kHz audio and the first installed backend of parakeet-mlx (NVIDIA
+  Parakeet TDT 0.6B v3 on MLX), whisper.cpp (`large-v3-turbo`) and openai-whisper writes
+  WebVTT. With `SHARE=1` the file lands next to the video on the share, where every player
+  and the catalog pick it up, and a `.istari-captions.json` manifest per course names the
+  model, backend and date per file; otherwise it lands under `corpus/<course-slug>/captions/`
+  for a trial. Idempotent and resumable: lectures with any caption, or whose VTT exists, are
+  skipped. The backends and ffmpeg are faked in the tests; a one-lecture trial with the
+  installed openai-whisper `base.en` wrote a correct VTT and manifest into the corpus.
+
 ## [0.23.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - A learning path per objective (`/learn/path/<code>`, linked from the objective's row on

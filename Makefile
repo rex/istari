@@ -355,6 +355,11 @@ seed:
 labs-check:
 	@$(UV) python -m app.cli labs check-map $(if $(BASE_URL),--base-url "$(BASE_URL)",) $(if $(PROFILE),--profile "$(PROFILE)",)
 
+## transcribe: Generated captions for lectures that have none — SRC="<course or topic dir>" [ALL=1] [SHARE=1 writes next to the video] [BACKEND=auto|parakeet|cpp|openai] [MODEL=<backend's model>] [LIMIT=n per course] [OUT=corpus]
+transcribe:
+	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make transcribe SRC=\"<dir>\" [ALL=1] [SHARE=1] [MODEL=...] [LIMIT=n]$(RESET)"; exit 1; fi
+	@$(UV) python -m app.cli transcribe "$(SRC)" $(if $(ALL),--all,) $(if $(SHARE),--to-share,) $(if $(MODEL),--model "$(MODEL)",) $(if $(BACKEND),--backend "$(BACKEND)",) $(if $(LIMIT),--limit $(LIMIT),) --out "$(abspath $(or $(OUT),corpus))"
+
 ## corpus-ingest: Course directory -> private Markdown corpus — SRC="<dir>" [ALL=1 for a topic folder] [OUT=corpus]
 corpus-ingest:
 	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make corpus-ingest SRC=\"<course dir>\" [ALL=1] [OUT=corpus]$(RESET)"; exit 1; fi

@@ -26,6 +26,22 @@ tests use synthetic samples shaped like the exports, never the exports themselve
 - **Not a fact source.** Course material is dated (see the table below) and unverified.
   An item whose only source is a course is a `draft` and stays one.
 
+## Transcribing lectures that have no captions
+
+Nothing can be mapped, searched or measured without text. `make transcribe SRC="<course
+dir>"` runs Whisper over every lecture of a course that has no caption beside it and writes
+WebVTT. With `SHARE=1` the file lands next to the video as `<lecture>.vtt`, where every
+player and the catalog pick it up on the next scan, and a `.istari-captions.json` manifest
+in the course directory names the model, the backend and the date per file, so a generated
+transcript is never mistaken for the publisher's. Without `SHARE=1` the files land under
+`corpus/<course-slug>/captions/`, for a trial. `ALL=1` walks a topic folder and `LIMIT=n`
+does n lectures per course. The backend is the first installed of `parakeet-mlx` (NVIDIA
+Parakeet TDT 0.6B v3 on MLX: English-first, the fastest on Apple silicon by a wide
+margin), whisper.cpp (`whisper-cli`, Metal; `large-v3-turbo`, 99 languages) and
+openai-whisper; `BACKEND` and `MODEL` override the choice. The run is idempotent and
+resumable: lectures with any caption, or whose VTT exists, are skipped, and the manifest is
+rewritten after every file.
+
 ## Commands
 
 ```bash

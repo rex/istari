@@ -42,8 +42,11 @@ lecture from the weakest objective's path. That closes the first pass of #61; #6
 (outcomes), #66 (queue ordering, course-level decisions) and #67 (ranking tuning, which is
 what will separate courses whose objectives column saturates at 14/14) are follow-ups in
 Inbox. Next agent slice otherwise: #26 (related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
-Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, the
-Whisper decision (#28: model, and whether the VTTs go onto the share), go on #65/#66/#67,
+Watch roadmap is #29 with #30–#39 (Inbox). v0.24.0 (2026-10-16) added `make transcribe`
+(#28): generated captions for lectures that have none, written next to the video on the
+share with a manifest (Pierce's decision), backends parakeet-mlx, whisper.cpp and
+openai-whisper; the backend pick and the start of the SAA run are his (the research is in
+§6). Waiting on Pierce: the lab round trip, that pick, #67 next (agreed), then #65/#66,
 reviewing the AI-authored pack items, and yes/no on #13, #27, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
@@ -122,7 +125,8 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 ## 5. Next actions (ordered)
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
-2. Pierce: decide the Whisper run (#28: model, and whether the VTTs land on the share next to the videos) that would let the 25 uncaptioned AWS courses be measured and the Kubernetes tracks be mapped at all; pick the next of #65, #66, #67 under #61; review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>` (pins and exclusions are the ground truth #67 needs).
+2. Pierce: pick the transcription backend (parakeet-mlx recommended; see §6) and say start, then the agent installs it and runs `make transcribe SRC=<course> SHARE=1` over the five uncaptioned SAA courses, then the rest of AWS, then Kubernetes (#36); review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>` (pins and exclusions are the ground truth #67 needs).
+3. Agent (agreed): #67, ranking tuning, measured on a hand-labelled sample and on Pierce's pins.
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
@@ -177,7 +181,27 @@ Course currency moved to `services/course_currency.py` to break the import cycle
 would otherwise have with the comparison. The paths are only as good as the mappings:
 with the objectives column saturated, the anchor is simply the longest course on each
 objective, so #67 is the lever that makes the paths opinionated. Gates: pytest 167, vitest
-47, Playwright 22 on three viewports.
+47, Playwright 22 on three viewports. On the real share the first composition of 1.1
+anchored on the DevOps Professional course's opening lectures; two rules fixed it: depth
+is minutes weighted by match strength with a course made for this exam leading when it
+has at least half the deepest depth, and the anchor's sections are ordered by relevance.
+
+Then #28 as v0.24.0: `app/corpus/transcribe.py` (pending jobs by the catalog's caption
+rule, ffmpeg to 16 kHz mono, three backends behind an injectable runner, a manifest per
+course, resumable), `app/cli/transcribe_cmds.py`, `make transcribe`. Pierce decided the
+VTTs go on the share beside each video. For the backend he asked for current data, not
+memory: the Hugging Face Open ASR leaderboard's May-2026 snapshot tops with IBM Granite
+Speech 4.1 2B (5.33% mean WER), Cohere Transcribe, NVIDIA Canary-Qwen 2.5B and Qwen3-ASR
+1.7B, all PyTorch or NeMo with no MLX fast path; on Apple silicon NVIDIA Parakeet TDT 0.6B
+v3 via parakeet-mlx (Apache-2.0, `uv tool install parakeet-mlx`, about 1.2 GB) transcribes
+English at roughly 100× realtime on an M4 Pro against about 14× for Whisper large-v3-turbo
+under whisper.cpp, with equal or better English WER (2.5% against 2.9% on LibriSpeech clean
+in one independent benchmark); Whisper turbo keeps 99 languages. Recommendation:
+parakeet-mlx for the English backlog (the five uncaptioned SAA courses are about 900
+lectures), Whisper turbo only for non-English material. Nothing installed and no run
+started; the pick is Pierce's. A one-lecture trial with the installed openai-whisper
+`base.en` took 113 s for a short intro: fine for the pipeline check, far too slow for the
+backlog.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The

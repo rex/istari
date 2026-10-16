@@ -7,7 +7,7 @@
 - **Active branch**: `main`
 - **Active feature spec**: none; the plan lives in Rivendell (rex/istari issues)
 - **Active TASK_STATE**: `TASK_STATE.md` (phases 12 verified labs, 13 design system, and the first pass of #61 done: lecture index #62, courses compared #63, master path #64; K16S is live and the graded round trip waits for Pierce; the Whisper decision (#28) and the next of #65/#66/#67 are his; #26 is the next Ready agent slice; phases 5 and 7 wait on Pierce)
-- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.23.0: the lecture-to-objective index and review queue, courses compared, and the master path per objective, rex/istari#61 with #62, #63 and #64; follow-ups #66 and #67). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
+- **Last session**: 2026-10-16 (Claude Fable 5.1, v0.20.0–v0.24.0: the lecture-to-objective index and review queue, courses compared, the master path per objective, rex/istari#61 with #62, #63 and #64, and the transcription command, #28; follow-ups #66 and #67). Before: 2026-10-15, v0.9.0–v0.14.0 verified labs (#8 with #42–#47) and v0.15.0–v0.19.0 the design system (#55 with #56–#60)
 
 ## Last three decisions
 
@@ -23,7 +23,7 @@
 - One graded setup/check round trip on a `cka` lab from the deployed app waits for Pierce's word (K16S is live; `make labs-check` passes).
 - Human review of the SAA-C03 and CKA pack items (Pierce). Items are `source_checked`, not `human_reviewed`.
 - The content pipeline (#13), context cards (#27) and CK-X for CKAD (#48) are proposals in Inbox; nothing starts until Pierce says go.
-- Whisper transcription (#28) needs a check-in on model size and output location before it runs.
+- The transcription run (#28, command shipped in v0.24.0): Pierce picks the backend (parakeet-mlx recommended over Whisper turbo) and says start; the VTTs go on the share beside the videos.
 
 ## How to resume (for a fresh agent)
 
