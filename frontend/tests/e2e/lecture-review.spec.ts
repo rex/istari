@@ -29,6 +29,10 @@ test.describe("lecture mapping", () => {
         card.getByRole("heading", { name: "Roles and least privilege obj-1-1" }),
       ).toBeVisible();
       await expect(card.getByText("rule")).toBeVisible();
+      await expect(card.getByText(/Course 1 of 1/)).toBeVisible();
+      await expect(
+        card.getByRole("button", { name: /Accept the rest of this section/ }),
+      ).toBeVisible();
       await shot(page, "lecture-review", project);
       await card.getByRole("button", { name: /Pin selected/ }).click();
     }

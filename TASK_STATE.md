@@ -50,8 +50,11 @@ openai-whisper; Pierce picked Parakeet and the SAA run onto the share started 20
 the ranking (#67) on a hand-labelled 57-lecture sample kept in `corpus/eval/`: generic terms
 out, scores divided by query mass, housekeeping lectures unmapped; top-1 67% to 69%, any of
 top-3 91% to 93%, course intros left unmapped 0% to 33%; `make lectures-eval` is the harness.
-Waiting on Pierce: the lab round trip, go on #65/#66, reviewing the AI-authored pack items,
-and yes/no on #13, #27, #39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
+v0.26.0 (2026-10-16) made the review queue finishable (#66): courses for the track's own
+exam first, the lecture's place among the pending courses on the card, and accept or
+exclude a whole section or course at once (`s`, `c`; excluding asks twice). Waiting on
+Pierce: the lab round trip, reviewing the AI-authored pack items, and yes/no on #13, #27,
+#39, #48. After the SAA run: rebuild the index and paths. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 

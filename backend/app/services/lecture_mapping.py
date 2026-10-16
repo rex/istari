@@ -16,20 +16,18 @@ from app.adapters.db.models import (
     LectureReview,
     Objective,
 )
+from app.contracts.lecture_review import ReviewDecision
 from app.contracts.lectures import (
     IndexStatusView,
     LectureMappingView,
     LectureRef,
     ObjectiveLecturesView,
     ObjectiveLectureView,
-    ReviewDecision,
     ReviewLectureView,
-    ReviewQueueView,
 )
 from app.domain.exceptions import NotFoundError
 from app.services.catalog import CatalogCache
 from app.services.lecture_index import (
-    MACHINE_SOURCES,
     IndexRunner,
     candidate_courses,
     track_subject,
@@ -128,26 +126,10 @@ async def index_status(
     )
 
 
-async def _unreviewed(db: AsyncSession, exam_version_id: int) -> list[LectureKey]:
-    reviewed = select(LectureReview.course_slug, LectureReview.lecture_path).where(
-        LectureReview.exam_version_id == exam_version_id
-    )
-    rows = await db.execute(
-        select(LectureObjective.course_slug, LectureObjective.lecture_path)
-        .where(
-            LectureObjective.exam_version_id == exam_version_id,
-            LectureObjective.source.in_(MACHINE_SOURCES),
-        )
-        .distinct()
-        .order_by(LectureObjective.course_slug, LectureObjective.lecture_path)
-    )
-    done = {(slug, path) for slug, path in (await db.execute(reviewed)).all()}
-    return [(slug, path) for slug, path in rows.all() if (slug, path) not in done]
-
-
-async def _lecture_view(
+async def lecture_view(
     db: AsyncSession, exam_version_id: int, key: LectureKey, *, reviewed: bool
 ) -> ReviewLectureView:
+    """One lecture as the review queue shows it: its reference, excerpt and candidates."""
     lecture = await db.scalar(
         select(IndexedLecture).where(
             IndexedLecture.course_slug == key[0], IndexedLecture.lecture_path == key[1]
@@ -161,27 +143,6 @@ async def _lecture_view(
         excerpt=lecture.excerpt,
         candidates=candidates,
         reviewed=reviewed,
-    )
-
-
-async def review_queue(
-    db: AsyncSession, exam: ExamVersion, *, after: LectureKey | None = None
-) -> ReviewQueueView:
-    """The next lecture the owner has not looked at, in course order, past `after`."""
-    pending = await _unreviewed(db, exam.id)
-    reviewed = await db.scalar(
-        select(func.count(LectureReview.id)).where(LectureReview.exam_version_id == exam.id)
-    )
-    indexed = await db.scalar(select(func.count(IndexedLecture.id)))
-    candidates = [key for key in pending if after is None or key > after] or pending
-    lecture = (
-        await _lecture_view(db, exam.id, candidates[0], reviewed=False) if candidates else None
-    )
-    return ReviewQueueView(
-        lecture=lecture,
-        remaining=len(pending),
-        reviewed=int(reviewed or 0),
-        indexed=int(indexed or 0),
     )
 
 
@@ -248,7 +209,7 @@ async def record_decision(
         )
     )
     await db.flush()
-    return await _lecture_view(db, exam.id, key, reviewed=True)
+    return await lecture_view(db, exam.id, key, reviewed=True)
 
 
 async def objective_lectures(

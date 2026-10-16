@@ -30,6 +30,17 @@ version bumps).
 
 ---
 
+## [0.26.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Changed
+- The lecture review queue puts the courses for the track's own exam first (current
+  version, then the same certification without one, newer, older, other exams, none named)
+  and says where the lecture sits: course n of m pending, the course's currency, how many
+  lectures of the course and of its section are left.
+### Added
+- Decide a whole section or course at once from the review card: accept the rest as ranked
+  (`s`, `c`) or exclude it (asks twice). One review row per lecture, so the lookups and the
+  index stay as they are. `POST /api/lecture-index/review/course`.
+
 ## [0.25.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Changed
 - The lecture ranking leaves out terms found in more than 40% of the lectures, divides

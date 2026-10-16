@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ReviewWhole } from "@/components/feature/ReviewWhole";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Kbd } from "@/components/ui/Kbd";
@@ -9,7 +10,7 @@ import { StateBlock } from "@/components/ui/StateBlock";
 import { formatRelative } from "@/lib/format";
 import { SOURCE_TONE } from "@/lib/lectures";
 import { type ShortcutBinding, useShortcuts } from "@/lib/shortcuts";
-import type { LectureMappingView, ReviewLectureView } from "@/lib/types-lectures";
+import type { LectureMappingView, ReviewLectureView, ReviewQueueView } from "@/lib/types-lectures";
 import {
   type QueueCursor,
   indexStatusQueryOptions,
@@ -103,8 +104,16 @@ function Candidate({
 }
 
 /** One lecture to decide on. Keyed by lecture in the parent so its state starts fresh. */
-function ReviewCard({ lecture, onSkip }: { lecture: ReviewLectureView; onSkip: () => void }) {
-  const { decide } = useLectureIndexMutations();
+function ReviewCard({
+  queue,
+  lecture,
+  onSkip,
+}: {
+  queue: ReviewQueueView;
+  lecture: ReviewLectureView;
+  onSkip: () => void;
+}) {
+  const { decide, decideCourse } = useLectureIndexMutations();
   const track = useQuery(trackQueryOptions());
   const candidates = lecture.candidates.filter((c) => c.source !== "excluded");
   const [selected, setSelected] = useState<Set<string>>(
@@ -134,6 +143,20 @@ function ReviewCard({ lecture, onSkip }: { lecture: ReviewLectureView; onSkip: (
         handler: () => decide.mutate({ ...key, exclude: true }),
       },
       { key: "n", description: "Skip for now", handler: onSkip },
+      {
+        key: "s",
+        description: "Accept the rest of this section as ranked",
+        handler: () =>
+          decideCourse.mutate({
+            course_slug: key.course_slug,
+            section_title: lecture.section_title,
+          }),
+      },
+      {
+        key: "c",
+        description: "Accept the rest of this course as ranked",
+        handler: () => decideCourse.mutate({ course_slug: key.course_slug }),
+      },
       ...candidates.slice(0, 9).map((c, i) => ({
         key: String(i + 1),
         description: `Toggle ${c.objective_code}`,
@@ -143,7 +166,8 @@ function ReviewCard({ lecture, onSkip }: { lecture: ReviewLectureView; onSkip: (
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handlers read fresh state at key time
     [selected, lecture.course_slug, lecture.lecture_path],
   );
-  useShortcuts(bindings, !decide.isPending);
+  const busy = decide.isPending || decideCourse.isPending;
+  useShortcuts(bindings, !busy);
   const objectives = track.data?.domains.flatMap((d) => d.objectives) ?? [];
 
   return (
@@ -227,6 +251,12 @@ function ReviewCard({ lecture, onSkip }: { lecture: ReviewLectureView; onSkip: (
           <span className="save-status save-status--error">{decide.error.message}</span>
         ) : null}
       </div>
+      <ReviewWhole queue={queue} busy={busy} onDecide={(d) => decideCourse.mutate(d)} />
+      {decideCourse.isError ? (
+        <p className="save-status save-status--error" role="alert">
+          {decideCourse.error.message}
+        </p>
+      ) : null}
     </section>
   );
 }
@@ -270,6 +300,7 @@ export default function LectureReviewPage() {
             </p>
             <ReviewCard
               key={`${current.course_slug}/${current.lecture_path}`}
+              queue={queue.data}
               lecture={current}
               onSkip={() => setAfter([current.course_slug, current.lecture_path])}
             />

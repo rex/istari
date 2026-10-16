@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 
 import { api } from "@/lib/api";
 import type {
+  CourseDecision,
   IndexStatusView,
   LectureMappingView,
   ObjectiveLecturesView,
@@ -70,5 +71,13 @@ export function useLectureIndexMutations() {
       api<ReviewLectureView>("/api/lecture-index/review", { method: "POST", body: decision }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: lectureKeys.all }),
   });
-  return { rebuild, decide };
+  const decideCourse = useMutation({
+    mutationFn: (decision: CourseDecision) =>
+      api<ReviewQueueView>("/api/lecture-index/review/course", {
+        method: "POST",
+        body: decision,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: lectureKeys.all }),
+  });
+  return { rebuild, decide, decideCourse };
 }

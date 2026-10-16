@@ -156,6 +156,10 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
     # The queue walks the courses in order: the IAM lecture first, mapped by its title rule.
     queue = (await client.get("/api/lecture-index/review")).json()
     assert queue["remaining"] == 3 and queue["reviewed"] == 0 and queue["indexed"] == 3
+    # The fixture course names the track's code, so it comes first; the other course after.
+    assert (queue["course_index"], queue["courses_pending"]) == (1, 2)
+    assert queue["course_currency"] == "current"
+    assert (queue["course_pending"], queue["section_pending"]) == (2, 1)
     first = queue["lecture"]
     assert first["lecture_title"] == "Roles and least privilege obj-1-1"
     assert first["duration_seconds"] == 15.5 and first["word_count"] > 10
@@ -235,6 +239,43 @@ async def test_index_ranks_captioned_lectures_and_the_owner_decides(
     assert [row["source"] for row in iam["lectures"]] == ["pinned"]
     assert (await client.get("/api/lecture-index/objectives/2.1")).json()["lectures"] == []
     assert (await client.get("/api/lecture-index/review")).json()["remaining"] == 0
+
+
+async def test_a_whole_section_or_course_is_decided_at_once(
+    indexed_client: tuple[AsyncClient, object],
+) -> None:
+    client, app = indexed_client
+    await _rebuild(client, app)
+    queue = (await client.get("/api/lecture-index/review")).json()
+    identity = queue["lecture"]["course_slug"]
+
+    # Accept the IAM section as ranked: one review row, the storage lecture is next.
+    after = (
+        await client.post(
+            "/api/lecture-index/review/course",
+            json={"course_slug": identity, "section_title": "01 - IAM"},
+        )
+    ).json()
+    assert after["reviewed"] == 1 and after["remaining"] == 2
+    assert after["lecture"]["lecture_title"] == "Buckets and volumes"
+    assert (after["course_pending"], after["courses_pending"]) == (1, 2)
+
+    # Exclude the other course outright: its lecture leaves the index's lookups.
+    other = (await client.get("/api/paths/1.2")).json()["entries"][0]["course_slug"]
+    assert other != identity
+    after = (
+        await client.post(
+            "/api/lecture-index/review/course", json={"course_slug": other, "exclude": True}
+        )
+    ).json()
+    assert after["reviewed"] == 2 and after["remaining"] == 1 and after["courses_pending"] == 1
+    keys = (await client.get("/api/lecture-index/objectives/1.2")).json()["lectures"]
+    assert all(row["course_slug"] != other for row in keys)
+    # Nothing pending in a course decides nothing.
+    again = (
+        await client.post("/api/lecture-index/review/course", json={"course_slug": other})
+    ).json()
+    assert again["reviewed"] == 2
 
 
 async def test_rebuild_is_refused_while_one_runs_and_status_reads_before_any_run(

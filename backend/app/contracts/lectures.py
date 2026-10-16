@@ -1,11 +1,10 @@
-"""The lecture-to-objective index: status, review queue, decisions, and the two lookups."""
+"""The lecture-to-objective index: status, the lecture views and the two lookups. The review
+queue and the owner's decisions are in `lecture_review.py`."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Literal
-
-from pydantic import Field
 
 from app.contracts.common import ApiModel
 
@@ -38,22 +37,6 @@ class ReviewLectureView(LectureRef):
     excerpt: str
     candidates: list[LectureMappingView]
     reviewed: bool
-
-
-class ReviewQueueView(ApiModel):
-    lecture: ReviewLectureView | None
-    remaining: int
-    reviewed: int
-    indexed: int
-
-
-class ReviewDecision(ApiModel):
-    course_slug: str = Field(min_length=1, max_length=120)
-    lecture_path: str = Field(min_length=1, max_length=1000)
-    # Objective codes to pin as this lecture's mappings; empty with exclude=False means
-    # "accept as ranked".
-    pin: list[str] = Field(default_factory=list)
-    exclude: bool = False
 
 
 class IndexStatusView(ApiModel):

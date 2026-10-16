@@ -109,10 +109,13 @@ miss; `services/lecture_eval.py` is that harness, and the levers it exposes but 
 (an absolute floor, a section prior, lighter lesson bodies) were measured and gained
 nothing on the first sample. Results land in
 `lecture_objectives` with a source: `rule`, `lexical`, or the owner's `pinned` and
-`excluded`, which every rebuild keeps. `services/lecture_mapping.py` serves the review queue
-(one unreviewed lecture at a time with its candidates and an excerpt), records decisions in
-`lecture_reviews`, and answers the two lookups: a lecture's objectives and an objective's
-lectures. One build runs at a time, in the background, with its own session, and rescans
+`excluded`, which every rebuild keeps. `services/lecture_queue.py` serves the review queue:
+one unreviewed lecture at a time with its candidates and an excerpt, the courses for the
+track's own exam first (by `course_currency`), with the lecture's place among the pending
+courses and how much of its course and section is left; a decision can take one lecture,
+or a whole section or course at once (one `lecture_reviews` row per lecture either way).
+`services/lecture_mapping.py` records the per-lecture decisions and answers the two lookups:
+a lecture's objectives and an objective's lectures. One build runs at a time, in the background, with its own session, and rescans
 the catalog before it reads a caption, so a rebuild is how new courses get in; its status
 is a row in `lecture_index_runs`.
 

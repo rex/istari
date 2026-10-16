@@ -5,13 +5,12 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.contracts.comparison import CourseComparisonView
+from app.contracts.lecture_review import CourseDecision, ReviewDecision, ReviewQueueView
 from app.contracts.lectures import (
     IndexStatusView,
     LectureMappingView,
     ObjectiveLecturesView,
-    ReviewDecision,
     ReviewLectureView,
-    ReviewQueueView,
 )
 from app.deps import ActiveExam, ClockDep, DbSession, require_auth
 from app.services.catalog import CatalogCache
@@ -22,8 +21,8 @@ from app.services.lecture_mapping import (
     lecture_mappings,
     objective_lectures,
     record_decision,
-    review_queue,
 )
+from app.services.lecture_queue import decide_course, review_queue
 
 router = APIRouter(dependencies=[Depends(require_auth)])
 
@@ -58,13 +57,14 @@ async def rebuild(
 
 @router.get("/review", response_model=ReviewQueueView)
 async def next_to_review(
+    request: Request,
     db: DbSession,
     exam: ActiveExam,
     after_course: str | None = Query(default=None),
     after_path: str | None = Query(default=None),
 ) -> ReviewQueueView:
     after = (after_course, after_path) if after_course and after_path else None
-    return await review_queue(db, exam, after=after)
+    return await review_queue(db, exam, _catalog(request), after=after)
 
 
 @router.post("/review", response_model=ReviewLectureView)
@@ -72,6 +72,15 @@ async def decide(
     req: ReviewDecision, db: DbSession, exam: ActiveExam, clock: ClockDep
 ) -> ReviewLectureView:
     return await record_decision(db, exam, req, now=clock.now())
+
+
+@router.post("/review/course", response_model=ReviewQueueView)
+async def decide_whole(
+    req: CourseDecision, request: Request, db: DbSession, exam: ActiveExam, clock: ClockDep
+) -> ReviewQueueView:
+    """Accept or exclude every unreviewed lecture of a course or section, then the next."""
+    await decide_course(db, exam, req, now=clock.now())
+    return await review_queue(db, exam, _catalog(request))
 
 
 @router.get("/lectures/{course_slug}", response_model=list[LectureMappingView])
