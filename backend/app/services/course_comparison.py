@@ -9,7 +9,6 @@ has watched. Coverage and currency, never a quality score.
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -29,42 +28,15 @@ from app.contracts.comparison import (
     ComparisonDomain,
     CourseComparisonView,
     CourseRow,
-    Currency,
     DomainCoverage,
 )
-from app.domain.naming import names_certification
 from app.domain.watch import Course
 from app.services.catalog import CatalogCache
-from app.services.lecture_index import candidate_courses, exam_family, own_exam, track_subject
+from app.services.course_currency import currency
+from app.services.lecture_index import candidate_courses, track_subject
 from app.services.watch_progress import completed_counts
 
-_NUMBERS = re.compile(r"\d+")
-
 Durations = dict[tuple[str, str], float]
-
-
-def _version(code: str) -> tuple[int, ...]:
-    """ "SAA-C03" -> (3,), "CKA-1.35" -> (1, 35): the part of a code that a version bump moves."""
-    return tuple(int(part) for part in _NUMBERS.findall(code.partition("-")[2]))
-
-
-def currency(course: Course, exam: ExamVersion, *, certification: str) -> Currency:
-    """How a course's exam relates to the track's.
-
-    The catalog parses only the exam codes it knows, so a course without one still counts as
-    current when the track's exact code is in its title, and as the same exam (version
-    unknown) when the certification's name is.
-    """
-    if course.exam_code is None:
-        if own_exam(course, exam):
-            return "current"
-        return "same_exam" if names_certification(course.title, certification) else "unknown"
-    if exam_family(course.exam_code) != exam_family(exam.code):
-        return "other"
-    theirs, mine = _version(course.exam_code), _version(exam.code)
-    if theirs == mine:
-        return "current"
-    return "older" if theirs < mine else "newer"
 
 
 @dataclass

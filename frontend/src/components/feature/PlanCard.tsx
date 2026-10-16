@@ -6,6 +6,7 @@ const KIND_LABEL: Record<PlanBlockView["kind"], string> = {
   practice: "Practice",
   lab: "Lab",
   lesson: "Read",
+  lecture: "Watch",
 };
 
 /** The planner prefixes a label with its kind ("Lab: …"); the badge already says it. */

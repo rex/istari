@@ -38,26 +38,14 @@ from app.domain.lecture_text import document
 from app.domain.watch import Course, Lecture
 from app.services.catalog import CatalogCache
 from app.services.content_query import content_str, list_items, objective_codes_for_items
+from app.services.course_currency import exam_family, own_exam
+from app.services.learning_path import compose_paths
 
 log = logging.getLogger("istari.lectures")
 
 EXCERPT_CHARS = 600
 OWNER_SOURCES = ("pinned", "excluded")
 MACHINE_SOURCES = ("rule", "lexical")
-
-
-def exam_family(code: str | None) -> str | None:
-    """ "SAA" for "SAA-C03": the part of an exam code that survives a version bump."""
-    return code.split("-")[0].upper() if code else None
-
-
-def own_exam(course: Course, exam: ExamVersion) -> bool:
-    """Whether a course is for this track's exam: its family, or the exact code in its title
-    (the catalog only parses the codes it knows)."""
-    family = exam_family(exam.code)
-    return family is not None and (
-        exam_family(course.exam_code) == family or exam.code.lower() in course.title.lower()
-    )
 
 
 def candidate_courses(catalog: CatalogCache, *, exam_code: str, subject_slug: str) -> list[Course]:
@@ -271,6 +259,8 @@ async def build_index(
         run.lectures_with_captions = sum(1 for read in reads if read.lecture.caption_path)
         run.lectures_indexed = len(docs)
         run.mappings = mappings
+        # The paths are derived from the mappings, so every index run recomposes them.
+        await compose_paths(db, catalog, exam, now=now)
         run.status = "done"
     except Exception as exc:
         log.exception("lecture index build failed", extra={"event": "lectures.index.failed"})

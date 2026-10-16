@@ -66,13 +66,15 @@ export interface HealthView {
 }
 
 export interface PlanBlockView {
-  kind: "resume" | "review" | "practice" | "lab" | "lesson";
+  kind: "resume" | "review" | "practice" | "lab" | "lesson" | "lecture";
   count: number;
   label: string;
   reason: string;
   focus: string | null;
   session_id: number | null;
   item_key: string | null;
+  course_slug: string | null;
+  lecture_path: string | null;
 }
 export interface ActiveSessionView {
   id: number;

@@ -30,6 +30,27 @@ version bumps).
 
 ---
 
+## [0.23.0] — 2026-10-16 — Agent: Claude Fable 5.1
+### Added
+- A learning path per objective (`/learn/path/<code>`, linked from the objective's row on
+  Progress and from each domain on Learn): lectures composed across courses, continuity
+  first. The course with the deepest coverage of the objective supplies a run of its
+  lectures in course order, the other courses' strongest lectures fill in behind it, a
+  course for an older version of the exam steps aside when a current one covers the same
+  ground, and the path is capped at two hours. Every entry names its course and the reason
+  it is there. Pin an order, exclude or restore a lecture, go back to the proposal; pins and
+  exclusions survive every index run.
+- The player follows a path (`?path=<code>`): previous and next move along it across
+  courses, the bar says "n of m in path", and "Continue" on the path page starts at the
+  first unwatched lecture.
+- A 30-minute plan takes one lecture from the weakest objective's path ("Watch"), with
+  its course and length in the reason; shorter plans do not.
+- `/api/paths`: summaries, one objective's path, the owner's decisions, and a recompose;
+  every lecture index run recomposes the proposals.
+### Changed
+- Course currency moved to `services/course_currency.py`, shared by the comparison and the
+  paths.
+
 ## [0.22.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - Courses compared (`/watch/compare`, linked from Watch and from Settings beside the track

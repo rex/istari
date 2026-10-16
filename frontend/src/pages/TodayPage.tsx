@@ -40,6 +40,15 @@ export default function TodayPage() {
       void navigate({ to: "/learn/$key", params: { key: block.item_key } });
     } else if (block.kind === "lab" && block.item_key) {
       void navigate({ to: "/labs/$key", params: { key: block.item_key } });
+    } else if (block.kind === "lecture" && block.course_slug && block.lecture_path) {
+      const code = block.focus?.startsWith("objective:") ? block.focus.slice(10) : "";
+      void navigate({
+        to: "/watch/$course/play",
+        params: { course: block.course_slug },
+        search: code
+          ? { lecture: block.lecture_path, path: code }
+          : { lecture: block.lecture_path },
+      });
     } else {
       createSession.mutate(
         {
@@ -81,7 +90,9 @@ export default function TodayPage() {
           ? "Read the lesson"
           : primary.kind === "lab"
             ? "Open the lab"
-            : "Start"
+            : primary.kind === "lecture"
+              ? "Watch the lecture"
+              : "Start"
     : null;
 
   return (

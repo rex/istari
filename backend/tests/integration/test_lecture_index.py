@@ -278,3 +278,43 @@ async def test_course_comparison_measures_coverage_captions_and_currency(
     assert second_domain["domain_code"] == "2" and second_domain["lectures"] == 1
     assert identity["lectures_completed"] == 0
     assert other["lectures_total"] == 1 and other["objectives_touched"] >= 1
+
+
+async def test_paths_follow_the_index_and_the_owner_edits_win(
+    indexed_client: tuple[AsyncClient, object],
+) -> None:
+    client, app = indexed_client
+    assert (await client.get("/api/paths")).json()["composed_at"] is None
+    await _rebuild(client, app)
+
+    summaries = (await client.get("/api/paths")).json()
+    assert summaries["composed_at"] is not None
+    by_code = {s["objective_code"]: s for s in summaries["objectives"]}
+    assert set(by_code) == {"1.1", "1.2", "2.1"} and by_code["1.1"]["entries"] >= 1
+
+    # 1.1 leads with the IAM lecture its title names; the other course's keys lecture is 1.2's.
+    path = (await client.get("/api/paths/1.1")).json()
+    first = path["entries"][0]
+    assert first["lecture_title"] == "Roles and least privilege obj-1-1"
+    assert first["source"] == "proposed" and "deepest coverage" in first["reason"]
+    assert first["minutes"] == 0.3 and first["completed"] is False
+    assert path["resume_position"] == 0 and path["courses"] == ["Identity Course 2024 [TST-C01]"]
+    keys = (await client.get("/api/paths/1.2")).json()
+    assert keys["entries"][0]["lecture_title"] == "Keys and certificates obj-1-2"
+
+    # Exclude the IAM lecture: it leaves the path and is listed as excluded.
+    key = [first["course_slug"], first["lecture_path"]]
+    decided = (await client.post("/api/paths/1.1", json={"exclude": [key]})).json()
+    assert all(e["lecture_path"] != first["lecture_path"] for e in decided["entries"])
+    assert [e["lecture_path"] for e in decided["excluded"]] == [first["lecture_path"]]
+
+    # Restore it and pin an order: the pin survives a recomposition.
+    restored = (await client.post("/api/paths/1.1", json={"restore": [key], "order": [key]})).json()
+    assert restored["entries"][0]["source"] == "pinned" and restored["excluded"] == []
+    again = (await client.post("/api/paths/rebuild")).json()
+    assert again["composed_at"] is not None
+    path = (await client.get("/api/paths/1.1")).json()
+    assert path["entries"][0]["source"] == "pinned"
+    reset = (await client.post("/api/paths/1.1", json={"reset": True})).json()
+    assert all(e["source"] == "proposed" for e in reset["entries"])
+    assert (await client.get("/api/paths/9.9")).status_code == 404

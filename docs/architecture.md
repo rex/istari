@@ -121,6 +121,21 @@ owner has completed. Figures only; the page at `/watch/compare` sorts them and
 says in words that coverage and currency are not quality. Minutes come from captions, so a
 course without them cannot be measured and the page says so.
 
+### Learning paths
+
+`domain/learning_path.py` composes one path per objective from the lectures mapped to it:
+the course with the deepest coverage of the objective (minutes of mapped captions) supplies
+a run of its lectures in course order, the other courses' strongest lectures fill in behind
+it (skipping titles the run already covers), a course for an older version of the exam
+steps aside when a current one has at least half its minutes, and the whole thing is capped
+at two hours. `services/learning_path.py` keeps the result in `objective_path_entries`:
+`proposed` rows are rewritten by every index run and every decision, `pinned` rows (the
+owner's order) and `excluded` rows stay. `/api/paths` serves the summaries, one objective's
+path with the reason per entry and where to resume, and the owner's decisions; the player
+follows a path when the `path` search parameter names one, and the planner takes the next
+unwatched lecture of the weakest objective's path into a 30-minute plan. Never a merged
+video: every entry is one lecture of one course, attributed to it.
+
 ### Observability
 
 Structured JSON logs with a request id on every line and in the `X-Request-ID` header;

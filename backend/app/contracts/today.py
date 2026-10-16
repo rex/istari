@@ -16,6 +16,9 @@ class PlanBlockView(ApiModel):
     focus: str | None
     session_id: int | None
     item_key: str | None
+    # A "lecture" block names the lecture on the learning path it comes from.
+    course_slug: str | None = None
+    lecture_path: str | None = None
 
 
 class WeakObjectiveView(ApiModel):

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-BlockKind = Literal["resume", "review", "practice", "lab", "lesson"]
+BlockKind = Literal["resume", "review", "practice", "lab", "lesson", "lecture"]
 # Whether verified labs can be scheduled: no backend configured, configured but silent, or ready.
 LabBackend = Literal["unconfigured", "unreachable", "ready"]
 
@@ -64,6 +64,19 @@ class PlannerInput:
     next_lesson: LessonCandidate | None
     verified_lab: LabCandidate | None = None
     lab_backend: LabBackend = "unconfigured"
+    next_lecture: LectureCandidate | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class LectureCandidate:
+    """The next unwatched lecture on the weakest objective's learning path."""
+
+    course_slug: str
+    lecture_path: str
+    title: str
+    course_title: str
+    objective_code: str
+    minutes: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,6 +88,8 @@ class PlanBlock:
     focus: str | None = None
     session_id: int | None = None
     item_key: str | None = None
+    course_slug: str | None = None
+    lecture_path: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { Kbd } from "@/components/ui/Kbd";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
+import { locateInPath } from "@/lib/paths";
 import { type ShortcutBinding, useShortcuts } from "@/lib/shortcuts";
+import type { PathEntryView } from "@/lib/types-paths";
 import type { CourseView, LectureView } from "@/lib/types-watch";
 import { type Cue, parseVtt } from "@/lib/vtt";
 import {
@@ -17,6 +19,7 @@ import {
   mediaUrl,
   useSaveLectureProgress,
 } from "@/queries/courses";
+import { objectivePathQueryOptions } from "@/queries/paths";
 import { useUIStore } from "@/stores/ui";
 
 const SAVE_EVERY_SECONDS = 5;
@@ -28,17 +31,24 @@ async function fetchCaptions(url: string): Promise<Cue[]> {
   return parseVtt(await response.text());
 }
 
+/** Where "previous" and "next" go: the course's own order, or the learning path's. */
+interface Target {
+  course: string;
+  path: string;
+  title: string;
+}
+
 interface LecturePlayerProps {
   course: CourseView;
   lecture: LectureView;
-  index: number;
-  total: number;
-  prev: LectureView | null;
-  next: LectureView | null;
+  position: string;
+  prev: Target | null;
+  next: Target | null;
+  pathCode: string | null;
 }
 
 /** One lecture: the video, its transcript, shortcuts, and quiet position saves. */
-function LecturePlayer({ course, lecture, index, total, prev, next }: LecturePlayerProps) {
+function LecturePlayer({ course, lecture, position, prev, next, pathCode }: LecturePlayerProps) {
   const navigate = useNavigate();
   const { mutate: save } = useSaveLectureProgress(course.slug);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -63,12 +73,12 @@ function LecturePlayer({ course, lecture, index, total, prev, next }: LecturePla
     });
   };
 
-  const goTo = (target: LectureView | null) => {
+  const goTo = (target: Target | null) => {
     if (!target) return;
     void navigate({
       to: "/watch/$course/play",
-      params: { course: course.slug },
-      search: { lecture: target.path },
+      params: { course: target.course },
+      search: pathCode ? { lecture: target.path, path: pathCode } : { lecture: target.path },
     });
   };
 
@@ -188,7 +198,12 @@ function LecturePlayer({ course, lecture, index, total, prev, next }: LecturePla
             </Button>
           </span>
           <span className="cluster small muted">
-            {index + 1} of {total}
+            {position}
+            {pathCode ? (
+              <Link to="/learn/path/$code" params={{ code: pathCode }}>
+                path {pathCode}
+              </Link>
+            ) : null}
             <Button size="sm" variant="ghost" onClick={() => persist(true)}>
               Mark watched
             </Button>
@@ -223,7 +238,12 @@ export default function PlayerPage() {
   const { course: slug = "" } = useParams({ strict: false });
   const search = useSearch({ strict: false });
   const lecturePath = typeof search.lecture === "string" ? search.lecture : "";
+  const pathCode = typeof search.path === "string" && search.path ? search.path : null;
   const course = useQuery(courseQueryOptions(slug));
+  const pathQuery = useQuery({
+    ...objectivePathQueryOptions(pathCode ?? ""),
+    enabled: pathCode !== null,
+  });
   const setFocusMode = useUIStore((s) => s.setFocusMode);
 
   useEffect(() => {
@@ -254,15 +274,28 @@ export default function PlayerPage() {
     );
   }
 
+  // Along a learning path the neighbours are the path's, whatever course they sit in.
+  const inPath =
+    pathCode && pathQuery.data ? locateInPath(pathQuery.data.entries, slug, lecturePath) : null;
+  const fromCourse = (item: LectureView | undefined): Target | null =>
+    item ? { course: slug, path: item.path, title: item.title } : null;
+  const fromPath = (entry: PathEntryView | null): Target | null =>
+    entry
+      ? { course: entry.course_slug, path: entry.lecture_path, title: entry.lecture_title }
+      : null;
   return (
     <LecturePlayer
-      key={lecture.path}
+      key={`${slug}/${lecture.path}`}
       course={course.data}
       lecture={lecture}
-      index={index}
-      total={lectures.length}
-      prev={lectures[index - 1] ?? null}
-      next={lectures[index + 1] ?? null}
+      position={
+        inPath
+          ? `${inPath.index + 1} of ${inPath.total} in path ${pathCode}`
+          : `${index + 1} of ${lectures.length}`
+      }
+      prev={inPath ? fromPath(inPath.prev) : fromCourse(lectures[index - 1])}
+      next={inPath ? fromPath(inPath.next) : fromCourse(lectures[index + 1])}
+      pathCode={inPath ? pathCode : null}
     />
   );
 }

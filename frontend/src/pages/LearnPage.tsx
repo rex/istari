@@ -4,16 +4,21 @@ import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
+import { formatMinutes } from "@/lib/comparison";
 import { lessonsQueryOptions } from "@/queries/lessons";
+import { pathsQueryOptions } from "@/queries/paths";
 import { trackQueryOptions } from "@/queries/track";
 
 export default function LearnPage() {
   const { data: track } = useSuspenseQuery(trackQueryOptions());
   const lessons = useQuery(lessonsQueryOptions());
+  const paths = useQuery(pathsQueryOptions());
   if (lessons.isPending) return <Spinner label="Loading lessons" />;
   if (lessons.isError)
     return <StateBlock tone="error" title="Could not load lessons" body={lessons.error.message} />;
   const done = lessons.data.filter((l) => l.progress.completed_at).length;
+  const pathsFor = (domain: string) =>
+    (paths.data?.objectives ?? []).filter((s) => s.domain_code === domain && s.entries > 0);
 
   return (
     <div className="stack">
@@ -35,6 +40,20 @@ export default function LearnPage() {
               </h2>
               <span className="muted small">{domain.weight_percent}% of the exam</span>
             </div>
+            {pathsFor(domain.code).length > 0 ? (
+              <p className="cluster small muted">
+                <span>Learning paths from the share's lectures:</span>
+                {pathsFor(domain.code).map((s) => (
+                  <Link
+                    key={s.objective_code}
+                    to="/learn/path/$code"
+                    params={{ code: s.objective_code }}
+                  >
+                    {s.objective_code} · {s.entries} lectures · {formatMinutes(s.total_minutes)}
+                  </Link>
+                ))}
+              </p>
+            ) : null}
             <div className="lesson-list">
               {mine.map((lesson) => (
                 <Link

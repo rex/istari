@@ -34,6 +34,7 @@ from app.domain.recommendation import plan_session, weakest_objectives
 from app.domain.timeframes import days_until, local_date
 from app.services.content_query import USABLE_REVIEW_STATUSES
 from app.services.lab_progress import lab_facts, pick_lab_candidate
+from app.services.learning_path import path_lecture_candidate
 from app.services.lessons import next_unread_lesson
 from app.services.reviews import due_count, reviewed_today
 from app.services.sessions import active_view, get_active_session, load_item_rows
@@ -148,6 +149,7 @@ async def build_plan(
             ),
             verified_lab=pick_lab_candidate(facts, evidence) if facts else None,
             lab_backend=lab_backend_state(verifier),
+            next_lecture=await path_lecture_candidate(db, exam, evidence),
         )
     )
     return plan, active

@@ -5,8 +5,11 @@ import { EvidenceBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
+import { formatMinutes } from "@/lib/comparison";
 import { formatPercent } from "@/lib/format";
 import type { ObjectiveProgress } from "@/lib/types";
+import type { PathSummaryView } from "@/lib/types-paths";
+import { pathsQueryOptions } from "@/queries/paths";
 import { progressQueryOptions } from "@/queries/progress";
 import { useCardMutations } from "@/queries/review";
 import { useCreateSession } from "@/queries/study";
@@ -21,13 +24,21 @@ function Stat({ value, label, note }: { value: string; label: string; note?: str
   );
 }
 
-function ObjectiveRow({ o }: { o: ObjectiveProgress }) {
+function ObjectiveRow({ o, path }: { o: ObjectiveProgress; path?: PathSummaryView | undefined }) {
   return (
     <tr>
       <td>
         <strong>{o.code}</strong> {o.title}
         {o.self_declared_familiar ? (
           <span className="muted small"> · familiar (self-declared)</span>
+        ) : null}
+        {path && path.entries > 0 ? (
+          <span className="small">
+            {" · "}
+            <Link to="/learn/path/$code" params={{ code: o.code }}>
+              path: {path.entries} lectures, {formatMinutes(path.total_minutes)}
+            </Link>
+          </span>
         ) : null}
       </td>
       <td className="num">
@@ -65,6 +76,7 @@ export default function ProgressPage() {
   const progress = useQuery(progressQueryOptions());
   const createSession = useCreateSession();
   const cards = useCardMutations();
+  const paths = useQuery(pathsQueryOptions());
   if (progress.isPending) return <Spinner label="Counting the evidence" />;
   if (progress.isError)
     return (
@@ -73,6 +85,9 @@ export default function ProgressPage() {
   const p = progress.data;
   const maxDay = Math.max(1, ...p.recent_activity.map((d) => d.answers + d.reviews + d.lessons));
   const next = p.next_action;
+  const pathByCode = new Map(
+    (paths.data?.objectives ?? []).map((summary) => [summary.objective_code, summary] as const),
+  );
 
   return (
     <div className="stack">
@@ -272,7 +287,7 @@ export default function ProgressPage() {
               </thead>
               <tbody>
                 {d.objectives.map((o) => (
-                  <ObjectiveRow key={o.code} o={o} />
+                  <ObjectiveRow key={o.code} o={o} path={pathByCode.get(o.code)} />
                 ))}
               </tbody>
             </table>

@@ -15,6 +15,7 @@ from app.adapters.db.models.lectures import (
     LectureIndexRun,
     LectureObjective,
     LectureReview,
+    ObjectivePathEntry,
 )
 from app.adapters.db.models.notes import ItemProgress, LabAttempt, LabEvidence, Note
 from app.adapters.db.models.review import ReviewCard, ReviewEvent, SchedulerConfig
@@ -45,6 +46,7 @@ __all__ = [
     "LoginAttempt",
     "Note",
     "Objective",
+    "ObjectivePathEntry",
     "Owner",
     "ReviewCard",
     "ReviewEvent",

@@ -38,6 +38,7 @@ from app.routes import (
     lectures,
     lessons,
     notes,
+    paths,
     progress,
     reviews,
     sessions,
@@ -191,6 +192,7 @@ def create_app(
     app.include_router(lab_verifier.router, prefix="/api/labs", tags=["labs"])
     app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
     app.include_router(lectures.router, prefix="/api/lecture-index", tags=["lectures"])
+    app.include_router(paths.router, prefix="/api/paths", tags=["paths"])
     register_exception_handlers(app)
 
     static_dir = Path(settings.static_dir)

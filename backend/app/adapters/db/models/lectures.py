@@ -75,6 +75,31 @@ class LectureReview(Base):
     reviewed_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class ObjectivePathEntry(TimestampMixin, Base):
+    """One lecture's place on an objective's learning path for a track. `proposed` rows are
+    rewritten by every composition; `pinned` rows (in the owner's order) and `excluded` rows
+    are the owner's and stay."""
+
+    __tablename__ = "objective_path_entries"
+    __table_args__ = (
+        UniqueConstraint("exam_version_id", "objective_id", "course_slug", "lecture_path"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    exam_version_id: Mapped[int] = mapped_column(
+        ForeignKey("exam_versions.id", ondelete="CASCADE"), index=True
+    )
+    objective_id: Mapped[int] = mapped_column(
+        ForeignKey("objectives.id", ondelete="CASCADE"), index=True
+    )
+    course_slug: Mapped[str] = mapped_column(String(120))
+    lecture_path: Mapped[str] = mapped_column(String(1000))
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    source: Mapped[str] = mapped_column(String(16), index=True)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    minutes: Mapped[float] = mapped_column(Float, default=0.0)
+
+
 class LectureIndexRun(Base):
     """One run of the index for a track: what it read and how it ended."""
 

@@ -36,6 +36,7 @@ WEAK_THRESHOLD = 0.7
 RECOVERY_REVIEW_CAP = 10
 # A verified lab needs a real stretch of attention; five-minute sessions never schedule one.
 LAB_MIN_MINUTES = 15
+LECTURE_MIN_MINUTES = 30
 SECONDS_PER_REVIEW = 20
 SECONDS_PER_QUESTION = 60
 
@@ -163,6 +164,27 @@ def plan_session(inp: PlannerInput) -> Plan:
             )
         )
         explanation.append("A longer session leaves room for one lesson of new material.")
+
+    lecture = inp.next_lecture
+    if lecture is not None and inp.minutes >= LECTURE_MIN_MINUTES:
+        blocks.append(
+            PlanBlock(
+                kind="lecture",
+                count=1,
+                label=f"Watch: {lecture.title}",
+                reason=(
+                    f"next on objective {lecture.objective_code}'s path, from "
+                    f"{lecture.course_title}, about {lecture.minutes} min"
+                ),
+                focus=f"objective:{lecture.objective_code}",
+                course_slug=lecture.course_slug,
+                lecture_path=lecture.lecture_path,
+            )
+        )
+        explanation.append(
+            f"One lecture from the path of your weakest objective ({lecture.objective_code}); "
+            "watching is coverage, the practice above is the evidence."
+        )
 
     if not blocks:
         return Plan(

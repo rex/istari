@@ -33,13 +33,18 @@ objective badges on the player; on the real share it indexes 59 AWS courses and 
 captioned lectures for SAA-C03. v0.22.0 (2026-10-16) added courses compared (#63) at
 `/watch/compare`: one row per course with objectives touched, currency (the certification's
 name in a title counts), captions, minutes mapped per domain and lectures watched; never a
-quality score. Next under #61: #64 (master path) when Pierce says; #66 (queue ordering,
-course-level decisions) and #67 (ranking tuning, which is what will separate courses whose
-objectives column saturates at 14/14) are follow-ups in Inbox. Next agent slice otherwise:
-#26 (related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
-Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, go on
-#64, the Whisper decision (#28), reviewing the AI-authored pack items, and yes/no on #13,
-#27, #39, #48. Do NOT rename
+quality score. v0.23.0 (2026-10-16) added the master path (#64): one learning path per
+objective at `/learn/path/<code>`, composed across courses continuity first (the deepest
+course's run in course order, the other courses' strongest lectures behind it, older-exam
+courses stepping aside, capped at two hours), kept as a proposal the owner reorders,
+excludes or restores; the player follows it (`?path=`), and a 30-minute plan takes one
+lecture from the weakest objective's path. That closes the first pass of #61; #65
+(outcomes), #66 (queue ordering, course-level decisions) and #67 (ranking tuning, which is
+what will separate courses whose objectives column saturates at 14/14) are follow-ups in
+Inbox. Next agent slice otherwise: #26 (related-in-Istari rail, Ready). CKAD needs the CK-X backend (#48, Inbox); #49–#53 are labs follow-ups in Inbox; the
+Watch roadmap is #29 with #30–#39 (Inbox). Waiting on Pierce: the lab round trip, the
+Whisper decision (#28: model, and whether the VTTs go onto the share), go on #65/#66/#67,
+reviewing the AI-authored pack items, and yes/no on #13, #27, #39, #48. Do NOT rename
 item slugs or option ids in `content/packs/**/pack.json`, and never commit anything under
 `corpus/` or `content/private/`, or any K16S text.
 
@@ -117,7 +122,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 ## 5. Next actions (ordered)
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
-2. Pierce: say go on #64 (master path) under #61; decide the Whisper run (#28: model size, output location) that would let the 25 uncaptioned AWS courses be measured; review a few courses on `/content/lectures` (pins and exclusions are the ground truth #67 needs).
+2. Pierce: decide the Whisper run (#28: model, and whether the VTTs land on the share next to the videos) that would let the 25 uncaptioned AWS courses be measured and the Kubernetes tracks be mapped at all; pick the next of #65, #66, #67 under #61; review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>` (pins and exclusions are the ground truth #67 needs).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
 5. Pierce: decide on CK-X for CKAD (#48), the labs follow-ups (#49–#53), the content pipeline (#13 with #14–#19), the per-lecture context cards (#27), Whisper (#28), and the CKA knowledge pack (#9, Ready; lessons, questions and cards for the track the labs now cover).
@@ -160,6 +165,19 @@ courses have no captions at all (2,338 lectures, among them the SA Professional,
 ZeroToMastery and A Cloud Guru 2020 SAA courses); #28 and #36 (Whisper into the corpus) are
 the way to measure those and wait on Pierce's model-size and output-location decision.
 Gates: pytest 160, vitest 44, Playwright 19 on three viewports.
+
+Then #64 as v0.23.0: `domain/learning_path.py` (pure composition: anchor course by depth,
+course-order run, fill by source rank and score skipping titles already covered, older-exam
+courses stepping aside at half coverage, two-hour cap, pins first, exclusions out),
+`services/learning_path.py` and `objective_path_entries` (migration 0005; `proposed` rows
+rewritten by every index run and decision, `pinned`/`excluded` kept), `/api/paths`, the
+path page, the player's path mode, the Progress and Learn links, and the planner's
+"lecture" block at 30 minutes (`LectureCandidate`, `PlanBlock.course_slug/lecture_path`).
+Course currency moved to `services/course_currency.py` to break the import cycle the index
+would otherwise have with the comparison. The paths are only as good as the mappings:
+with the objectives column saturated, the anchor is simply the longest course on each
+objective, so #67 is the lever that makes the paths opinionated. Gates: pytest 167, vitest
+47, Playwright 22 on three viewports.
 
 2026-10-15, early morning, second block (Claude Fable 5.1): the Istari design system
 Pierce built in Claude Design was adopted as v0.15.0 to v0.19.0 (#55: #56–#60). The

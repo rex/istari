@@ -64,8 +64,10 @@ const playerRoute = createRoute({
   getParentRoute: () => shellRoute,
   path: "/watch/$course/play",
   component: lazyRouteComponent(() => import("@/pages/PlayerPage")),
-  validateSearch: (search: Record<string, unknown>): { lecture: string } => ({
+  validateSearch: (search: Record<string, unknown>): { lecture: string; path?: string } => ({
     lecture: typeof search["lecture"] === "string" ? search["lecture"] : "",
+    // The learning path the lecture is being watched along, when it is.
+    ...(typeof search["path"] === "string" && search["path"] ? { path: search["path"] } : {}),
   }),
 });
 
@@ -77,6 +79,7 @@ const routes = [
   playerRoute,
   page("/onboarding", () => import("@/pages/OnboardingPage")),
   page("/learn", () => import("@/pages/LearnPage")),
+  page("/learn/path/$code", () => import("@/pages/ObjectivePathPage")),
   page("/learn/$key", () => import("@/pages/LessonPage")),
   page("/practice", () => import("@/pages/PracticePage")),
   page("/practice/$sessionId", () => import("@/pages/SessionPage")),
