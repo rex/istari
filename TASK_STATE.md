@@ -116,9 +116,13 @@ network, availability and cost lessons. #84 shipped on 2026-10-17: LocalEmu 1.2.
 orthanc VM 219 at `https://localemu.thelab.host` (IAM enforcement on, no persistence,
 Docker-backed Lambda, ECS, EC2 and RDS), smoke-tested from shire, with the runbook in
 homelab-infrastructure-general `docs/localemu.md`; `LOCALEMU_BASE_URL` is in the pod's env
-and unread until #85. Next: #85, the `localemu` verifier backend (boto3 scenario modules:
-setup, check and teardown as the emulator's root; the learner works the scenario with the
-AWS CLI). Homelab changes go through Arda's prescribed workflows; the tofu apply is Pierce's.
+and unread until #85. Next: #85, the `localemu` verifier backend, split on 2026-10-17 into
+four Ready sub-issues in order: #86 (the adapter, the `localemu` schema literal, settings
+and availability, with tests), #87 (the scenario framework and the `s3-lifecycle` lab in
+its lesson's Do it, `make aws-labs-check`), #88 (three more labs) and #89 (docs). The
+design is a comment on #85; the emulator facts are #84's closing comment and the runbook.
+Start with `rivendell_claim` on #86. Homelab changes go through Arda's prescribed
+workflows; the tofu apply is Pierce's.
 
 ## Standing user directives
 

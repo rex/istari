@@ -30,6 +30,12 @@ version bumps).
 
 ---
 
+## [0.36.2] — 2026-10-17 — Agent: Claude Fable 5.1
+### Changed
+- Docs only: `TASK_STATE.md` §0 points the next session at #85's four sub-issues (#86 the
+  adapter and schema, #87 the scenario framework and the first lab, #88 three more labs,
+  #89 the docs), filed Ready in that order with the design recorded on #85. No code changed.
+
 ## [0.36.1] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Changed
 - Docs only: LocalEmu, the AWS emulator, runs in the ring (rex/istari#84): orthanc VM 219 at
