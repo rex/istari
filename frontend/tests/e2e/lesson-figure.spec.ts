@@ -17,9 +17,9 @@ test.describe("a lesson shows its figure", () => {
     const image = page.getByRole("img", { name: /A VPC with an internet gateway/ });
     await expect(image).toBeVisible();
     await expect(image).toHaveAttribute("src", "/api/figures/fig-vpc-two-tier.svg");
-    await expect(page.locator("figure.figure figcaption")).toContainText(
-      "Two-tier web app in a VPC.",
-    );
+    // The lesson shows more than one figure; read the caption of this one.
+    const figure = page.locator("figure.figure").filter({ has: image });
+    await expect(figure.locator("figcaption")).toContainText("Two-tier web app in a VPC.");
     await shot(page, "lesson-figure-vpc", info.project.name);
   });
 

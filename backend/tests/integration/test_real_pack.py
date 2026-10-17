@@ -20,7 +20,7 @@ from app.services.settings import complete_onboarding
 PACK_PATH = (
     Path(__file__).resolve().parents[3] / "content" / "packs" / "aws-saa-c03-starter" / "pack.json"
 )
-EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 2, "figures": 1}
+EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 2, "figures": 10}
 TOTAL_ITEMS = sum(EXPECTED_COUNTS.values())
 
 

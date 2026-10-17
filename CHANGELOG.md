@@ -30,6 +30,17 @@ version bumps).
 
 ---
 
+## [0.34.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- Nine more figures for the SAA-C03 pack (rex/istari#81), so every one of its eight
+  lessons opens its key section with a drawing: cross-account access by assuming a role;
+  envelope encryption with KMS; SNS and SQS fan-out; the four DR strategies; RDS Multi-AZ
+  against read replicas (shown in both the availability and the database lessons, the same
+  figure); block, file and object storage; a data lake on S3; S3 storage classes and a
+  lifecycle; NAT gateway against a gateway endpoint. Each is drawn from the lesson's checked
+  AWS sources with `make figures`, captioned with the decision rule, and mapped to its task
+  statements.
+
 ## [0.33.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - `make figures` and `make figures-check` (rex/istari#80): every `content/packs/<pack>/figures/<slug>.py`
