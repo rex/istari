@@ -113,16 +113,15 @@ lesson view carries their summaries, the viewer runs a graded lab inline (`DoIt.
 reusing `VerifiedLab`) and shows a brief's goals, steps and expected observations, and the
 lab page links back to its lessons (`LabView.lessons`); the two SAA briefs sit in the
 network, availability and cost lessons. #84 shipped on 2026-10-17: LocalEmu 1.2.0 runs on
-orthanc VM 219 at `https://localemu.thelab.host` (IAM enforcement on, no persistence,
-Docker-backed Lambda, ECS, EC2 and RDS), smoke-tested from shire, with the runbook in
-homelab-infrastructure-general `docs/localemu.md`; `LOCALEMU_BASE_URL` is in the pod's env
-and unread until #85. Next: #85, the `localemu` verifier backend, split on 2026-10-17 into
-four Ready sub-issues in order: #86 (the adapter, the `localemu` schema literal, settings
-and availability, with tests), #87 (the scenario framework and the `s3-lifecycle` lab in
-its lesson's Do it, `make aws-labs-check`), #88 (three more labs) and #89 (docs). The
-design is a comment on #85; the emulator facts are #84's closing comment and the runbook.
-Start with `rivendell_claim` on #86. Homelab changes go through Arda's prescribed
-workflows; the tofu apply is Pierce's.
+its own VM in the ring (IAM enforcement on, no persistence, Docker-backed engines), with
+the runbook in homelab-infrastructure-general `docs/localemu.md`; its URL is in the
+private inventory and reaches the pod as `LOCALEMU_BASE_URL`. #85 shipped the same day as
+v0.37.0 to v0.39.1 (#86 to #89): the `localemu` verifier backend, five scenarios, four AWS
+labs graded against the emulator in the SAA lessons' Do it (least-privilege IAM, public and
+private subnets with NAT, SNS to SQS fan-out, an S3 lifecycle rule), `make
+aws-labs-check`, and `docs/labs-localemu.md`. The deployed app reports the emulator
+reachable. The first graded AWS attempt from the deployed app waits for Pierce's word,
+like the K16S round trip, because it records evidence.
 
 ## Standing user directives
 
@@ -200,7 +199,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
-3. Agent (Ready, in order): #84 LocalEmu in the ring (a ring app through Arda's prescribed workflow; confirm the host and the Docker-backed engines with Pierce first), then #85 its verifier backend. Pierce: open the eight SAA lessons and say, per figure, whether it is the thing; review the ten figures on the Content page (`kind: figure`). #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
+3. Pierce: open an SAA lesson with an AWS lab (storage, IAM, network or loose coupling) on the deployed app and say the word for one graded attempt (it records evidence). Pierce: open the eight SAA lessons and say, per figure, whether it is the thing; review the ten figures on the Content page (`kind: figure`). #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
@@ -210,8 +209,26 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 ## 6. Handoff note (fill when ending a session)
 
-2026-10-17, midday (Claude Fable 5.1): #84 is live. LocalEmu 1.2.0 runs on orthanc VM 219
-(10.0.30.16) at `https://localemu.thelab.host`. The chain: homelab-inventory 0.48.0 (the
+2026-10-17, afternoon (Claude Opus 5.5): #85 is done, as four slices. v0.37.0 (#86): the
+`localemu` backend beside k16s behind one `VerifierClient` interface
+(`services/verifier_clients.py`); the planner gates a lab on the backend that grades it;
+`/api/health` reports `localemu`. v0.38.0 (#87): scenarios carry `solve`, `make
+aws-labs-check` runs each one's whole loop against the emulator, `lab-s3-lifecycle` sits in
+the storage lesson's Do it, the lab state carries `cli_env` (the learner's export lines),
+and the lab UI names its grader. v0.39.0 (#88): least-privilege IAM, public and private
+subnets with NAT, SNS to SQS fan-out, in the IAM, network and loose-coupling lessons.
+v0.39.1 (#89): `docs/labs-localemu.md`. Decisions made on the way: every setup is a fresh
+run named `istari-<scenario>-<run>` and clears earlier runs first; a check grades the
+latest run, so a re-check after a fix works; a check with nothing to grade records no
+attempt; the IAM check reads policies back (moto enforces nothing), and live the emulator
+enforces the same policy on the analyst's key. All five scenarios pass `make
+aws-labs-check` against the ring's emulator; the VPC loop takes about 7 s (NAT gateway).
+Lab hostnames had crept into this public repo (a CHANGELOG entry, this file, a CLI
+docstring and a test) and are now placeholders; pushed commit messages and issue comments
+on #84, #85, #87 and #88 still name the host.
+
+2026-10-17, midday (Claude Fable 5.1): #84 is live. LocalEmu 1.2.0 runs on its own VM in
+the ring (address and URL in the private inventory). The chain: homelab-inventory 0.48.0 (the
 guest) and 0.49.0 (the ingress record, home cards and `LOCALEMU_BASE_URL`, added only once
 the service answered so Gatus never watched a dead target); Pierce's tofu apply at 10:30
 (his first attempts failed with "no route to host" from a Terminal tab older than his

@@ -73,7 +73,7 @@ characters), `expected_observations_md`, `cleanup_md` (at least 40 characters). 
 briefs for work the learner does in their own account. Istari never provisions anything.
 
 A lab may carry a `verifier`, which turns the brief into a task graded by a backend the
-owner runs (see `docs/labs-k16s.md`):
+owner runs (see `docs/labs-k16s.md` and, for AWS labs, `docs/labs-localemu.md`):
 
 ```json
 "verifier": {"backend": "k16s", "profile": "cka", "question": "02-fix-crashloop", "weight": 5}

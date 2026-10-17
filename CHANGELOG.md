@@ -30,6 +30,18 @@ version bumps).
 
 ---
 
+## [0.39.1] — 2026-10-17 — Agent: Claude Opus 5.5
+### Changed
+- Docs only (rex/istari#89): `docs/labs-localemu.md`, the companion to `docs/labs-k16s.md`.
+  It covers configuration, what Istari asks of the emulator, the emulator facts a scenario
+  author needs, the scenario contract with its runs, prefixes, teardown and grading, the
+  learner's shell lines, the labs, how to add one, moto in tests, and `make
+  aws-labs-check`. `docs/content-schema.md`, `docs/deployment.md` (the `LOCALEMU_*`
+  variables), `README.md` and `AGENTS.md` §9 (two traps) point at it.
+- The repository is public, so lab hostnames and LAN addresses are out of tracked files.
+  A CHANGELOG entry, `TASK_STATE.md`, a CLI docstring and a test now use placeholders;
+  §9 says so. `TASK_STATE.md` and `PROGRESS.md` record #85 as done.
+
 ## [0.39.0] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Added
 - Three more AWS labs graded against the LocalEmu emulator (rex/istari#88), each in the
@@ -113,8 +125,8 @@ version bumps).
 
 ## [0.36.1] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Changed
-- Docs only: LocalEmu, the AWS emulator, runs in the ring (rex/istari#84): orthanc VM 219 at
-  `https://localemu.thelab.host`, LocalEmu 1.2.0 with IAM enforcement on, no persistence and
+- Docs only: LocalEmu, the AWS emulator, runs in the ring (rex/istari#84): its own VM behind
+  the ring's ingress (the URL lives in the private inventory), LocalEmu 1.2.0 with IAM enforcement on, no persistence and
   Docker-backed Lambda, ECS, EC2 and RDS, smoke-tested from shire (STS, an S3 round trip, a
   Lambda invoked in a real container, a policy-less user denied). The chain and the facts the
   verifier backend (#85) needs are in `TASK_STATE.md` §0 and §6; the runbook is

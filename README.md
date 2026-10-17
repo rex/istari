@@ -6,8 +6,10 @@ Istari is a personal certification-training platform for one learner: short less
 scenario practice graded on the server, spaced-repetition review cards scheduled with
 FSRS, an explainable daily plan, and progress views that show evidence instead of a
 readiness percentage. It ships with an AWS Certified Solutions Architect - Associate
-(SAA-C03) starter pack: 8 lessons, 40 questions, 24 flashcards and 2 hands-on lab briefs,
-every item sourced to AWS documentation checked on 2026-10-05; and with a CKA v1.35 track
+(SAA-C03) starter pack: 8 lessons, 40 questions, 24 flashcards and 6 hands-on labs, every
+item sourced to AWS documentation; four of the labs are graded against your own LocalEmu
+AWS emulator, never a real account ([`docs/labs-localemu.md`](docs/labs-localemu.md)); and
+with a CKA v1.35 track
 whose 36 hands-on labs are set up and graded by your own
 [K16S](https://github.com/immanuwell/k16s-exam-simulator) cluster
 ([`docs/labs-k16s.md`](docs/labs-k16s.md)).

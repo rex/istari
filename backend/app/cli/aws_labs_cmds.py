@@ -1,7 +1,7 @@
 """`labs aws-check`: every LocalEmu scenario run end to end against the real emulator.
 
     uv run python -m app.cli labs aws-check                       # LOCALEMU_BASE_URL
-    uv run python -m app.cli labs aws-check --scenario s3-lifecycle --base-url http://10.0.30.16:4566
+    uv run python -m app.cli labs aws-check --scenario s3-lifecycle --base-url http://localemu.lan:4566
 
 Per scenario: setup, check (must fail, since the task is not done yet), solve by API, check
 (must pass), teardown. Then every pack lab with a `localemu` verifier must name a registered

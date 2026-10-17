@@ -88,7 +88,7 @@ def test_every_run_is_named_under_its_scenario_prefix() -> None:
 
 
 def test_only_an_emulator_endpoint_is_accepted() -> None:
-    assert emulator_endpoint("https://localemu.thelab.host/") == "https://localemu.thelab.host"
+    assert emulator_endpoint("https://localemu.lan/") == "https://localemu.lan"
     for real in ("https://s3.us-east-1.amazonaws.com", "https://sts.amazonaws.com"):
         with pytest.raises(ValueError, match="real AWS endpoint"):
             LocalEmuClient(real)
