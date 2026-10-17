@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 
-from app.deps import DbSession, require_auth
-from app.services.figures import figure_svg
+from app.contracts.figure import FigureView
+from app.deps import ActiveExam, DbSession, require_auth
+from app.services.content_query import load_objective_map
+from app.services.figures import figure_svg, lecture_figures
 
 router = APIRouter(dependencies=[Depends(require_auth)])
+
+
+@router.get("/lecture/{course_slug}", response_model=list[FigureView])
+async def figures_for_lecture(
+    course_slug: str, db: DbSession, exam: ActiveExam, path: str = Query(min_length=1)
+) -> list[FigureView]:
+    """The figures of the objectives this lecture is mapped to: the player's "See it" rail."""
+    objective_map = await load_objective_map(db, exam.id)
+    return await lecture_figures(db, exam.id, (course_slug, path), objective_map)
 
 
 @router.get("/{key}.svg", response_class=Response)

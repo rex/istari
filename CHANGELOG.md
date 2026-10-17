@@ -30,6 +30,13 @@ version bumps).
 
 ---
 
+## [0.35.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- "See it" in the player's rail (rex/istari#82): the pack's figures for the objectives the
+  lecture is mapped to, pinned and ruled mappings first, excluded ones bringing nothing,
+  served by `GET /api/figures/lecture/{course}?path=`. One figure serves every lecture on
+  its topic; nothing is generated per lecture.
+
 ## [0.34.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - Nine more figures for the SAA-C03 pack (rex/istari#81), so every one of its eight

@@ -49,6 +49,9 @@ test.describe("lecture mapping", () => {
       `/watch/${encodeURIComponent(course?.slug ?? "")}/play?lecture=${encodeURIComponent(lecture)}`,
     );
     await expect(page.getByText("Teaches")).toBeVisible();
-    await expect(page.getByText("1.1", { exact: true })).toBeVisible();
+    await expect(page.getByText("1.1", { exact: true }).first()).toBeVisible();
+    // And borrows the pack's figure for that objective into the rail.
+    await expect(page.getByRole("heading", { name: "See it" })).toBeVisible();
+    await expect(page.getByRole("img", { name: "A box labelled Figure one" })).toBeVisible();
   });
 });

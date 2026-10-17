@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { LectureObjectives } from "@/components/feature/LectureObjectives";
+import { SeeIt } from "@/components/feature/SeeIt";
 import { TranscriptPanel } from "@/components/feature/TranscriptPanel";
 import { Button } from "@/components/ui/Button";
 import { Kbd } from "@/components/ui/Kbd";
@@ -214,6 +215,7 @@ function LecturePlayer({ course, lecture, position, prev, next, pathCode }: Lect
         </div>
       </div>
       <aside className="card card--quiet stack">
+        <SeeIt course={course.slug} path={lecture.path} />
         <h3>Transcript</h3>
         {lecture.has_captions && captions.isPending ? (
           <Spinner label="Loading captions" />
