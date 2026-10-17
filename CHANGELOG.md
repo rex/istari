@@ -30,6 +30,15 @@ version bumps).
 
 ---
 
+## [0.31.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- Groundwork for figures as pack content (rex/istari#79, not yet wired): the `figures[]`
+  item schema with an SVG sanitizer (no scripts, event handlers, embedded documents or
+  external references), `load_pack_file` that reads a figure's drawing from the file beside
+  the pack, lessons' `figures` list, the figure view contract, the figure service and the
+  `/api/figures/{key}.svg` route. Nothing registers or imports them yet; the pack schema
+  accepts a `figures` section and `make seed` ignores it until the next slice.
+
 ## [0.30.1] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Changed
 - Docs only: `TASK_STATE.md` and `PROGRESS.md` record the outcome of the grading and

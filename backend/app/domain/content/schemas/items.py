@@ -7,7 +7,7 @@ from typing import Annotated
 
 from pydantic import Field, StringConstraints, model_validator
 
-from app.domain.content.schemas.common import Difficulty, ItemBase, NonEmpty, StrictModel
+from app.domain.content.schemas.common import Difficulty, ItemBase, Key, NonEmpty, StrictModel
 from app.domain.content.schemas.verifier import LabVerifierSpec
 
 # Stable, descriptive slugs (never positional letters): options are shuffled per session.
@@ -36,6 +36,9 @@ class LessonSpec(ItemBase):
     foundations_md: str = ""
     estimated_minutes: int = Field(default=5, ge=1, le=60)
     checks: list[LessonCheck] = Field(default_factory=list)
+    # The pack's figures this lesson shows, by slug. `body_md` may place one where it belongs
+    # with `![alt](figure:slug)`; the rest follow the body.
+    figures: list[Key] = Field(default_factory=list)
 
 
 class OptionSpec(StrictModel):

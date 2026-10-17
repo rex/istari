@@ -7,6 +7,7 @@ from typing import Annotated, Literal
 from pydantic import Field, StringConstraints
 
 from app.domain.content.schemas.common import AuthoredBy, Key, NonEmpty, StrictModel
+from app.domain.content.schemas.figures import FigureSpec
 from app.domain.content.schemas.items import FlashcardSpec, LabSpec, LessonSpec, QuestionSpec
 from app.domain.content.schemas.track import (
     CertificationSpec,
@@ -39,3 +40,4 @@ class ContentPackSpec(StrictModel):
     questions: list[QuestionSpec] = Field(default_factory=list)
     flashcards: list[FlashcardSpec] = Field(default_factory=list)
     labs: list[LabSpec] = Field(default_factory=list)
+    figures: list[FigureSpec] = Field(default_factory=list)
