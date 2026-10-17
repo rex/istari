@@ -30,6 +30,13 @@ version bumps).
 
 ---
 
+## [0.30.1] — 2026-10-17 — Agent: Claude Fable 5.1
+### Changed
+- Docs only: `TASK_STATE.md` and `PROGRESS.md` record the outcome of the grading and
+  master-course effort (rex/istari#70, parked with its findings and decisions on the issue),
+  the finished Cloud/AWS transcription (every course captioned), the local-model
+  measurements on the laptop, and the regroup toward seeing and doing inside the viewer.
+
 ## [0.30.0] — 2026-10-16 — Agent: Claude Fable 5.1
 ### Added
 - `exam_version.scope` in the pack schema: the exam guide's appendix as `technologies`,

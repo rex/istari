@@ -78,6 +78,16 @@ with #71–#76 (checklist #72, LLM lecture assessment #73, master course #74, ga
 #75, a verified lab for every lesson #76; #68 and #69 moved under it); the compute spend
 waits on his three decisions (assessment model and budget, consent to send the purchased
 transcripts to the API, the AWS lab substrate).
+2026-10-17, 07:03: Pierce paused #70 to regroup ("I'm letting my perfectionist tendencies
+derail my own progress"). The direction now: every lecture and lesson lets him **see** the
+thing and **do** the thing inside the viewer: figures per lesson and per lecture first,
+do-steps (labs, executables) in the viewer as the stretch. The grading effort's outcome,
+measurements and decisions are captured on #70 and #73 (consent to send transcripts to the
+API; hybrid AWS labs with a $0.50 cap; local models measured on the laptop: Qwen3.6-35B-A3B
+graded a real S3 lecture correctly in 19 s, gpt-oss-20b in schema mode did not; assess the
+machine and tell Pierce before loading a model). #72–#77 stay in Inbox. The "see it, do it"
+plan is filed once Pierce answers its three decisions (figure technology, first target, the
+AWS do-step substrate); then its slices go Ready and the first starts.
 
 ## Standing user directives
 
@@ -154,7 +164,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
-3. Pierce: the three #70 decisions (the assessment model and a budget cap; consent to send purchased-course transcripts to the Anthropic API; the AWS lab substrate: LocalStack, a sandbox account under separate authorization, or paper labs). Then the agent promotes #72–#76 to Ready and starts #72, the exam checklist.
+3. Pierce: the three "see it, do it" decisions (figure technology; whether the SAA lessons, the player rail or CKA lessons come first; the AWS do-step substrate). Then the agent files the slices as Ready and starts the first: figures in the pack schema and the lesson viewer. #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
@@ -163,6 +173,24 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-17, early morning (Claude Fable 5.1): the Cloud/AWS transcription finished at
+19:13 on 2026-10-16 (1,401 lectures, 30 courses, 0 failures; every course under
+`Cloud/AWS` is captioned, 71 courses, 6,935 lectures). Pierce's answers to the program's
+decisions turned on cost: money is tight, time and local compute are not. Facts gathered
+for him (all on #70 and #73): Batches API terms and the October 2026 prices; the corpus is
+5,533 captioned lectures and 2.26 million words; a full grading pass is about $3 on Haiku
+5.5 batch, $25 to $55 on Sonnet 5.5, $0 locally; LocalStack archived its open-source
+edition and needs an account (Hobby free for non-commercial), LocalEmu is the Apache-2.0
+fork (132 services, young); 13 SAA services have no LocalStack page at all. On the laptop
+(M4 Pro, 48 GB) one real lecture was graded: gpt-oss-20b (12 GB) loads in 15 s and answers
+in 7 to 11 s but, in LM Studio's json_schema mode, reasons 0 tokens and wrongly says skip;
+Qwen3.6-35B-A3B (20 GB) with thinking off answers in 19 s and gets it right (3.1 and 4.1 at
+depth 3, evidence quoted, quality 5, include), with the JSON in `reasoning_content`. Pierce
+had feared the model would crash the machine; it did not (memory 45% free before, 71%
+after). His rule from here: assess the machine's state before any load, tell him before
+loading, no per-request authorization while a model stays loaded. Then he paused the
+program to regroup toward seeing and doing in the viewer (§0). Nothing new is claimed.
 
 2026-10-16, evening (Claude Fable 5.1): Pierce's direction after the transcription run:
 quality is the core grading factor, the 2018 course must rank lower or be ignored, master
