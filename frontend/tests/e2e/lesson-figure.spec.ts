@@ -28,6 +28,28 @@ test.describe("a lesson shows its figure", () => {
     await shot(page, "lesson-figure-vpc", info.project.name);
   });
 
+  test("the storage lesson's Do it is the lifecycle lab, graded on the emulator", async ({
+    page,
+  }, info) => {
+    await login(page);
+    await page.goto("/learn/lesson-cost-optimized-storage");
+    await expect(page.getByRole("heading", { name: "Do it" })).toBeVisible();
+    const doIt = page.locator('[data-do-it="lab-s3-lifecycle"]');
+    await expect(doIt.getByRole("heading", { name: /Archive the logs/ })).toBeVisible();
+    await expect(doIt.getByText("graded on the AWS emulator")).toBeVisible();
+    // The e2e server runs no emulator: the lab says what to set, in the emulator's words.
+    await expect(doIt.getByText("No AWS emulator configured")).toBeVisible();
+    await expect(
+      doIt.getByRole("heading", { name: "This lab needs the AWS emulator" }),
+    ).toBeVisible();
+    await expect(doIt.getByText(/set LOCALEMU_BASE_URL/).first()).toBeVisible();
+    await expect(doIt.getByRole("button", { name: "Set up environment" })).toBeDisabled();
+    // The work happens in the learner's own shell, never the cluster's terminal.
+    await expect(doIt.getByText("Work in your own shell")).toBeVisible();
+    await expect(doIt.getByText(/control plane/)).toHaveCount(0);
+    await shot(page, "lesson-do-it-aws", info.project.name);
+  });
+
   test("the fixture figure renders in the body with its caption", async ({ page }) => {
     await login(page);
     await switchTrack(page, "TST-C01");

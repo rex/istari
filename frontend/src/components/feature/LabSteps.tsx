@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { formatRelative, pluralize } from "@/lib/format";
-import type { LabPhase } from "@/lib/labs";
+import { graderCopy, type LabPhase } from "@/lib/labs";
 import type { LabAttemptView, VerifierStateView } from "@/lib/types-labs";
 
 export type Busy = "setup" | "check" | null;
@@ -72,13 +72,11 @@ export function LabSteps({
   const settled = phase === "passed" || phase === "failed";
   const setupLabel = latest ? "Set up again" : "Set up environment";
   const terminal = state.terminal_url;
+  const copy = graderCopy(state.spec.backend);
   return (
     <ol className="labsteps list-reset" aria-label="Lab steps">
       <Step number={1} title="Set up the environment" status={statusFor(1, phase)}>
-        <p className="labsteps__hint">
-          The backend runs the task's setup script and puts the cluster into the starting state.
-          Takes a few seconds; up to 90.
-        </p>
+        <p className="labsteps__hint">{copy.setupHint}</p>
         {phase === "setup" || settled ? (
           <div className="labsteps__action">
             <Button
@@ -102,11 +100,25 @@ export function LabSteps({
           </p>
         ) : null}
       </Step>
-      <Step number={2} title="Work in the terminal" status={statusFor(2, phase)}>
-        <p className="labsteps__hint">
-          A root shell on the control plane, in a new tab. Workers answer to <code>ssh node01</code>{" "}
-          and <code>ssh node02</code>.
-        </p>
+      <Step number={2} title={copy.workTitle} status={statusFor(2, phase)}>
+        {copy.ownShell ? (
+          <>
+            <p className="labsteps__hint">
+              Paste the emulator's lines into your shell so the AWS CLI talks to it, then do the
+              task with <code>aws</code>. Nothing here touches a real AWS account.
+            </p>
+            {state.cli_env.length > 0 ? (
+              <pre className="labresult__reason" aria-label="Shell environment for the AWS CLI">
+                {state.cli_env.map((line) => `export ${line}`).join("\n")}
+              </pre>
+            ) : null}
+          </>
+        ) : (
+          <p className="labsteps__hint">
+            A root shell on the control plane, in a new tab. Workers answer to{" "}
+            <code>ssh node01</code> and <code>ssh node02</code>.
+          </p>
+        )}
         {terminal ? (
           <div className="labsteps__action">
             <a
@@ -133,10 +145,7 @@ export function LabSteps({
         ) : null}
       </Step>
       <Step number={3} title="Check the answer" status={statusFor(3, phase)}>
-        <p className="labsteps__hint">
-          The backend runs the task's validate script against the live cluster and returns pass or
-          fail with its reason. Up to 45 seconds.
-        </p>
+        <p className="labsteps__hint">{copy.checkHint}</p>
         <div className="labsteps__action">
           <Button
             variant={phase === "check" || phase === "failed" ? "primary" : "secondary"}

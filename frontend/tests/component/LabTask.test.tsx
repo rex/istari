@@ -21,6 +21,7 @@ const ready: VerifierStateView = {
   terminal_url: "http://k16s.lan:8080/terminal/",
   exam_url: "http://k16s.lan:8080/",
   map_url: null,
+  cli_env: [],
   task: {
     title: "A pod keeps crashing",
     context: "Namespace apps, pod web-0.",
@@ -57,6 +58,15 @@ describe("clusterChip", () => {
     expect(chip.label).toBe("Lab cluster ready · full mode");
     expect(chip.detail).toContain("from cka2 to cka");
     expect(clusterChip({ ...ready, session_profile: "cka" }).detail).toBeNull();
+  });
+  it("names the AWS emulator, not the cluster, for an AWS lab", () => {
+    const aws = { ...ready, spec: { ...ready.spec, backend: "localemu", profile: "saa" } };
+    expect(clusterChip({ ...aws, mode: "community 1.2.0" }).label).toBe(
+      "AWS emulator ready · community 1.2.0",
+    );
+    expect(clusterChip({ ...aws, configured: false }).label).toBe("No AWS emulator configured");
+    expect(clusterChip({ ...aws, reachable: false }).label).toBe("AWS emulator unreachable");
+    expect(clusterChip({ ...aws, task: null }).label).toBe("Task not found in this Istari build");
   });
 });
 

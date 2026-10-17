@@ -10,6 +10,7 @@ Commands:
   export-pack       write a pack from the database as JSON
   validate-pack     schema + cross-reference validation only
   labs check-map    compare every verified lab's question id with what the K16S instance serves
+  labs aws-check    run every LocalEmu scenario end to end (setup, fail, solve, pass, teardown)
 """
 
 from __future__ import annotations

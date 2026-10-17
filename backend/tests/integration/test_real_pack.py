@@ -20,7 +20,8 @@ from app.services.settings import complete_onboarding
 PACK_PATH = (
     Path(__file__).resolve().parents[3] / "content" / "packs" / "aws-saa-c03-starter" / "pack.json"
 )
-EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 2, "figures": 10}
+# Labs: two briefs done by hand and one graded against the AWS emulator (rex/istari#87).
+EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 3, "figures": 10}
 TOTAL_ITEMS = sum(EXPECTED_COUNTS.values())
 
 
@@ -46,6 +47,11 @@ def test_pack_validates_and_matches_the_brief() -> None:
     placing = next(lesson for lesson in spec.lessons if figure.slug in lesson.figures)
     assert f"(figure:{figure.slug})" in placing.body_md
     assert sum(q.select_count > 1 for q in spec.questions) >= 2, "multi-answer items expected"
+    # The storage lesson's "Do it" is the lifecycle lab, graded by the emulator's scenario.
+    graded = next(lab for lab in spec.labs if lab.slug == "lab-s3-lifecycle")
+    assert graded.verifier is not None and graded.verifier.question == "s3-lifecycle"
+    storage = next(les for les in spec.lessons if les.slug == "lesson-cost-optimized-storage")
+    assert storage.labs == ["lab-s3-lifecycle"]
 
     objective_codes = {o.code for d in spec.domains for o in d.objectives}
     questioned = {code for q in spec.questions for code in q.objectives}

@@ -6,6 +6,7 @@ import { VerifiedLab } from "@/components/feature/VerifiedLab";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
+import { graderCopy } from "@/lib/labs";
 import { Markdown } from "@/lib/Markdown";
 import type { LabView } from "@/lib/types";
 import { meQueryOptions } from "@/queries/auth";
@@ -77,7 +78,7 @@ function GradedLab({ lab, timeZone }: { lab: LabView; timeZone: string }) {
         <Eyebrow lab={lab} />
         <h1>{lab.title}</h1>
         <div className="lab-head__meta">
-          <Badge tone="gold">Verified on the lab cluster</Badge>
+          <Badge tone="gold">Verified on {graderCopy(verifier?.backend ?? "k16s").name}</Badge>
           {verifier ? (
             <span>
               {verifier.profile} · {verifier.question} · weight {verifier.weight}

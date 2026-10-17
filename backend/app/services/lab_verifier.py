@@ -115,6 +115,7 @@ async def state(
         last_attempt=next((a for a in attempts if a.checked_at is not None), None),
         # The cluster map belongs to the K16S cluster; other backends have none.
         map_url=(headlamp_url or None) if spec.backend == "k16s" else None,
+        cli_env=list(client.cli_env) if client is not None else [],
     )
     if client is None:
         return view(

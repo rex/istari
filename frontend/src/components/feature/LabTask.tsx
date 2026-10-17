@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/Badge";
-import { clusterChip } from "@/lib/labs";
+import { clusterChip, graderCopy } from "@/lib/labs";
 import type { VerifierStateView } from "@/lib/types-labs";
 
 export function LabClusterChip({ state }: { state: VerifierStateView }) {
@@ -25,7 +25,7 @@ export function LabTask({ state }: { state: VerifierStateView }) {
         <h2 id="labtask-title">Task text is not available</h2>
         <p className="muted">
           {state.message ??
-            "The lab cluster has not answered yet. The task text comes from it, live."}
+            `${graderCopy(spec.backend).subject} has not answered yet. The task text comes from it, live.`}
         </p>
       </section>
     );

@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { VerifiedLab } from "@/components/feature/VerifiedLab";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
+import { graderCopy } from "@/lib/labs";
 import { Markdown } from "@/lib/Markdown";
 import type { LabSummary } from "@/lib/types";
 import { labQueryOptions } from "@/queries/labs";
@@ -19,7 +20,7 @@ function DoItLab({ summary, timeZone }: { summary: LabSummary; timeZone: string 
         <h3>{summary.title}</h3>
         <span className="cluster small muted">
           {summary.verifier ? (
-            <Badge tone="gold">graded on the lab cluster</Badge>
+            <Badge tone="gold">graded on {graderCopy(summary.verifier.backend).name}</Badge>
           ) : (
             <Badge>by hand, in your own account</Badge>
           )}

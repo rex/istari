@@ -35,6 +35,10 @@ class VerifierClient(Protocol):
     @property
     def exam_url(self) -> str | None: ...
 
+    # Environment lines the learner's own shell needs (LocalEmu's endpoint and identity).
+    @property
+    def cli_env(self) -> tuple[str, ...]: ...
+
     @property
     def snapshot(self) -> StatusSnapshot | None: ...
 

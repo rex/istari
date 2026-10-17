@@ -58,6 +58,9 @@ class VerifierStateView(ApiModel):
     terminal_url: str | None
     exam_url: str | None
     map_url: str | None
+    # Environment lines for the learner's own shell (LocalEmu: endpoint, identity, region);
+    # empty when the work happens in the backend's terminal.
+    cli_env: list[str]
     task: VerifierTaskView | None
     # Set when the task cannot run in the instance's current mode.
     unavailable_reason: str | None

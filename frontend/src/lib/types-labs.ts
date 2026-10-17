@@ -46,6 +46,8 @@ export interface VerifierStateView {
   terminal_url: string | null;
   exam_url: string | null;
   map_url: string | null;
+  /** Environment lines for the learner's own shell (LocalEmu); empty for K16S's terminal. */
+  cli_env: string[];
   task: VerifierTaskView | null;
   unavailable_reason: string | null;
   message: string | null;

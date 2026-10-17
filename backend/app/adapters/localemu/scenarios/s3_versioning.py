@@ -40,6 +40,10 @@ def check(aws: Aws, ctx: ScenarioContext) -> CheckResult:
     )
 
 
+def solve(aws: Aws, ctx: ScenarioContext) -> None:
+    aws.s3().put_bucket_versioning(Bucket=ctx.prefix, VersioningConfiguration={"Status": "Enabled"})
+
+
 def teardown(aws: Aws, ctx: ScenarioContext) -> None:
     delete_buckets(aws.s3(), ctx.scenario_prefix)
 
@@ -64,4 +68,5 @@ SCENARIO = Scenario(
     setup=setup,
     check=check,
     teardown=teardown,
+    solve=solve,
 )

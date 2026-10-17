@@ -43,6 +43,7 @@ async def test_state_shows_the_live_task_and_the_links(verified_client: AsyncCli
     assert state["task"]["title"] == "Stub: a pod keeps crashing" and state["task"]["weight"] == 4
     assert state["terminal_url"] == "http://k16s.lan:8080/terminal/"
     assert state["exam_url"] == "http://k16s.lan:8080/" and state["map_url"] is None
+    assert state["cli_env"] == []
     assert state["unavailable_reason"] is None and state["message"] is None
     assert "K16S" in state["attribution"] and state["last_attempt"] is None
 

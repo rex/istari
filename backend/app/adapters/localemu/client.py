@@ -22,6 +22,7 @@ import httpx
 from app.adapters.localemu.aws import (
     AWS_ERRORS,
     DEFAULT_TIMEOUTS,
+    UNCHECKED_SIGNING_KEY,
     Aws,
     LocalEmuTimeouts,
     emulator_aws,
@@ -67,6 +68,7 @@ class LocalEmuClient:
     ) -> None:
         self.base_url = emulator_endpoint(base_url)
         self.region = region
+        self.access_key_id = access_key_id
         self.timeouts = timeouts
         self.scenarios = scenarios
         self._http = http or httpx.AsyncClient(timeout=timeouts.read)
@@ -84,6 +86,16 @@ class LocalEmuClient:
     @property
     def exam_url(self) -> str | None:
         return None
+
+    @property
+    def cli_env(self) -> tuple[str, ...]:
+        """What the learner's shell needs so the AWS CLI talks to the emulator as its root."""
+        return (
+            f"AWS_ENDPOINT_URL={self.base_url}",
+            f"AWS_ACCESS_KEY_ID={self.access_key_id}",
+            f"AWS_SECRET_ACCESS_KEY={UNCHECKED_SIGNING_KEY}",
+            f"AWS_DEFAULT_REGION={self.region}",
+        )
 
     # ── Lifecycle ─────────────────────────────────────────────────────────
     async def aclose(self) -> None:
@@ -166,6 +178,11 @@ class LocalEmuClient:
         return await self._call(
             lambda: scenario.check(self._aws, ctx), doing=f"checking {question_id}"
         )
+
+    async def solve(self, question_id: str, *, run: str) -> None:
+        """Do the task by API, as `make aws-labs-check` does to prove a solved run passes."""
+        scenario, ctx = self._scenario(question_id, run)
+        await self._call(lambda: scenario.solve(self._aws, ctx), doing=f"solving {question_id}")
 
     async def teardown(self, question_id: str) -> None:
         """Remove every run of the scenario from the emulator."""

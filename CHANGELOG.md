@@ -30,6 +30,27 @@ version bumps).
 
 ---
 
+## [0.38.0] — 2026-10-17 — Agent: Claude Opus 5.5
+### Added
+- The first planned AWS lab (rex/istari#87): `lab-s3-lifecycle` in the SAA-C03 pack, linked
+  from the storage lesson's "Do it". It is graded against the LocalEmu emulator by the new
+  `s3-lifecycle` scenario. Setup makes a bucket holding one log under `logs/` and one report
+  under `reports/`. The learner adds a rule that moves `logs/` to Glacier Flexible Retrieval
+  at 30 days and expires it at 365, without touching `reports/`. The check grades each clause
+  on its own line. The brief is source-checked against the S3 lifecycle documentation and FAQ.
+- Every scenario now carries a `solve` step, and `make aws-labs-check` (`labs aws-check`) runs
+  each one against the emulator: setup, check fails, solve, check passes, teardown. It also
+  fails any pack lab that names a scenario this build lacks. Not a gate, like `labs-check`.
+  It passed against the ring's emulator.
+- The lab's state carries `cli_env`, the environment lines for the learner's own shell
+  (endpoint, the emulator's root key id, a placeholder secret, region). The pack stays
+  hostname-free.
+### Changed
+- The lab UI speaks for its backend: an AWS lab says "the AWS emulator" in its chip, badges,
+  setup and check hints and busy lines. Its work step is "Work in your own shell" with the
+  `export` lines instead of the cluster's terminal, and its not-configured block names
+  `LOCALEMU_BASE_URL`. K16S labs read as before.
+
 ## [0.37.0] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Added
 - The `localemu` verifier backend (rex/istari#86, first slice of #85): a lab brief may carry

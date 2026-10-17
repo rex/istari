@@ -49,6 +49,7 @@ def _scenario(scenario_id: str, *, setup: SetupFn) -> Scenario:
         setup=setup,
         check=lambda _aws, _ctx: CheckResult(passed=True),
         teardown=lambda _aws, _ctx: None,
+        solve=lambda _aws, _ctx: None,
     )
 
 
@@ -65,7 +66,8 @@ def test_a_pack_lab_names_a_localemu_scenario_family_and_id() -> None:
 
 def test_the_registry_groups_scenarios_by_family_and_refuses_twins() -> None:
     assert REGISTRY.profiles == ("saa",)
-    assert [s.id for s in REGISTRY.for_profile("saa")] == [SCENARIO]
+    assert REGISTRY.ids == ("s3-lifecycle", SCENARIO)
+    assert [s.id for s in REGISTRY.for_profile("saa")] == list(REGISTRY.ids)
     assert REGISTRY.get(SCENARIO) is not None and REGISTRY.get("nope") is None
     assert REGISTRY.for_profile("cka") == []
     twin = _scenario("twin", setup=lambda _aws, _ctx: "")
@@ -89,8 +91,10 @@ def test_only_an_emulator_endpoint_is_accepted() -> None:
 
 
 async def test_questions_are_the_registry_s_scenarios(client: LocalEmuClient) -> None:
-    [question] = await client.questions("saa")
-    assert question.id == SCENARIO and question.title.startswith("Turn on versioning")
+    questions = await client.questions("saa")
+    assert [q.id for q in questions] == ["s3-lifecycle", SCENARIO]
+    question = questions[1]
+    assert question.title.startswith("Turn on versioning")
     assert "istari-s3-versioning-" in question.context and question.description and question.hint
     assert await client.question("saa", SCENARIO) == question
     assert await client.question("cka", SCENARIO) is None

@@ -41,12 +41,15 @@ class ScenarioContext:
 SetupFn = Callable[[Aws, ScenarioContext], str]
 CheckFn = Callable[[Aws, ScenarioContext], CheckResult]
 TeardownFn = Callable[[Aws, ScenarioContext], None]
+SolveFn = Callable[[Aws, ScenarioContext], None]
 
 
 @dataclass(frozen=True, slots=True)
 class Scenario:
     """`setup` returns the output shown to the learner (it names what it made); `check`
-    returns the verdict, its last line `PASS: …` or `FAIL: …` like a K16S grader's."""
+    returns the verdict, its last line `PASS: …` or `FAIL: …` like a K16S grader's; `solve`
+    does the task by API, so `make aws-labs-check` and the tests prove a solved run passes.
+    A check that cannot grade (the run's resources are gone) returns `unavailable_reason`."""
 
     id: str
     # The scenario family a pack's verifier names as its `profile` (`saa`).
@@ -58,6 +61,7 @@ class Scenario:
     setup: SetupFn
     check: CheckFn
     teardown: TeardownFn
+    solve: SolveFn
     hint: str = ""
     weight: int = 1
 
@@ -85,6 +89,10 @@ class ScenarioRegistry:
     @property
     def profiles(self) -> tuple[str, ...]:
         return tuple(sorted({s.profile for s in self._by_id.values()}))
+
+    @property
+    def ids(self) -> tuple[str, ...]:
+        return tuple(sorted(self._by_id))
 
     def get(self, scenario_id: str) -> Scenario | None:
         return self._by_id.get(scenario_id)

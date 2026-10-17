@@ -357,6 +357,10 @@ seed:
 labs-check:
 	@$(UV) python -m app.cli labs check-map $(if $(BASE_URL),--base-url "$(BASE_URL)",) $(if $(PROFILE),--profile "$(PROFILE)",)
 
+## aws-labs-check: Run every LocalEmu scenario against the emulator: setup, check fails, solve, check passes, teardown (LOCALEMU_BASE_URL, or BASE_URL=... SCENARIO=...)
+aws-labs-check:
+	@$(UV) python -m app.cli labs aws-check $(if $(BASE_URL),--base-url "$(BASE_URL)",) $(if $(SCENARIO),--scenario "$(SCENARIO)",)
+
 ## transcribe: Generated captions for lectures that have none — SRC="<course or topic dir>" [ALL=1] [SHARE=1 writes next to the video] [ASR=auto|parakeet|cpp|openai] [MODEL=<backend's model>] [LIMIT=n per course] [OUT=corpus]
 transcribe:
 	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make transcribe SRC=\"<dir>\" [ALL=1] [SHARE=1] [ASR=...] [MODEL=...] [LIMIT=n]$(RESET)"; exit 1; fi

@@ -21,6 +21,7 @@ const ready: VerifierStateView = {
   terminal_url: "http://k16s.lan:8080/terminal/",
   exam_url: "http://k16s.lan:8080/",
   map_url: null,
+  cli_env: [],
   task: {
     title: "A pod keeps crashing",
     context: "",
@@ -126,6 +127,39 @@ describe("<LabSteps />", () => {
       />,
     );
     expect(screen.getByRole("button", { name: "Set up environment" })).toBeDisabled();
+  });
+
+  it("for an AWS lab, works in the learner's own shell with the emulator's lines", () => {
+    const aws: VerifierStateView = {
+      ...ready,
+      spec: { ...ready.spec, backend: "localemu", profile: "saa", question: "s3-lifecycle" },
+      terminal_url: null,
+      exam_url: null,
+      cli_env: ["AWS_ENDPOINT_URL=http://localemu.test:4566", "AWS_DEFAULT_REGION=us-east-1"],
+      attempts: [attempt()],
+    };
+    render(<LabSteps state={aws} phase="work" busy={null} disabled={false} {...handlers} />);
+    expect(screen.getByText("Work in your own shell")).toBeInTheDocument();
+    expect(screen.getByLabelText("Shell environment for the AWS CLI").textContent).toBe(
+      "export AWS_ENDPOINT_URL=http://localemu.test:4566\nexport AWS_DEFAULT_REGION=us-east-1",
+    );
+    expect(screen.queryByRole("link", { name: /Open terminal/ })).toBeNull();
+    expect(screen.getByText(/reads the resources back from the emulator/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Check answer" })).toBeEnabled();
+  });
+
+  it("never shows an AWS lab the cluster's terminal hint, even before the emulator is set", () => {
+    const unset: VerifierStateView = {
+      ...ready,
+      spec: { ...ready.spec, backend: "localemu", profile: "saa" },
+      configured: false,
+      terminal_url: null,
+      cli_env: [],
+    };
+    render(<LabSteps state={unset} phase="setup" busy={null} disabled={true} {...handlers} />);
+    expect(screen.getByText("Work in your own shell")).toBeInTheDocument();
+    expect(screen.queryByText(/control plane/)).toBeNull();
+    expect(screen.queryByLabelText("Shell environment for the AWS CLI")).toBeNull();
   });
 });
 

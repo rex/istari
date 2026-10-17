@@ -73,6 +73,11 @@ class K16sClient:
     def exam_url(self) -> str:
         return f"{self.public_url}/"
 
+    @property
+    def cli_env(self) -> tuple[str, ...]:
+        """Nothing: the work happens in K16S's own terminal."""
+        return ()
+
     # ── Lifecycle ─────────────────────────────────────────────────────────
     async def aclose(self) -> None:
         if self._refresh_task is not None:

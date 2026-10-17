@@ -29,6 +29,7 @@ make dev                        # API :8000 + Vite :5173
 - `make validate`  (architecture, module shape, version gate; pre-commit mirrors it)
 - `make check-skeleton` — skeleton-owned files (`scripts/`, `.claude/{hooks,commands,agents,rules}`) match the installed agentic-skeleton; if behind, `make sync-skeleton`, then commit + push
 - If a pack's `verifier` entries or `tests/k16s_stub.py` changed and a K16S instance is reachable: `make labs-check` (not a gate; needs `K16S_BASE_URL`)
+- If a LocalEmu scenario (`backend/app/adapters/localemu/scenarios/`) or a `localemu` verifier changed and the emulator is reachable: `make aws-labs-check` (not a gate; needs `LOCALEMU_BASE_URL` or `BASE_URL=`)
 - If `infra/**` changed: `terraform fmt -recursive infra/ && terraform validate`
 - If `ansible/**` changed: `ansible-lint ansible/ && ansible-playbook --syntax-check`
 

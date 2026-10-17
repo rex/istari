@@ -19,6 +19,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from app.adapters.k16s import K16sClient
+from app.cli import aws_labs_cmds
 from app.config import settings
 from app.domain.content.load import load_pack_file
 from app.domain.content.schemas.pack import ContentPackSpec
@@ -127,3 +128,4 @@ def register(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     p.add_argument("--profile", default=None, help="only this K16S profile")
     p.add_argument("--base-url", default=None, help="the instance; default K16S_BASE_URL")
     p.set_defaults(fn=cmd_check_map)
+    aws_labs_cmds.add_parser(labs_sub)

@@ -7,17 +7,19 @@ import { LabClusterChip, LabTask } from "@/components/feature/LabTask";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
-import { phaseOf } from "@/lib/labs";
+import { graderCopy, phaseOf } from "@/lib/labs";
 import type { LabView } from "@/lib/types";
 import { useVerifierActions, verifierQueryOptions } from "@/queries/labs";
 
-/** A lab graded by the lab cluster: live task, three steps, the verdict, the record. */
+/** A lab graded by its backend (the lab cluster or the AWS emulator): live task, three steps,
+    the verdict, the record. */
 export function VerifiedLab({ lab, timeZone }: { lab: LabView; timeZone: string }) {
   const verifier = useQuery(verifierQueryOptions(lab.item_key));
   const { setup, check } = useVerifierActions(lab.item_key);
   const [openedTerminal, setOpenedTerminal] = useState(false);
+  const copy = graderCopy(lab.verifier?.backend ?? "k16s");
 
-  if (verifier.isPending) return <Spinner label="Asking the lab cluster" />;
+  if (verifier.isPending) return <Spinner label={`Asking ${copy.name}`} />;
   if (verifier.isError) {
     return (
       <StateBlock
@@ -42,20 +44,28 @@ export function VerifiedLab({ lab, timeZone }: { lab: LabView; timeZone: string 
       <LabClusterChip state={state} />
       {!state.configured ? (
         <StateBlock
-          title="This lab needs a lab cluster"
+          title={`This lab needs ${copy.needs}`}
           body={
-            <>
-              Verified labs run on your own K16S instance. Set <code>K16S_BASE_URL</code> (and{" "}
-              <code>K16S_PUBLIC_URL</code> for the terminal) and reload; see docs/labs-k16s.md.
-              Nothing is installed from here.
-            </>
+            state.spec.backend === "k16s" ? (
+              <>
+                Verified labs run on your own K16S instance. Set <code>K16S_BASE_URL</code> (and{" "}
+                <code>K16S_PUBLIC_URL</code> for the terminal) and reload; see docs/labs-k16s.md.
+                Nothing is installed from here.
+              </>
+            ) : (
+              <>
+                AWS labs are graded against your own LocalEmu emulator. Set{" "}
+                <code>LOCALEMU_BASE_URL</code> to it and reload. Nothing is installed from here, and
+                nothing touches a real AWS account.
+              </>
+            )
           }
         />
       ) : null}
       {state.configured && !state.reachable ? (
         <StateBlock
           tone="error"
-          title="The lab cluster did not answer"
+          title={`${copy.subject} did not answer`}
           body={state.message}
           action={<Button onClick={() => void verifier.refetch()}>Try again</Button>}
         />
@@ -76,9 +86,7 @@ export function VerifiedLab({ lab, timeZone }: { lab: LabView; timeZone: string 
       />
       {busy ? (
         <p className="muted small" role="status">
-          {busy === "setup"
-            ? "Running the setup script on the cluster…"
-            : "Running the validate script on the cluster…"}
+          {busy === "setup" ? copy.setupBusy : copy.checkBusy}
         </p>
       ) : null}
       {unavailable && !busy ? (

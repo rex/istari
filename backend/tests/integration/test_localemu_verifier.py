@@ -17,7 +17,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.adapters.db.session import session_factory
-from app.adapters.localemu import Aws, LocalEmuClient
+from app.adapters.localemu import ROOT_ACCESS_KEY_ID, Aws, LocalEmuClient
+from app.adapters.localemu.aws import UNCHECKED_SIGNING_KEY
 from app.contracts.auth import OnboardingRequest
 from app.domain.clock import FixedClock
 from app.domain.content.validate import parse_pack
@@ -164,6 +165,12 @@ async def test_an_aws_lab_is_set_up_graded_and_regraded_against_the_emulator(
         assert state["profile_available"] is True and state["message"] is None
         assert state["task"]["title"] == "Turn on versioning for an S3 bucket"
         assert state["terminal_url"] is None and state["map_url"] is None
+        assert state["cli_env"] == [
+            f"AWS_ENDPOINT_URL={EMULATOR_URL}",
+            f"AWS_ACCESS_KEY_ID={ROOT_ACCESS_KEY_ID}",
+            f"AWS_SECRET_ACCESS_KEY={UNCHECKED_SIGNING_KEY}",
+            "AWS_DEFAULT_REGION=us-east-1",
+        ]
 
         # Nothing set up yet: ungradable, and no attempt is recorded.
         early = (await ac.post(f"/api/labs/{LAB}/check")).json()
