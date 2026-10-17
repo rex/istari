@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import Field
 
 from app.contracts.common import ApiModel, ObjectiveRef, SourceView
+from app.contracts.figure import FigureView
 
 
 class ItemProgressView(ApiModel):
@@ -57,6 +58,9 @@ class LessonView(LessonSummary):
     checks: list[LessonCheckView]
     sources: list[SourceView]
     notes: list[NoteView]
+    # The figures the lesson shows, in its order: placed in the body with
+    # `![alt](figure:slug)` or following it.
+    figures: list[FigureView]
 
 
 class LessonProgressPatch(ApiModel):

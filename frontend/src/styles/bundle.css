@@ -1049,6 +1049,48 @@ img {
   color: var(--vellum-mute);
   font-size: 13px;
 }
+/* Figure: a drawing of the thing inside the reading column. The plate is `vellum` so a
+   diagram drawn for a light page keeps its icons' colours on the night ground; the caption
+   is the interface face: title, the decision rule, then the task statements it serves. */
+.figure {
+  margin: var(--space-5) 0;
+}
+.figure__frame {
+  display: block;
+  padding: var(--space-3);
+  background: var(--vellum);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+}
+.figure__frame img,
+.figure__frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.figure__caption {
+  margin-top: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--vellum-dim);
+}
+.figure__caption p {
+  display: inline;
+  margin: 0;
+}
+.figure__title {
+  font-weight: 600;
+  color: var(--vellum);
+}
+.figure__meta {
+  color: var(--vellum-mute);
+}
+.figures {
+  display: grid;
+  gap: var(--space-5);
+  margin: var(--space-5) 0;
+}
 
 /* ---------- Transcript (Watch) ---------- */
 .transcript__cue {
@@ -2217,9 +2259,9 @@ details.disclosure[open] summary {
 }
 
 /* ---------- Sortable table headers, and the courses table on phones ----------
-   `.table__sort` is the header's own text as a button; `aria-sort` on the th shows the
-   direction. `.table--courses` keeps Course · Objectives · Watched under 720px and hides
-   currency, captions, mapped minutes and the per-domain cells; the desk shows the matrix. */
+   `.table__sort` is the header's own text as a button; `aria-sort` on the th shows the direction.
+   `.table--courses` keeps Course · Objectives · Watched under 720px and hides currency, captions,
+   mapped minutes and the per-domain cells; the desk shows the matrix. */
 .table__sort {
   all: unset;
   cursor: pointer;

@@ -5,8 +5,10 @@ import { useEffect, useRef } from "react";
 import { NotesPanel } from "@/components/feature/NotesPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Figure } from "@/components/ui/Figure";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
+import { placedFigureKeys } from "@/lib/figures";
 import { Markdown } from "@/lib/Markdown";
 import { meQueryOptions } from "@/queries/auth";
 import { lessonQueryOptions, useLessonProgress } from "@/queries/lessons";
@@ -47,6 +49,9 @@ export default function LessonPage() {
     );
   const data = lesson.data;
   const completed = Boolean(data.progress.completed_at);
+  // Figures the body does not place inline follow it.
+  const placed = new Set(placedFigureKeys(data.body_md));
+  const trailingFigures = data.figures.filter((figure) => !placed.has(figure.key));
 
   return (
     <div className="with-rail">
@@ -85,7 +90,18 @@ export default function LessonPage() {
             <Markdown>{data.foundations_md}</Markdown>
           </details>
         ) : null}
-        <Markdown>{data.body_md}</Markdown>
+        <Markdown figures={data.figures}>{data.body_md}</Markdown>
+        {trailingFigures.length > 0 ? (
+          <section className="figures">
+            {trailingFigures.map((figure) => (
+              <Figure
+                key={figure.key}
+                figure={figure}
+                caption={<Markdown inline>{figure.caption_md}</Markdown>}
+              />
+            ))}
+          </section>
+        ) : null}
         {data.checks.length > 0 ? (
           <section>
             <h2>Check yourself</h2>

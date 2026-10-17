@@ -13,6 +13,12 @@ PROVENANCE = {
     "authored_on": CHECKED,
     "source_checked": True,
 }
+FIGURE_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120">'
+    '<rect x="10" y="10" width="180" height="100" rx="8" fill="#dbe7f3" stroke="#185fa5"/>'
+    '<text x="100" y="66" text-anchor="middle" font-family="sans-serif" font-size="14">'
+    "Figure one</text></svg>"
+)
 
 
 def _question(
@@ -98,9 +104,10 @@ def mini_pack() -> dict[str, object]:
                 "review_status": "source_checked",
                 "title": "Lesson One",
                 "summary": "First lesson.",
-                "body_md": lesson_body,
+                "body_md": lesson_body + "\n\n![A box labelled Figure one](figure:fig-one)",
                 "estimated_minutes": 4,
                 "checks": [{"prompt_md": "Why?", "answer_md": "Because."}],
+                "figures": ["fig-one"],
             },
             {
                 "slug": "lesson-two",
@@ -197,6 +204,19 @@ def mini_pack() -> dict[str, object]:
                     "time_limit_minutes": 20,
                 },
             },
+        ],
+        "figures": [
+            {
+                "slug": "fig-one",
+                "objectives": ["1.1"],
+                "sources": [SOURCE],
+                "provenance": PROVENANCE,
+                "review_status": "source_checked",
+                "title": "Figure one",
+                "caption_md": "A **box**, which is the thing.",
+                "alt": "A box labelled Figure one",
+                "svg": FIGURE_SVG,
+            }
         ],
     }
 

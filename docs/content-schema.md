@@ -40,7 +40,9 @@ Every item carries the shared base fields:
 
 `title`, `summary`, `body_md` (at least 200 characters), optional `foundations_md` (shown on
 demand for readers who want groundwork first), `estimated_minutes` (1 to 60), `checks[]` of
-`{prompt_md, answer_md}` self-checks that are revealed, never graded.
+`{prompt_md, answer_md}` self-checks that are revealed, never graded. `figures[]` lists the
+pack's figures the lesson shows, by slug; `body_md` may place one where it belongs with
+`![alt](figure:slug)`, and the rest follow the body.
 
 ### Questions
 
@@ -83,6 +85,21 @@ verifier present, `cost_warning_md`, `steps_md` and `cleanup_md` only need to ex
 characters), since the backend supplies the task. The verifier is part of the revision
 hash, so changing it makes a new revision like any other content edit.
 
+### Figures
+
+A figure is a drawing of the thing a lesson teaches, kept as pack content so it is reviewed,
+versioned and served like any item: `title`, `caption_md` (the decision rule the drawing
+shows, a sentence or two), `alt` (what it shows, for readers who cannot see it), and the
+drawing itself as `svg`, or as `file`, a path relative to the pack folder that the loader
+reads into `svg` before validation (`seed`, `import-pack` and `validate` do; a pack sent to
+`/api/content/import` carries `svg` inline). The path never enters the content hash, so an
+export, which carries `svg`, re-imports as unchanged. The SVG must be inert: no scripts,
+event handlers, embedded documents or external references; icons are inlined as data URIs.
+`GET /api/figures/<slug>.svg` serves the current revision. Drawings are rendered offline
+from a script kept beside them (`figures/<slug>.py`, mingrammer/diagrams on Graphviz, with
+the provider's own icons). A figure attaches to objectives, never to a course or a lecture:
+a lesson shows it by slug, and lectures mapped to the same objectives borrow it.
+
 ## Cross-reference validation
 
 `validate_pack` runs after the schema passes and reports:
@@ -90,7 +107,9 @@ hash, so changing it makes a new revision like any other content edit.
 - objective codes referenced by an item that no domain defines (error);
 - duplicate item keys across kinds (error);
 - objectives with no items at all (warning);
-- near-duplicate question stems (warning).
+- near-duplicate question stems (warning);
+- a lesson that lists or places a figure the pack does not ship (error);
+- a figure with no drawing, because its `file` was never read (error).
 
 The CLI and the `/api/content/import` endpoint both run it; import refuses on errors.
 

@@ -85,9 +85,19 @@ do-steps (labs, executables) in the viewer as the stretch. The grading effort's 
 measurements and decisions are captured on #70 and #73 (consent to send transcripts to the
 API; hybrid AWS labs with a $0.50 cap; local models measured on the laptop: Qwen3.6-35B-A3B
 graded a real S3 lecture correctly in 19 s, gpt-oss-20b in schema mode did not; assess the
-machine and tell Pierce before loading a model). #72–#77 stay in Inbox. The "see it, do it"
-plan is filed once Pierce answers its three decisions (figure technology, first target, the
-AWS do-step substrate); then its slices go Ready and the first starts.
+machine and tell Pierce before loading a model). #72–#77 stay in Inbox. Pierce answered the
+three decisions the same morning (figures drawn with mingrammer/diagrams and committed as
+SVG; the 8 SAA lessons first, then the player rail; LocalEmu in the ring with a verifier
+backend after the figures) and approved the concept, so the plan is #78 with #79–#85, Ready.
+v0.32.0 shipped #79: figures as a fifth item kind (`schemas/figures.py` with the SVG
+sanitizer, `domain/content/load.py` reading the drawing from the file beside the pack,
+import, export and admin paths, `/api/figures/{key}.svg`, the lesson view's `figures`, the
+viewer's `<Figure>` placed by `![alt](figure:slug)`, the design system's Figure component at
+version 13) and the first figure, the two-tier VPC, in "Securing the network and the data".
+Portability rule (Pierce's ask): a figure attaches to objectives only; lessons reference it
+by slug; lectures borrow it through their objective mapping; a per-course variant later is
+another mapping, never another drawing format. Next in order: #80 `make figures`, #81 the 8
+SAA figures, #82 the player rail, #83 "Do it" in the lesson, then #84 and #85 (LocalEmu).
 
 ## Standing user directives
 
@@ -164,7 +174,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
-3. Pierce: the three "see it, do it" decisions (figure technology; whether the SAA lessons, the player rail or CKA lessons come first; the AWS do-step substrate). Then the agent files the slices as Ready and starts the first: figures in the pack schema and the lesson viewer. #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
+3. Agent (Ready, in order): #80 `make figures` and `figures-check`; #81 one or two figures for each of the 8 SAA lessons; #82 the player's "See it" rail; #83 "Do it" inside the lesson; then #84 LocalEmu in the ring and #85 its verifier backend. Pierce: open "Securing the network and the data" and say whether the VPC figure is the thing; review `fig-vpc-two-tier` on the Content page. #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.
@@ -173,6 +183,25 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-17, morning (Claude Fable 5.1): Pierce approved the "see it, then do it" concept
+("literally dead on accurate") with one design rule: figures and do-steps must be portable
+across the courses that share a topic, and minor per-course differences must be
+accommodatable later without tight coupling. #79 shipped as v0.32.0 along those lines: a
+figure is its own item mapped to objectives, a lesson references it by slug (`figures[]`
+plus `![alt](figure:slug)` in the body), and nothing in a figure knows which course or
+lecture shows it. The drawing lives beside the pack (`figures/<slug>.svg`, rendered from
+`figures/<slug>.py` with mingrammer/diagrams; the script inlines the icon PNGs so the SVG
+is self-contained), the loader reads it into the spec, the sanitizer refuses scripts,
+handlers, embedded documents and external references, and the content hash excludes the
+file path so an export re-imports unchanged. The viewer replaces the paragraph that holds
+a placed figure with a captioned `<figure>` (the figure item's own `alt` is the accessible
+name, not the Markdown alt); an image URL the renderer drops now shows its alt text. The
+design system got the Figure component and the `.figure` rules (artifact version 13;
+`bundle.css` copied back and Prettier-formatted). Gates: ruff/mypy/import-linter/tsc/
+eslint/prettier clean, pytest 205, vitest 51, Playwright on desktop, mobile and ultrawide
+including the new `lesson-figure.spec.ts`, `make validate` clean. The one-figure pass took
+the morning; #80 makes the render step a command and #81 draws the other seven lessons.
 
 2026-10-17, early morning (Claude Fable 5.1): the Cloud/AWS transcription finished at
 19:13 on 2026-10-16 (1,401 lectures, 30 courses, 0 failures; every course under

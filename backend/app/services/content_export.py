@@ -19,7 +19,13 @@ from app.domain.content.schemas.pack import ContentPackSpec
 from app.domain.content.validate import parse_pack
 from app.domain.exceptions import NotFoundError
 
-_PLURAL = {"lesson": "lessons", "question": "questions", "flashcard": "flashcards", "lab": "labs"}
+_PLURAL = {
+    "lesson": "lessons",
+    "question": "questions",
+    "flashcard": "flashcards",
+    "lab": "labs",
+    "figure": "figures",
+}
 
 
 async def export_pack(db: AsyncSession, slug: str) -> ContentPackSpec:

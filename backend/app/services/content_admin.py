@@ -16,6 +16,7 @@ from app.contracts.content import (
     ContentListResponse,
 )
 from app.domain.content.schemas.common import ItemBase
+from app.domain.content.schemas.figures import FigureSpec
 from app.domain.content.schemas.items import FlashcardSpec, LabSpec, LessonSpec, QuestionSpec
 from app.domain.content.validate import content_hash
 from app.domain.exceptions import ConflictError, NotFoundError, ValidationError
@@ -26,13 +27,19 @@ _SPECS: dict[str, type[ItemBase]] = {
     "question": QuestionSpec,
     "flashcard": FlashcardSpec,
     "lab": LabSpec,
+    "figure": FigureSpec,
+}
+_PREVIEW_KEYS = {
+    "lesson": "title",
+    "question": "stem_md",
+    "flashcard": "front_md",
+    "lab": "title",
+    "figure": "title",
 }
 
 
 def _preview(item: ContentItem, rev: ContentRevision) -> str:
-    key = {"lesson": "title", "question": "stem_md", "flashcard": "front_md", "lab": "title"}[
-        item.kind
-    ]
+    key = _PREVIEW_KEYS[item.kind]
     text = content_str(rev, key)
     return text if len(text) <= 140 else text[:137] + "..."
 

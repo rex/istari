@@ -39,6 +39,7 @@ _KINDS: tuple[tuple[str, str], ...] = (
     ("question", "questions"),
     ("flashcard", "flashcards"),
     ("lab", "labs"),
+    ("figure", "figures"),
 )
 
 
@@ -63,9 +64,10 @@ class ImportReport:
 
 
 def _item_content(item: ItemBase) -> dict[str, object]:
-    """Everything except identity/metadata — the body that gets versioned."""
+    """Everything except identity/metadata — the body that gets versioned. A figure's `file`
+    is where its pack keeps the drawing, not content: the drawing itself (`svg`) is."""
     data = item.model_dump(mode="json")
-    for meta in ("slug", "objectives", "sources", "provenance", "review_status", "tags"):
+    for meta in ("slug", "objectives", "sources", "provenance", "review_status", "tags", "file"):
         data.pop(meta, None)
     return data
 
@@ -111,6 +113,7 @@ async def _upsert_pack(
         "questions": len(spec.questions),
         "flashcards": len(spec.flashcards),
         "labs": len(spec.labs),
+        "figures": len(spec.figures),
         "coverage_notes_md": spec.pack.coverage_notes_md,
         "description": spec.pack.description,
     }

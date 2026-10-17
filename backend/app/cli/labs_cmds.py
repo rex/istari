@@ -14,15 +14,14 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
 
 from app.adapters.k16s import K16sClient
 from app.config import settings
+from app.domain.content.load import load_pack_file
 from app.domain.content.schemas.pack import ContentPackSpec
-from app.domain.content.validate import parse_pack
 from app.domain.exceptions import UpstreamError
 from app.domain.verifier_mapping import MappingReport, compare_mapping
 
@@ -87,7 +86,7 @@ async def check_map(client: K16sClient, mapped: dict[str, dict[str, int]], emit:
 
 
 def _load_packs(paths: list[Path]) -> list[ContentPackSpec]:
-    return [parse_pack(json.loads(path.read_text(encoding="utf-8"))) for path in paths]
+    return [load_pack_file(path) for path in paths]
 
 
 def cmd_check_map(args: argparse.Namespace) -> int:

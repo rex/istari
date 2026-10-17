@@ -45,4 +45,30 @@ describe("<Markdown />", () => {
     expect(container.querySelector("table")).not.toBeNull();
     expect(container.querySelector("code")?.textContent).toBe("code");
   });
+
+  it("places a lesson's figure where the body puts it, with its caption", () => {
+    const figure = {
+      key: "fig-one",
+      title: "Figure one",
+      caption_md: "A **box**, which is the thing.",
+      alt: "A box",
+      url: "/api/figures/fig-one.svg",
+      objectives: [{ code: "1.1", title: "Objective 1.1", domain_code: "1" }],
+    };
+    const { container } = render(
+      <Markdown figures={[figure]}>
+        {"Before.\n\n![A box](figure:fig-one)\n\nAfter. ![other](figure:fig-unknown)"}
+      </Markdown>,
+    );
+    const image = screen.getByRole("img", { name: "A box" });
+    expect(image).toHaveAttribute("src", "/api/figures/fig-one.svg");
+    expect(image.closest("figure")).not.toBeNull();
+    expect(image.closest("p")).toBeNull();
+    expect(container.querySelector("figcaption")?.textContent).toContain("Figure one.");
+    expect(container.querySelector("figcaption strong")?.textContent).toBe("box");
+    expect(container.querySelector("figcaption")?.textContent).toContain("1.1");
+    // A figure the lesson does not carry is left as it was written, never a broken image.
+    expect(container.querySelectorAll("img")).toHaveLength(1);
+    expect(container.textContent).toContain("After.");
+  });
 });

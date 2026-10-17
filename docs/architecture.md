@@ -74,6 +74,15 @@ item becomes a new `content_revisions` row and the current pointer moves; missin
 are retired; user data is never touched. Dry runs execute inside a savepoint. Export writes
 the same schema back out.
 
+Figures (rex/istari#78) are drawings of the thing a lesson teaches: SVG with the provider's
+own icons, rendered offline from a script beside the pack and checked at import to be inert
+(no scripts, handlers, embedded documents or external references). `/api/figures/{key}.svg`
+serves the current revision. A figure is its own item, mapped to objectives and nothing
+else: a lesson lists the figures it shows and places them in its body with
+`![alt](figure:slug)`, the viewer renders them as captioned figures, and a lecture borrows
+the figures of the objectives it is mapped to. Nothing in a figure knows which course or
+lecture shows it, so a per-course variant later is another mapping, not another drawing.
+
 ### Watch
 
 `services/catalog.py` scans the configured topic folders under `LEARNING_ROOT` in a

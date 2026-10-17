@@ -32,6 +32,7 @@ from app.routes import (
     auth,
     content,
     courses,
+    figures,
     health,
     lab_verifier,
     labs,
@@ -193,6 +194,7 @@ def create_app(
     app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
     app.include_router(lectures.router, prefix="/api/lecture-index", tags=["lectures"])
     app.include_router(paths.router, prefix="/api/paths", tags=["paths"])
+    app.include_router(figures.router, prefix="/api/figures", tags=["figures"])
     register_exception_handlers(app)
 
     static_dir = Path(settings.static_dir)

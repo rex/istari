@@ -9,7 +9,7 @@ from pydantic import Field
 
 from app.contracts.common import ApiModel
 
-ItemKind = Literal["lesson", "question", "flashcard", "lab"]
+ItemKind = Literal["lesson", "question", "flashcard", "lab", "figure"]
 ItemStatus = Literal["active", "retired", "invalidated"]
 ReviewStatus = Literal["draft", "source_checked", "human_reviewed"]
 

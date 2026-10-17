@@ -30,8 +30,9 @@ from app.adapters.db.session import session_factory
 from app.cli import corpus_cmds, labs_cmds, lectures_cmds, transcribe_cmds
 from app.cli.owner import bootstrap_owner
 from app.config import settings
+from app.domain.content.load import load_pack_file
 from app.domain.content.schemas.pack import ContentPackSpec
-from app.domain.content.validate import parse_pack, validate_pack
+from app.domain.content.validate import validate_pack
 from app.domain.exceptions import IstariError
 from app.services.content_export import export_pack
 from app.services.content_import import ImportReport, import_pack
@@ -116,7 +117,7 @@ def _print_report(report: ImportReport) -> None:
 
 
 def _load_pack(path: Path) -> ContentPackSpec:
-    return parse_pack(json.loads(path.read_text(encoding="utf-8")))
+    return load_pack_file(path)
 
 
 def cmd_import(args: argparse.Namespace) -> int:
@@ -168,7 +169,7 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 def cmd_validate(args: argparse.Namespace) -> int:
     try:
-        spec = parse_pack(json.loads(Path(args.path).read_text(encoding="utf-8")))
+        spec = load_pack_file(Path(args.path))
     except IstariError as exc:
         print(f"schema errors: {json.dumps(exc.details, indent=2)}", file=sys.stderr)
         return 1

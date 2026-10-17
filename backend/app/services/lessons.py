@@ -17,6 +17,7 @@ from app.contracts.lesson import (
     LessonView,
     NoteView,
 )
+from app.domain.content.schemas.figures import placed_figures
 from app.domain.planning_types import LessonCandidate
 from app.services.content_query import (
     content_list,
@@ -27,6 +28,7 @@ from app.services.content_query import (
     objective_refs,
     revision_sources,
 )
+from app.services.figures import figure_views
 
 
 async def get_or_create_progress(db: AsyncSession, item_id: int) -> ItemProgress:
@@ -155,13 +157,17 @@ async def get_lesson(
     summary = _summary(
         item, rev, codes, progress, objective_map, set(settings.familiar_objective_codes)
     )
+    body_md = content_str(rev, "body_md")
+    declared = [key for key in content_list(rev, "figures") if isinstance(key, str)]
+    placed = [key for key in placed_figures(body_md) if key not in declared]
     return LessonView(
         **summary.model_dump(),
-        body_md=content_str(rev, "body_md"),
+        body_md=body_md,
         foundations_md=content_str(rev, "foundations_md"),
         checks=checks,
         sources=revision_sources(rev),
         notes=[note_view(n, item.item_key) for n in notes],
+        figures=await figure_views(db, [*declared, *placed], objective_map),
     )
 
 

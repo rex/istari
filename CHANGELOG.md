@@ -30,6 +30,23 @@ version bumps).
 
 ---
 
+## [0.32.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- Figures as pack content (rex/istari#79): `figures[]` items (title, caption, alt, and the
+  SVG drawing read from a file beside the pack and checked to be inert), imported, exported
+  and listed for review like any item, served by `GET /api/figures/{key}.svg`. A lesson lists
+  the figures it shows and may place one in its body with `![alt](figure:slug)`; the lesson
+  viewer renders them as captioned figures (title, the decision rule, the task statements
+  served), the rest following the body, and the Content item page previews a figure. A figure
+  attaches to objectives only, so lectures mapped to the same objectives can borrow it. The
+  design system gains the Figure component (version 13).
+- The first figure, `fig-vpc-two-tier`: a two-tier web app in a VPC with public and private
+  subnets, drawn with mingrammer/diagrams on Graphviz from the VPC User Guide's production
+  example, placed in "Securing the network and the data".
+### Changed
+- A Markdown image whose URL the renderer dropped, or a figure the lesson does not carry,
+  shows its alt text in place instead of a broken image.
+
 ## [0.31.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - Groundwork for figures as pack content (rex/istari#79, not yet wired): the `figures[]`

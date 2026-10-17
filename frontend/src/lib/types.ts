@@ -229,12 +229,21 @@ export interface LessonSummary {
   progress: ItemProgressView;
   self_declared_familiar: boolean;
 }
+export interface FigureView {
+  key: string;
+  title: string;
+  caption_md: string;
+  alt: string;
+  url: string;
+  objectives: ObjectiveRef[];
+}
 export interface LessonView extends LessonSummary {
   body_md: string;
   foundations_md: string;
   checks: { prompt_md: string; answer_md: string }[];
   sources: SourceView[];
   notes: NoteView[];
+  figures: FigureView[];
 }
 
 export type EvidenceLevel = "insufficient" | "weak" | "developing" | "solid";

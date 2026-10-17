@@ -4,11 +4,18 @@ import { useState } from "react";
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Figure } from "@/components/ui/Figure";
 import { Spinner } from "@/components/ui/Spinner";
 import { StateBlock } from "@/components/ui/StateBlock";
 import { isApiError } from "@/lib/api";
+import { Markdown } from "@/lib/Markdown";
 import type { ContentItemDetail } from "@/lib/types";
 import { contentItemQueryOptions, useContentMutations } from "@/queries/content";
+
+/** A content field as text; the item body is pack-schema JSON, so a field may be anything. */
+function text(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
 
 function initialText(d: ContentItemDetail): string {
   return JSON.stringify(
@@ -148,6 +155,22 @@ export default function ContentItemPage() {
           history but excludes this item's answers from every figure.
         </p>
       </section>
+      {d.kind === "figure" ? (
+        <section className="card stack">
+          <Figure
+            figure={{
+              key: d.key,
+              title: text(d.content["title"]) || d.key,
+              caption_md: text(d.content["caption_md"]),
+              alt: text(d.content["alt"]),
+              url: `/api/figures/${d.key}.svg`,
+              objectives: [],
+            }}
+            caption={<Markdown inline>{text(d.content["caption_md"])}</Markdown>}
+          />
+          <p className="muted small">Objectives: {d.objectives.join(", ") || "none"}</p>
+        </section>
+      ) : null}
       <ItemEditor key={d.revision} detail={d} />
     </div>
   );

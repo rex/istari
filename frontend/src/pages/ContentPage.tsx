@@ -12,7 +12,7 @@ import {
   useContentMutations,
 } from "@/queries/content";
 
-const KINDS = ["", "lesson", "question", "flashcard", "lab"] as const;
+const KINDS = ["", "lesson", "question", "flashcard", "lab", "figure"] as const;
 
 export default function ContentPage() {
   const [kind, setKind] = useState<string>("");

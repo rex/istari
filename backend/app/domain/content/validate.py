@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass, field
 from pydantic import ValidationError as PydanticValidationError
 
 from app.domain.content.schemas.common import ItemBase
+from app.domain.content.schemas.figures import placed_figures
 from app.domain.content.schemas.pack import ContentPackSpec
 from app.domain.exceptions import ValidationError
 
@@ -66,7 +67,13 @@ def validate_pack(pack: ContentPackSpec) -> ValidationReport:
     if len(set(domain_codes)) != len(domain_codes):
         report.errors.append(Issue("domains", "duplicate domain codes"))
 
-    all_items: list[ItemBase] = [*pack.lessons, *pack.questions, *pack.flashcards, *pack.labs]
+    all_items: list[ItemBase] = [
+        *pack.lessons,
+        *pack.questions,
+        *pack.flashcards,
+        *pack.labs,
+        *pack.figures,
+    ]
     seen_keys: set[str] = set()
     for item in all_items:
         if item.slug in seen_keys:
@@ -95,10 +102,31 @@ def validate_pack(pack: ContentPackSpec) -> ValidationReport:
             )
         stems[key] = question.slug
 
+    # A figure is a drawing; a lesson may only show figures its pack ships.
+    figure_slugs = {figure.slug for figure in pack.figures}
+    for figure in pack.figures:
+        if not figure.svg:
+            report.errors.append(
+                Issue(
+                    "empty_figure",
+                    "figure has no drawing: give `svg` inline or a `file` the loader can read",
+                    figure.slug,
+                )
+            )
+    for lesson in pack.lessons:
+        for slug in [*lesson.figures, *placed_figures(lesson.body_md)]:
+            if slug not in figure_slugs:
+                report.errors.append(
+                    Issue("unknown_figure", f"figure {slug} is not in this pack", lesson.slug)
+                )
+
     return report
 
 
 def content_hash(item: ItemBase) -> str:
-    """Stable hash of an item's content so re-imports can detect 'unchanged'."""
-    payload = json.dumps(item.model_dump(mode="json"), sort_keys=True, ensure_ascii=False)
+    """Stable hash of an item's content so re-imports can detect 'unchanged'. A figure's
+    `file` is where the pack keeps the drawing, not the drawing, so it stays out."""
+    payload = json.dumps(
+        item.model_dump(mode="json", exclude={"file"}), sort_keys=True, ensure_ascii=False
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()

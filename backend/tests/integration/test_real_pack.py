@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -12,20 +11,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ContentItem, ExamVersion
 from app.contracts.auth import OnboardingRequest
+from app.domain.content.load import load_pack_file
 from app.domain.content.schemas.pack import ContentPackSpec
-from app.domain.content.validate import parse_pack, validate_pack
+from app.domain.content.validate import validate_pack
 from app.services.content_import import import_pack
 from app.services.settings import complete_onboarding
 
 PACK_PATH = (
     Path(__file__).resolve().parents[3] / "content" / "packs" / "aws-saa-c03-starter" / "pack.json"
 )
-EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 2}
+EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 2, "figures": 1}
 TOTAL_ITEMS = sum(EXPECTED_COUNTS.values())
 
 
 def _load() -> ContentPackSpec:
-    return parse_pack(json.loads(PACK_PATH.read_text(encoding="utf-8")))
+    return load_pack_file(PACK_PATH)
 
 
 def test_pack_validates_and_matches_the_brief() -> None:
@@ -37,7 +37,14 @@ def test_pack_validates_and_matches_the_brief() -> None:
         "questions": len(spec.questions),
         "flashcards": len(spec.flashcards),
         "labs": len(spec.labs),
+        "figures": len(spec.figures),
     } == EXPECTED_COUNTS
+    # The drawing was read from the file beside the pack and a lesson places it.
+    figure = spec.figures[0]
+    assert figure.file == "figures/vpc-two-tier.svg" and figure.svg.lstrip().startswith("<?xml")
+    assert "data:image/png;base64," in figure.svg and 'xlink:href="/' not in figure.svg
+    placing = next(lesson for lesson in spec.lessons if figure.slug in lesson.figures)
+    assert f"(figure:{figure.slug})" in placing.body_md
     assert sum(q.select_count > 1 for q in spec.questions) >= 2, "multi-answer items expected"
 
     objective_codes = {o.code for d in spec.domains for o in d.objectives}
