@@ -112,9 +112,13 @@ shipped #83: a lesson lists the labs its "Do it" step uses (`labs[]`, validated)
 lesson view carries their summaries, the viewer runs a graded lab inline (`DoIt.tsx`
 reusing `VerifiedLab`) and shows a brief's goals, steps and expected observations, and the
 lab page links back to its lessons (`LabView.lessons`); the two SAA briefs sit in the
-network, availability and cost lessons. Next: #84 LocalEmu in the ring, then #85 its
-verifier backend; both touch the homelab through Arda's prescribed workflows and are the
-point to confirm with Pierce before anything is deployed.
+network, availability and cost lessons. #84 shipped on 2026-10-17: LocalEmu 1.2.0 runs on
+orthanc VM 219 at `https://localemu.thelab.host` (IAM enforcement on, no persistence,
+Docker-backed Lambda, ECS, EC2 and RDS), smoke-tested from shire, with the runbook in
+homelab-infrastructure-general `docs/localemu.md`; `LOCALEMU_BASE_URL` is in the pod's env
+and unread until #85. Next: #85, the `localemu` verifier backend (boto3 scenario modules:
+setup, check and teardown as the emulator's root; the learner works the scenario with the
+AWS CLI). Homelab changes go through Arda's prescribed workflows; the tofu apply is Pierce's.
 
 ## Standing user directives
 
@@ -124,6 +128,7 @@ point to confirm with Pierce before anything is deployed.
 - 2026-10-05: the GitHub repo is public (rex/istari) and secrets must be actively watched (pre-commit detect-secrets + gitleaks, CI gitleaks, GitHub secret scanning + push protection).
 - Brief: do not modify homelab infrastructure, open ports, deploy publicly, run cloud commands, or provision AWS resources. Istari needs no AWS credentials.
 - 2026-10-08: "Yes, get it deployed": deploy Istari to the homelab through the lab's prescribed workflows (Arda, the inventory, Flux); this supersedes the brief's no-deploy line for that deployment only. Still no exposure beyond the lab's own ingress and no firewall, UDR or tofu changes. The lab's Gitea repo is a pull mirror of GitHub, never a second remote.
+- 2026-10-17: "Why shouldn't we go ahead and build it out if we're going to have to anyway?": the LocalEmu VM (#84) through the lab's prescribed chain (inventory, `make plan`, Pierce's own `make apply`, ansible through `arda_ansible_deploy` with check mode first); Docker-backed engines, ephemeral state, IAM enforcement on. The same lab-only limits as 2026-10-08 apply; the emulator's name is internal only.
 
 ## 1. Phases
 
@@ -200,6 +205,26 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 7. Local dev: `LEARNING_ROOT=/Volumes/MinasTirith-Data/MinasTirith-Learning` in `.env` for Watch, `make bootstrap-owner USERNAME=<you>` for a local owner, `K16S_BASE_URL=http://127.0.0.1:8081` with the stub (`docs/labs-k16s.md`) for the lab pages.
 
 ## 6. Handoff note (fill when ending a session)
+
+2026-10-17, midday (Claude Fable 5.1): #84 is live. LocalEmu 1.2.0 runs on orthanc VM 219
+(10.0.30.16) at `https://localemu.thelab.host`. The chain: homelab-inventory 0.48.0 (the
+guest) and 0.49.0 (the ingress record, home cards and `LOCALEMU_BASE_URL`, added only once
+the service answered so Gatus never watched a dead target); Pierce's tofu apply at 10:30
+(his first attempts failed with "no route to host" from a Terminal tab older than his
+macOS Local Network grant; a fresh tab worked; recorded in infra-general's GOTCHAS);
+homelab-ansible 0.388.0 (`localemu_host` role, `make deploy-localemu`, run through
+`arda_ansible_deploy` check-then-real, 1 min 31 s; the new host's SSH keys went into
+known_hosts first, as for k16s and aule); isengard 0.219.0; the runbook
+`docs/localemu.md` in homelab-infrastructure-general (#387). Smoke tests from shire: STS as
+root, an S3 round trip, a Python Lambda invoked in a real container (200 in 2 s, the
+runtime container visible on the VM), IAM enforcement denying a policy-less user and
+allowing exactly the bucket a policy names. Facts #85 needs: identity is the access key id
+(no signature check); root is AWS's documentation example key id with any secret
+(`000000000000` too); an unknown key gets 403 "security token invalid" and the container
+log explains; `sts:GetCallerIdentity` and `s3:ListAllMyBuckets` pass for anyone; the
+dashboard answers 403 under enforcement; state is ephemeral by decision, so a lab's setup
+must create everything its check reads; a Lambda runtime's image is pulled on first use.
+Nothing in Istari reads `LOCALEMU_BASE_URL` yet.
 
 2026-10-17, morning (Claude Fable 5.1): Pierce approved the "see it, then do it" concept
 ("literally dead on accurate") with one design rule: figures and do-steps must be portable

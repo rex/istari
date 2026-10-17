@@ -30,6 +30,16 @@ version bumps).
 
 ---
 
+## [0.36.1] — 2026-10-17 — Agent: Claude Fable 5.1
+### Changed
+- Docs only: LocalEmu, the AWS emulator, runs in the ring (rex/istari#84): orthanc VM 219 at
+  `https://localemu.thelab.host`, LocalEmu 1.2.0 with IAM enforcement on, no persistence and
+  Docker-backed Lambda, ECS, EC2 and RDS, smoke-tested from shire (STS, an S3 round trip, a
+  Lambda invoked in a real container, a policy-less user denied). The chain and the facts the
+  verifier backend (#85) needs are in `TASK_STATE.md` §0 and §6; the runbook is
+  homelab-infrastructure-general `docs/localemu.md`. The pod's env carries `LOCALEMU_BASE_URL`,
+  unread until #85. No code changed.
+
 ## [0.36.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - "Do it" inside the lesson (rex/istari#83): a lesson lists the labs its do-step uses
