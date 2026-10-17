@@ -24,6 +24,11 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "ruff>=0.16.10",
 ]
+# `make figures`: the pack figures are drawn with mingrammer/diagrams on Graphviz (`dot`
+# must be installed). Never needed at runtime or in the image.
+figures = [
+    "diagrams>=0.25.1,<0.26",
+]
 
 [tool.uv]
 package = false

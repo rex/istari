@@ -1,11 +1,8 @@
 """Figure `fig-vpc-two-tier`: a two-tier web app in a VPC, public and private subnets.
 
-The source of `vpc-two-tier.svg`. Rendered with mingrammer/diagrams on Graphviz:
-
-    uv run --no-project --with diagrams python -I vpc-two-tier.py
-
-from this folder. The SVG is written beside the script with its icons inlined, so the
-file is self-contained; `make figures` (rex/istari#80) will run every script here.
+The source of `vpc-two-tier.svg`, drawn with mingrammer/diagrams on Graphviz by
+`make figures` (every script under a pack's `figures/`; `docs/figures.md`). The SVG is
+written beside the script with its icons inlined, so the file is self-contained.
 Drawn from the VPC User Guide's production example (two Availability Zones, a NAT
 gateway in each): https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-private-subnets-nat.html
 """

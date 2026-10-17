@@ -30,6 +30,16 @@ version bumps).
 
 ---
 
+## [0.33.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- `make figures` and `make figures-check` (rex/istari#80): every `content/packs/<pack>/figures/<slug>.py`
+  is a mingrammer/diagrams script that writes `<slug>.svg` beside itself; `render` runs
+  each in place, rewrites the node ids the library draws at random into stable ones and
+  drops the generator's comments, so a committed drawing changes only when the drawing
+  changes, then validates the packs it touched; `check` renders into scratch and compares,
+  so a committed SVG never drifts from its script. The `figures` dependency group holds
+  `diagrams`; Graphviz is installed by hand. `docs/figures.md` has the conventions.
+
 ## [0.32.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - Figures as pack content (rex/istari#79): `figures[]` items (title, caption, alt, and the

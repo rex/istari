@@ -14,7 +14,7 @@
         clean clean-all \
         docker-build docker-up docker-down docker-logs docker-run docker-stop docker-clean \
         db-up db-down db-migrate db-revision db-reset seed bootstrap-owner \
-        backup restore secrets-scan \
+        backup restore secrets-scan figures figures-check \
         check-if-the-agent-can-consider-this-task-completed
 
 # ─── Configuration ────────────────────────────────────────────────────
@@ -79,6 +79,8 @@ help:
 	@echo "  $(GREEN)make db-revision$(RESET)          New migration: MSG=\"describe change\" (autogenerate, then REVIEW)"
 	@echo "  $(GREEN)make db-reset$(RESET)             Drop + recreate the dev database (destructive!)"
 	@echo "  $(GREEN)make seed$(RESET)                 Import every content pack (idempotent)"
+	@echo "  $(GREEN)make figures$(RESET)              Draw every pack's figures from their scripts (PACK=<slug> for one; needs Graphviz)"
+	@echo "  $(GREEN)make figures-check$(RESET)        Re-draw into scratch and compare with the committed SVGs"
 	@echo "  $(GREEN)make bootstrap-owner$(RESET)      Create the owner login: USERNAME=<name>"
 	@echo ""
 	@echo "$(BOLD)Backup & security$(RESET)"
@@ -359,6 +361,14 @@ labs-check:
 transcribe:
 	@if [ -z "$(SRC)" ]; then echo "$(RED)Usage: make transcribe SRC=\"<dir>\" [ALL=1] [SHARE=1] [ASR=...] [MODEL=...] [LIMIT=n]$(RESET)"; exit 1; fi
 	@$(UV) python -m app.cli transcribe "$(SRC)" $(if $(ALL),--all,) $(if $(SHARE),--to-share,) $(if $(MODEL),--model "$(MODEL)",) $(if $(ASR),--backend "$(ASR)",) $(if $(LIMIT),--limit $(LIMIT),) --out "$(abspath $(or $(OUT),corpus))"
+
+## figures: Draw every pack's figures from content/packs/*/figures/*.py (mingrammer/diagrams on Graphviz) — PACK=<slug> for one
+figures:
+	@$(UV) --group figures python -m app.cli figures render $(if $(PACK),--pack "$(PACK)",)
+
+## figures-check: Re-draw each figure into scratch and compare with the committed SVG (docs/figures.md)
+figures-check:
+	@$(UV) --group figures python -m app.cli figures check $(if $(PACK),--pack "$(PACK)",)
 
 ## lectures-eval: Rank a hand-labelled sample under a parameter set — SAMPLE=corpus/eval/<exam>.json [EXAM=SAA-C03] [FLOOR=0.2] [QUANTILE=0.9] [GENERIC=0.4] [BODY=1] [STEM=1]
 lectures-eval:

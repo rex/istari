@@ -96,8 +96,11 @@ viewer's `<Figure>` placed by `![alt](figure:slug)`, the design system's Figure 
 version 13) and the first figure, the two-tier VPC, in "Securing the network and the data".
 Portability rule (Pierce's ask): a figure attaches to objectives only; lessons reference it
 by slug; lectures borrow it through their objective mapping; a per-course variant later is
-another mapping, never another drawing format. Next in order: #80 `make figures`, #81 the 8
-SAA figures, #82 the player rail, #83 "Do it" in the lesson, then #84 and #85 (LocalEmu).
+another mapping, never another drawing format. v0.33.0 shipped #80: `make figures` draws
+every pack's figure scripts (stable node ids, generator comments dropped, the pack
+validated after), `make figures-check` catches drift, the `figures` dependency group holds
+mingrammer/diagrams, `docs/figures.md` has the conventions. Next in order: #81 the 8 SAA
+figures, #82 the player rail, #83 "Do it" in the lesson, then #84 and #85 (LocalEmu).
 
 ## Standing user directives
 
@@ -174,7 +177,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
-3. Agent (Ready, in order): #80 `make figures` and `figures-check`; #81 one or two figures for each of the 8 SAA lessons; #82 the player's "See it" rail; #83 "Do it" inside the lesson; then #84 LocalEmu in the ring and #85 its verifier backend. Pierce: open "Securing the network and the data" and say whether the VPC figure is the thing; review `fig-vpc-two-tier` on the Content page. #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
+3. Agent (Ready, in order): #81 one or two figures for each of the 8 SAA lessons (`make figures` draws them, `docs/figures.md`); #82 the player's "See it" rail; #83 "Do it" inside the lesson; then #84 LocalEmu in the ring and #85 its verifier backend. Pierce: open "Securing the network and the data" and say whether the VPC figure is the thing; review `fig-vpc-two-tier` on the Content page. #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.

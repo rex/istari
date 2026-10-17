@@ -97,8 +97,10 @@ export, which carries `svg`, re-imports as unchanged. The SVG must be inert: no 
 event handlers, embedded documents or external references; icons are inlined as data URIs.
 `GET /api/figures/<slug>.svg` serves the current revision. Drawings are rendered offline
 from a script kept beside them (`figures/<slug>.py`, mingrammer/diagrams on Graphviz, with
-the provider's own icons). A figure attaches to objectives, never to a course or a lecture:
-a lesson shows it by slug, and lectures mapped to the same objectives borrow it.
+the provider's own icons) by `make figures`, and `make figures-check` catches a committed
+drawing that drifted from its script (`docs/figures.md`). A figure attaches to objectives,
+never to a course or a lecture: a lesson shows it by slug, and lectures mapped to the same
+objectives borrow it.
 
 ## Cross-reference validation
 
