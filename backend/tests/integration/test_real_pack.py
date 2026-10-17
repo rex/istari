@@ -20,8 +20,8 @@ from app.services.settings import complete_onboarding
 PACK_PATH = (
     Path(__file__).resolve().parents[3] / "content" / "packs" / "aws-saa-c03-starter" / "pack.json"
 )
-# Labs: two briefs done by hand and one graded against the AWS emulator (rex/istari#87).
-EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 3, "figures": 10}
+# Labs: two briefs done by hand and four graded against the AWS emulator (#87, #88).
+EXPECTED_COUNTS = {"lessons": 8, "questions": 40, "flashcards": 24, "labs": 6, "figures": 10}
 TOTAL_ITEMS = sum(EXPECTED_COUNTS.values())
 
 
@@ -52,6 +52,10 @@ def test_pack_validates_and_matches_the_brief() -> None:
     assert graded.verifier is not None and graded.verifier.question == "s3-lifecycle"
     storage = next(les for les in spec.lessons if les.slug == "lesson-cost-optimized-storage")
     assert storage.labs == ["lab-s3-lifecycle"]
+    # Every emulator-graded lab sits in the "Do it" of a lesson that teaches its objective.
+    for lab in (lab for lab in spec.labs if lab.verifier and lab.verifier.backend == "localemu"):
+        homes = [les for les in spec.lessons if lab.slug in les.labs]
+        assert homes and all(set(lab.objectives) & set(les.objectives) for les in homes), lab.slug
 
     objective_codes = {o.code for d in spec.domains for o in d.objectives}
     questioned = {code for q in spec.questions for code in q.objectives}

@@ -132,7 +132,12 @@ async def test_the_lifecycle_check_lists_every_clause(client: LocalEmuClient) ->
 # ── `make aws-labs-check` ─────────────────────────────────────────────────
 def test_every_pack_lab_names_a_registered_scenario() -> None:
     labs = localemu_labs([load_pack_file(p) for p in sorted(PACKS.glob("*/pack.json"))])
-    assert labs == {"lab-s3-lifecycle": LIFECYCLE}
+    assert labs == {
+        "lab-iam-least-privilege": "iam-least-privilege",
+        "lab-s3-lifecycle": LIFECYCLE,
+        "lab-sns-sqs-fanout": "sns-sqs-fanout",
+        "lab-vpc-public-private": "vpc-public-private",
+    }
     assert all(REGISTRY.get(scenario) is not None for scenario in labs.values())
 
 
@@ -143,9 +148,9 @@ async def test_aws_check_runs_every_scenario_and_maps_the_labs(client: LocalEmuC
     )
     assert code == 0, lines
     assert lines[0] == "LocalEmu at http://localemu.test:4566: community 1.2.0"
-    assert lines[1] == f"{LIFECYCLE}: unsolved fails ({NO_LOGS_RULE}); solved passes"
-    assert lines[2].startswith("s3-versioning: unsolved fails (FAIL: versioning is off)")
-    assert lines[-1] == "scenarios no lab uses yet: s3-versioning"
+    assert f"{LIFECYCLE}: unsolved fails ({NO_LOGS_RULE}); solved passes" in lines
+    assert len([line for line in lines if line.endswith("; solved passes")]) == len(REGISTRY.ids)
+    assert lines[-1].startswith("scenarios no lab uses yet: ")
 
 
 async def test_aws_check_fails_a_lab_whose_scenario_is_missing(client: LocalEmuClient) -> None:

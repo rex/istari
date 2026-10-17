@@ -20,12 +20,12 @@ dependencies = [
 dev = [
     "factory-boy>=3.3.3",
     "import-linter>=2.15",
-    "moto[s3]>=5.1",
+    "moto[ec2,iam,s3,sns,sqs]>=5.1",
     "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "ruff>=0.16.10",
-    "types-boto3[s3,sts]>=1.40",
+    "types-boto3[ec2,iam,s3,sns,sqs,sts]>=1.40",
 ]
 # `make figures`: the pack figures are drawn with mingrammer/diagrams on Graphviz (`dot`
 # must be installed). Never needed at runtime or in the image.

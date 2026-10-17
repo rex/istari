@@ -25,7 +25,11 @@ from botocore.exceptions import (
 from app.domain.exceptions import UpstreamError
 
 if TYPE_CHECKING:
+    from types_boto3_ec2.client import EC2Client
+    from types_boto3_iam.client import IAMClient
     from types_boto3_s3.client import S3Client
+    from types_boto3_sns.client import SNSClient
+    from types_boto3_sqs.client import SQSClient
     from types_boto3_sts.client import STSClient
 
 # LocalEmu checks no signatures: identity is the access key id, so the key requests are
@@ -61,6 +65,18 @@ class Aws:
 
     def sts(self) -> STSClient:
         return self.session.client("sts", endpoint_url=self.endpoint_url, config=self.config)
+
+    def iam(self) -> IAMClient:
+        return self.session.client("iam", endpoint_url=self.endpoint_url, config=self.config)
+
+    def ec2(self) -> EC2Client:
+        return self.session.client("ec2", endpoint_url=self.endpoint_url, config=self.config)
+
+    def sns(self) -> SNSClient:
+        return self.session.client("sns", endpoint_url=self.endpoint_url, config=self.config)
+
+    def sqs(self) -> SQSClient:
+        return self.session.client("sqs", endpoint_url=self.endpoint_url, config=self.config)
 
 
 def emulator_endpoint(base_url: str) -> str:

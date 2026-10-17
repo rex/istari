@@ -30,6 +30,33 @@ version bumps).
 
 ---
 
+## [0.39.0] — 2026-10-17 — Agent: Claude Opus 5.5
+### Added
+- Three more AWS labs graded against the LocalEmu emulator (rex/istari#88), each in the
+  "Do it" of the lesson that teaches it, with source-checked briefs in the SAA-C03 pack:
+  - `lab-iam-least-privilege` (IAM lesson, 1.1). An analyst user may `s3:GetObject` under
+    `reports/` and nothing else. The check reads every policy that reaches the user (inline,
+    attached, groups') and asks four questions of it: reads a report, reads payroll, writes a
+    report, reads another bucket. Live, the emulator enforces the same policy on the
+    analyst's own key.
+  - `lab-vpc-public-private` (network lesson, 1.2). Public and private subnets, an internet
+    gateway, a NAT gateway in the public subnet, and two route tables. The check resolves
+    each subnet's effective table, so any CIDRs and names pass.
+  - `lab-sns-sqs-fanout` (loose-coupling lesson, 2.1). Two queues subscribed to the order
+    topic, with queue policies that let SNS send, scoped by `aws:SourceArn`. The check
+    publishes once and polls both queues under one 10-second deadline.
+- A small IAM evaluator (`scenarios/iam_eval.py`): explicit Deny wins, IAM wildcards,
+  `NotAction`/`NotResource`, and statements with a `Condition` named rather than guessed.
+  It exists because moto does not enforce IAM.
+- `scenarios/grading.py`: every check's `[ok]`/`[--]` clause lines and its PASS/FAIL verdict
+  in one place.
+- `make aws-labs-check` passes all five scenarios against the ring's emulator. The VPC lab
+  takes about 7 s there, for the NAT gateway; the others take under a second.
+### Changed
+- Dependencies: the moto and boto3 stub extras for IAM, EC2, SNS and SQS. NAT gateways are
+  listed unfiltered and filtered by VPC, because botocore's parameter is `Filter` while the
+  stubs spell it `Filters`.
+
 ## [0.38.0] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Added
 - The first planned AWS lab (rex/istari#87): `lab-s3-lifecycle` in the SAA-C03 pack, linked

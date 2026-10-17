@@ -16,6 +16,7 @@ from botocore.exceptions import ClientError
 
 from app.adapters.localemu.aws import Aws
 from app.adapters.localemu.scenario import Scenario, ScenarioContext
+from app.adapters.localemu.scenarios.grading import Clause, gone, verdict
 from app.adapters.localemu.scenarios.s3_util import delete_buckets, error_code
 from app.domain.verifier import CheckResult
 
@@ -70,9 +71,7 @@ def _rules(aws: Aws, bucket: str) -> list[LifecycleRuleOutputTypeDef] | None:
 def check(aws: Aws, ctx: ScenarioContext) -> CheckResult:
     rules = _rules(aws, ctx.prefix)
     if rules is None:
-        return CheckResult(
-            passed=False, unavailable_reason=f"Bucket {ctx.prefix} is gone; set the lab up again."
-        )
+        return gone(f"Bucket {ctx.prefix}")
     enabled = [r for r in rules if r.get("Status") == "Enabled"]
     logs_rules = [r for r in enabled if _scope(r) == (LOGS, False)]
     transitions = [t for r in logs_rules for t in r.get("Transitions", [])]
@@ -90,36 +89,33 @@ def check(aws: Aws, ctx: ScenarioContext) -> CheckResult:
         f"{t.get('StorageClass', '?')} at {t.get('Days', '?')} days" for t in transitions
     )
     clauses = [
-        (
+        Clause(
             bool(logs_rules),
             f"an enabled rule scoped to {LOGS}",
             f"no enabled rule is scoped to exactly {LOGS} (no tag or size filter)",
         ),
-        (
+        Clause(
             archived,
             f"{LOGS} moves to {ARCHIVE_CLASS} {ARCHIVE_DAYS} days after creation",
             f"{LOGS} must move to {ARCHIVE_CLASS} {ARCHIVE_DAYS} days after creation"
             + (f" (found: {found})" if found else ""),
         ),
-        (
+        Clause(
             expired,
             f"{LOGS} expires {EXPIRE_DAYS} days after creation",
             f"{LOGS} must expire {EXPIRE_DAYS} days after creation",
         ),
-        (
+        Clause(
             not touching,
             "reports/ is left alone",
             f"rule {', '.join(touching)} also acts on {REPORT_KEY}",
         ),
     ]
-    lines = [f"Bucket {ctx.prefix}: {len(rules)} lifecycle rule(s), {len(enabled)} enabled"]
-    lines += [f"[{'ok' if ok else '--'}] {good if ok else bad}" for ok, good, bad in clauses]
-    failed = next((bad for ok, _good, bad in clauses if not ok), None)
-    if failed is None:
-        lines.append(f"PASS: {LOGS} archives at {ARCHIVE_DAYS} days and expires at {EXPIRE_DAYS}")
-        return CheckResult(passed=True, output="\n".join(lines))
-    lines.append(f"FAIL: {failed}")
-    return CheckResult(passed=False, output="\n".join(lines))
+    return verdict(
+        f"Bucket {ctx.prefix}: {len(rules)} lifecycle rule(s), {len(enabled)} enabled",
+        clauses,
+        f"{LOGS} archives at {ARCHIVE_DAYS} days and expires at {EXPIRE_DAYS}",
+    )
 
 
 def solve(aws: Aws, ctx: ScenarioContext) -> None:

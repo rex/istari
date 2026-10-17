@@ -66,7 +66,13 @@ def test_a_pack_lab_names_a_localemu_scenario_family_and_id() -> None:
 
 def test_the_registry_groups_scenarios_by_family_and_refuses_twins() -> None:
     assert REGISTRY.profiles == ("saa",)
-    assert REGISTRY.ids == ("s3-lifecycle", SCENARIO)
+    assert REGISTRY.ids == (
+        "iam-least-privilege",
+        "s3-lifecycle",
+        SCENARIO,
+        "sns-sqs-fanout",
+        "vpc-public-private",
+    )
     assert [s.id for s in REGISTRY.for_profile("saa")] == list(REGISTRY.ids)
     assert REGISTRY.get(SCENARIO) is not None and REGISTRY.get("nope") is None
     assert REGISTRY.for_profile("cka") == []
@@ -92,8 +98,8 @@ def test_only_an_emulator_endpoint_is_accepted() -> None:
 
 async def test_questions_are_the_registry_s_scenarios(client: LocalEmuClient) -> None:
     questions = await client.questions("saa")
-    assert [q.id for q in questions] == ["s3-lifecycle", SCENARIO]
-    question = questions[1]
+    assert tuple(q.id for q in questions) == REGISTRY.ids
+    question = next(q for q in questions if q.id == SCENARIO)
     assert question.title.startswith("Turn on versioning")
     assert "istari-s3-versioning-" in question.context and question.description and question.hint
     assert await client.question("saa", SCENARIO) == question
