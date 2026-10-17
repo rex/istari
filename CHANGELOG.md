@@ -30,14 +30,20 @@ version bumps).
 
 ---
 
+## [0.39.3] — 2026-10-17 — Agent: Claude Opus 5.5
+### Fixed
+- Docs only: the banner's source draws the lockup from the root `brand/` folder, the
+  identity's canonical home (byte-identical to the app's copy). This corrects the 0.39.2
+  entry and its commit message, which said the old README's logo path did not exist; it
+  did, and the old logo rendered.
+
 ## [0.39.2] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Changed
 - Docs only: a new README for the public repository. A banner at the top puts the supplied
   lockup on the design system's night ground, with "Knowledge, earned." and "See it · Do it
   · Prove it" set in its own fonts. The rest covers the see-do-prove loop with screenshots,
   what's inside, what Istari refuses to do, the tracks, an architecture diagram, how to run
-  it, and the docs. The old README pointed at a logo path that does not exist, so GitHub
-  showed a broken image.
+  it, and the docs.
 - `docs/readme/`: the banner's HTML source (render command in its header) and the PNGs,
   cropped from the e2e run's screenshots of seeded content.
 
