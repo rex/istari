@@ -96,6 +96,21 @@ async def _open_attempt(db: AsyncSession, item_id: int, question_id: str) -> Lab
     )
 
 
+async def latest_attempt_run(db: AsyncSession, item_id: int, question_id: str) -> str | None:
+    """The backend run of the newest attempt, checked or not: what a re-check grades on a
+    backend whose every setup makes a fresh run (LocalEmu names the run's resources)."""
+    return await db.scalar(
+        select(LabAttempt.k16s_session_id)
+        .where(
+            LabAttempt.item_id == item_id,
+            LabAttempt.question_id == question_id,
+            LabAttempt.k16s_session_id.is_not(None),
+        )
+        .order_by(LabAttempt.created_at.desc(), LabAttempt.id.desc())
+        .limit(1)
+    )
+
+
 async def record_setup(
     db: AsyncSession,
     *,

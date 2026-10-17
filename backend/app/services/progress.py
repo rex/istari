@@ -7,7 +7,6 @@ from datetime import date, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ExamVersion, UserSettings
-from app.adapters.k16s import K16sClient
 from app.contracts.common import ObjectiveRef
 from app.contracts.progress import (
     ActivityDay,
@@ -39,6 +38,7 @@ from app.services.progress_queries import (
 )
 from app.services.today import block_view, build_plan
 from app.services.track import track_view
+from app.services.verifier_clients import VerifierClients
 from app.services.watch_outcomes import objective_outcomes
 
 EVIDENCE_NOTE = (
@@ -111,7 +111,7 @@ async def build_progress(
     exam: ExamVersion,
     now: datetime,
     objective_map: dict[str, ObjectiveRef],
-    verifier: K16sClient | None = None,
+    verifiers: VerifierClients | None = None,
 ) -> ProgressView:
     track = await track_view(db, exam.id)
     counts = await item_counts_by_objective(db, exam_version_id=exam.id)
@@ -186,7 +186,7 @@ async def build_progress(
         now=now,
         minutes=settings.preferred_session_minutes,
         objective_map=objective_map,
-        verifier=verifier,
+        verifiers=verifiers,
     )
     mistakes = [
         ConfidentMistakeView(

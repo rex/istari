@@ -25,6 +25,7 @@ class LabFact:
     title: str
     estimated_minutes: int
     objectives: list[str] = field(default_factory=list)
+    backend: str = "k16s"
     graded_attempts: int = 0
     # The first graded attempt's verdict; None until one exists.
     first_passed: bool | None = None
@@ -34,13 +35,13 @@ class LabFact:
 async def lab_facts(db: AsyncSession, *, exam_version_id: int) -> list[LabFact]:
     """Every active verified lab of the track with its objectives and attempt record."""
     rows = [
-        (item, rev)
+        (item, rev, spec)
         for item, rev in await list_items(db, exam_version_id=exam_version_id, kind="lab")
-        if verifier_spec(rev) is not None
+        if (spec := verifier_spec(rev)) is not None
     ]
     if not rows:
         return []
-    item_ids = [item.id for item, _ in rows]
+    item_ids = [item.id for item, _, _ in rows]
     codes = await objective_codes_for_items(db, item_ids)
     graded = await db.execute(
         select(LabAttempt.item_id, LabAttempt.passed)
@@ -48,13 +49,14 @@ async def lab_facts(db: AsyncSession, *, exam_version_id: int) -> list[LabFact]:
         .order_by(LabAttempt.checked_at, LabAttempt.id)
     )
     facts: dict[int, LabFact] = {}
-    for item, rev in rows:
+    for item, rev, spec in rows:
         minutes = rev.content.get("estimated_minutes", 30)
         facts[item.id] = LabFact(
             item_key=item.item_key,
             title=content_str(rev, "title"),
             estimated_minutes=int(minutes) if isinstance(minutes, int) else 30,
             objectives=codes.get(item.id, []),
+            backend=spec.backend,
         )
     for item_id, passed in graded.all():
         fact = facts[int(item_id)]
@@ -93,6 +95,7 @@ def _candidate(fact: LabFact, code: str, titles: dict[str, str]) -> LabCandidate
         estimated_minutes=fact.estimated_minutes,
         objective_code=code,
         objective_title=titles.get(code, ""),
+        backend=fact.backend,
     )
 
 

@@ -30,6 +30,33 @@ version bumps).
 
 ---
 
+## [0.37.0] — 2026-10-17 — Agent: Claude Opus 5.5
+### Added
+- The `localemu` verifier backend (rex/istari#86, first slice of #85): a lab brief may carry
+  `verifier: {backend: localemu, profile: saa, question: <scenario>}` and is then set up and
+  graded against the LocalEmu AWS emulator in the lab. `app/adapters/localemu/` has the K16S
+  client's surface: status from `GET /_localemu/health`, questions from Istari's own scenario
+  registry, and setup, check and teardown as boto3 calls run off the event loop with bounded
+  timeouts and retries. Connection failures, timeouts and refusals become owner sentences.
+  The endpoint must be the emulator (an amazonaws.com endpoint is refused) and the credentials
+  are the emulator's placeholder pair, never the environment's.
+- Settings `LOCALEMU_BASE_URL` (unset means AWS labs say what to set), `LOCALEMU_REGION`
+  (`us-east-1`) and `LOCALEMU_ACCESS_KEY_ID` (empty means the emulator's root, AWS's
+  documentation example id).
+- One scenario, `s3-versioning` (turn versioning on for a bucket), so the backend works end to
+  end before #87 adds the scenario framework's first planned lab. Every setup starts a fresh
+  run whose id names its resources (`istari-s3-versioning-<run>`) and clears earlier runs
+  first; a check grades the latest run, so a re-check after a fix grades the same bucket.
+- `/api/health` reports `localemu` beside `k16s`, from the background snapshot only.
+- Dependencies: `boto3` at runtime; `moto[s3]` and `types-boto3[s3,sts]` for development.
+### Changed
+- The reserved `localstack` verifier literal is now `localemu`, and it is implemented.
+- Verified labs pick their client by the spec's backend: the verifier routes, Today and
+  Progress take every configured backend, and the planner schedules a lab only while the
+  backend that grades it answers ("the AWS emulator" or "the lab cluster" in its sentences).
+- A check with nothing to grade (no setup yet, or the run's bucket gone because the emulator
+  restarted) reports why and records no attempt, since the first graded attempt is evidence.
+
 ## [0.36.2] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Changed
 - Docs only: `TASK_STATE.md` §0 points the next session at #85's four sub-issues (#86 the

@@ -8,23 +8,23 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from app.adapters.k16s import K16sClient
 from app.buildinfo import BuildInfo
-from app.contracts.health import HealthStatus, HealthView, K16sHealth
+from app.contracts.health import HealthStatus, HealthView, VerifierHealth
 from app.deps import DbSession
+from app.services.verifier_clients import VerifierClient
 
 router = APIRouter()
 
 
-def _k16s_health(client: K16sClient | None) -> K16sHealth:
+def _verifier_health(client: VerifierClient | None) -> VerifierHealth:
     """What the last background poll saw. Reading it costs nothing, by design."""
     if client is None:
-        return K16sHealth(configured=False)
+        return VerifierHealth(configured=False)
     snapshot = client.snapshot
     if snapshot is None:
-        return K16sHealth(configured=True)
+        return VerifierHealth(configured=True)
     status = snapshot.status
-    return K16sHealth(
+    return VerifierHealth(
         configured=True,
         reachable=snapshot.reachable,
         mode=status.mode if status else None,
@@ -34,7 +34,7 @@ def _k16s_health(client: K16sClient | None) -> K16sHealth:
 
 
 def _view(
-    info: BuildInfo, status: HealthStatus, reason: str | None, k16s: K16sHealth
+    info: BuildInfo, status: HealthStatus, reason: str | None, request: Request
 ) -> HealthView:
     return HealthView(
         status=status,
@@ -43,17 +43,17 @@ def _view(
         commit=info.commit,
         built_at=info.built_at,
         started_at=info.started_at.isoformat(),
-        k16s=k16s,
+        k16s=_verifier_health(request.app.state.k16s),
+        localemu=_verifier_health(request.app.state.localemu),
     )
 
 
 @router.get("/health", response_model=HealthView)
 async def health(request: Request, db: DbSession) -> JSONResponse:
     info: BuildInfo = request.app.state.build_info
-    k16s = _k16s_health(request.app.state.k16s)
     try:
         await asyncio.wait_for(db.execute(text("SELECT 1")), timeout=0.75)
     except (TimeoutError, OSError, Exception):
-        body = _view(info, "unhealthy", "db", k16s)
+        body = _view(info, "unhealthy", "db", request)
         return JSONResponse(status_code=503, content=body.model_dump())
-    return JSONResponse(content=_view(info, "ok", None, k16s).model_dump())
+    return JSONResponse(content=_view(info, "ok", None, request).model_dump())

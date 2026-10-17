@@ -50,6 +50,8 @@ class LabCandidate:
     estimated_minutes: int
     objective_code: str
     objective_title: str
+    # The verifier backend that grades it (`k16s`, `localemu`): the plan waits on that one.
+    backend: str = "k16s"
 
 
 @dataclass(frozen=True, slots=True)

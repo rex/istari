@@ -67,6 +67,15 @@ class Settings(BaseSettings):
     # Optional link to a cluster map (Headlamp or similar), opened in a new tab.
     headlamp_url: str = ""
 
+    # AWS labs: the LocalEmu emulator the owner runs in the lab (rex/istari#85). Unset means
+    # AWS labs explain that no emulator is configured. Never a real AWS endpoint: the client
+    # refuses amazonaws.com, and Istari holds no AWS credentials.
+    localemu_base_url: str = ""
+    localemu_region: str = "us-east-1"
+    # The emulator's identity is the access key id and it checks no signature. Empty means its
+    # root, AWS's documentation example id: a published placeholder, not a credential.
+    localemu_access_key_id: str = ""
+
     @property
     def k16s_browser_url(self) -> str:
         return (self.k16s_public_url or self.k16s_base_url).rstrip("/")

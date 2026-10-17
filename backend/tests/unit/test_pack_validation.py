@@ -118,7 +118,7 @@ def test_lab_verifier_is_part_of_the_content_hash() -> None:
     assert content_hash(changed_spec) != content_hash(verified)
 
 
-@pytest.mark.parametrize("backend", ["ck-x", "localstack", "real-aws", "kubernetes"])
+@pytest.mark.parametrize("backend", ["ck-x", "real-aws", "kubernetes"])
 def test_reserved_backends_are_rejected_as_not_implemented(backend: str) -> None:
     pack = mini_pack()
     _verifier(pack)["backend"] = backend
@@ -129,9 +129,11 @@ def test_reserved_backends_are_rejected_as_not_implemented(backend: str) -> None
     assert any("not implemented" in issue["msg"] and backend in issue["msg"] for issue in issues)
 
 
-def test_unknown_backend_is_a_schema_error() -> None:
+@pytest.mark.parametrize("backend", ["chalkboard", "localstack"])
+def test_unknown_backend_is_a_schema_error(backend: str) -> None:
+    # `localstack` was the reserved name until LocalEmu replaced it (rex/istari#86).
     pack = mini_pack()
-    _verifier(pack)["backend"] = "chalkboard"
+    _verifier(pack)["backend"] = backend
     with pytest.raises(ValidationError):
         parse_pack(pack)
 

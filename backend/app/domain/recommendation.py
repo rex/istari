@@ -11,7 +11,8 @@ Budgets by session length (reviews ≈ 20 s each, questions ≈ 60 s each):
 
 Order of blocks: resume an unfinished session → due reviews (capped by the
 daily limit, and by 10 in backlog-recovery mode) → practice → one verified lab
-(15- and 30-minute sessions, only while the lab cluster is reachable) → one lesson.
+(15- and 30-minute sessions, only while the backend that grades it, the lab cluster or the
+AWS emulator, is reachable) → one lesson.
 
 Practice focus: the weakest objective that has at least MIN_EVIDENCE
 first-attempt answers and accuracy below WEAK_THRESHOLD; otherwise a mixed
@@ -38,6 +39,10 @@ RECOVERY_REVIEW_CAP = 10
 LAB_MIN_MINUTES = 15
 LECTURE_MIN_MINUTES = 30
 SECONDS_PER_REVIEW = 20
+# What grades a verified lab, by its verifier backend, in the plan's sentences: the full name
+# and the short one.
+_GRADERS = {"localemu": ("the AWS emulator", "the emulator")}
+_DEFAULT_GRADER = ("the lab cluster", "the cluster")
 SECONDS_PER_QUESTION = 60
 
 
@@ -130,6 +135,7 @@ def plan_session(inp: PlannerInput) -> Plan:
 
     lab = inp.verified_lab
     if lab is not None and inp.minutes >= LAB_MIN_MINUTES:
+        grader, grader_short = _GRADERS.get(lab.backend, _DEFAULT_GRADER)
         if inp.lab_backend == "ready":
             blocks.append(
                 PlanBlock(
@@ -137,7 +143,7 @@ def plan_session(inp: PlannerInput) -> Plan:
                     count=1,
                     label=f"Lab: {lab.title}",
                     reason=(
-                        f"verified on the lab cluster; serves objective {lab.objective_code}, "
+                        f"verified on {grader}; serves objective {lab.objective_code}, "
                         f"about {lab.estimated_minutes} min"
                     ),
                     item_key=lab.item_key,
@@ -145,12 +151,10 @@ def plan_session(inp: PlannerInput) -> Plan:
             )
             explanation.append(
                 f"One verified lab, {lab.title}, serves objective {lab.objective_code} "
-                f"({lab.objective_title}); the cluster grades it, so a pass is evidence."
+                f"({lab.objective_title}); {grader_short} grades it, so a pass is evidence."
             )
         elif inp.lab_backend == "unreachable":
-            explanation.append(
-                "Verified labs are skipped: the lab cluster is not reachable right now."
-            )
+            explanation.append(f"Verified labs are skipped: {grader} is not reachable right now.")
 
     if budget.lessons and inp.next_lesson is not None:
         lesson = inp.next_lesson

@@ -1,8 +1,9 @@
 """Verified labs: the backend's live state for a lab, and setting up and checking it there.
 
-Nothing here provisions anything. The backend (K16S) runs on the owner's own machine or
-VM; Istari asks it to set a task up, lets the owner work in its terminal, asks it to grade,
-and keeps the verdict as an attempt.
+Nothing here provisions anything. The backend (K16S, or the LocalEmu AWS emulator) runs on
+the owner's own machine or VM; Istari asks it to set a task up, lets the owner work in its
+terminal or their own shell, asks it to grade, and keeps the verdict as an attempt. The lab's
+spec names the backend, and its client comes from the configured ones.
 """
 
 from __future__ import annotations
@@ -15,7 +16,6 @@ from functools import partial
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ContentItem, ContentRevision
-from app.adapters.k16s import K16sClient
 from app.contracts.lab_verifier import (
     CheckResponse,
     LabVerifierSpecView,
@@ -27,12 +27,22 @@ from app.domain.content.schemas.verifier import LabVerifierSpec
 from app.domain.exceptions import ConflictError, NotFoundError, UpstreamError
 from app.domain.verifier import VerifierQuestion, VerifierStatus
 from app.services.content_query import get_item
-from app.services.lab_attempts import attempt_view, attempts_for, record_check, record_setup
+from app.services.lab_attempts import (
+    attempt_view,
+    attempts_for,
+    latest_attempt_run,
+    record_check,
+    record_setup,
+)
+from app.services.verifier_clients import (
+    VerifierClient,
+    VerifierClients,
+    attribution,
+    unconfigured_message,
+)
 
 log = logging.getLogger("istari.labs")
 
-ATTRIBUTION = "Task text from K16S (PolyForm Noncommercial 1.0.0), fetched live from your instance."
-UNCONFIGURED = "Verified labs are not configured: set K16S_BASE_URL to your K16S instance."
 HEAVY_IN_LIGHTWEIGHT = (
     "This task needs the full VM-based install; the instance runs in lightweight mode."
 )
@@ -76,9 +86,12 @@ async def _require_verified(
     return item, rev, spec
 
 
-def _require_client(client: K16sClient | None) -> K16sClient:
+def _require_client(clients: VerifierClients, backend: str) -> VerifierClient:
+    client = clients.get(backend)
     if client is None:
-        raise ConflictError(UNCONFIGURED, details={"code": "k16s_unconfigured"})
+        raise ConflictError(
+            unconfigured_message(backend), details={"code": f"{backend}_unconfigured"}
+        )
     return client
 
 
@@ -89,17 +102,19 @@ def _unavailable(question: VerifierQuestion | None, status: VerifierStatus) -> s
 
 
 async def state(
-    db: AsyncSession, *, key: str, client: K16sClient | None, headlamp_url: str
+    db: AsyncSession, *, key: str, clients: VerifierClients, headlamp_url: str
 ) -> VerifierStateView:
     item, _rev, spec = await _require_verified(db, key)
     attempts = [attempt_view(row) for row in await attempts_for(db, item.id)]
+    client = clients.get(spec.backend)
     view = partial(
         VerifierStateView,
         spec=spec_view(spec),
-        attribution=ATTRIBUTION,
+        attribution=attribution(spec.backend),
         attempts=attempts,
         last_attempt=next((a for a in attempts if a.checked_at is not None), None),
-        map_url=headlamp_url or None,
+        # The cluster map belongs to the K16S cluster; other backends have none.
+        map_url=(headlamp_url or None) if spec.backend == "k16s" else None,
     )
     if client is None:
         return view(
@@ -112,7 +127,7 @@ async def state(
             exam_url=None,
             task=None,
             unavailable_reason=None,
-            message=UNCONFIGURED,
+            message=unconfigured_message(spec.backend),
         )
     try:
         status = await client.status()
@@ -171,13 +186,13 @@ def _log(event: str, key: str, spec: LabVerifierSpec, result: str, started: floa
 
 
 async def setup(
-    db: AsyncSession, *, key: str, client: K16sClient | None, now: datetime
+    db: AsyncSession, *, key: str, clients: VerifierClients, now: datetime
 ) -> SetupResponse:
     item, _rev, spec = await _require_verified(db, key)
-    backend = _require_client(client)
+    backend = _require_client(clients, spec.backend)
     started = time.perf_counter()
     session = await backend.ensure_session(spec.profile)
-    result = await backend.setup(spec.question)
+    result = await backend.setup(spec.question, run=session.id)
     if result.unavailable_reason is not None:
         _log("lab.setup", key, spec, "unavailable", started)
         return SetupResponse(
@@ -193,13 +208,18 @@ async def setup(
 
 
 async def check(
-    db: AsyncSession, *, key: str, client: K16sClient | None, now: datetime
+    db: AsyncSession, *, key: str, clients: VerifierClients, now: datetime
 ) -> CheckResponse:
     item, _rev, spec = await _require_verified(db, key)
-    backend = _require_client(client)
+    backend = _require_client(clients, spec.backend)
     started = time.perf_counter()
     session = await backend.ensure_session(spec.profile)
-    result = await backend.check(spec.question)
+    # K16S grades its live session. LocalEmu grades the run the latest setup made, so a
+    # re-check after a fix grades the same resources; with no setup there is no run to grade.
+    run = session.id
+    if backend.per_attempt_runs:
+        run = await latest_attempt_run(db, item.id, spec.question) or ""
+    result = await backend.check(spec.question, run=run)
     if result.unavailable_reason is not None:
         _log("lab.check", key, spec, "unavailable", started)
         return CheckResponse(
@@ -213,7 +233,7 @@ async def check(
         db,
         item_id=item.id,
         spec=spec,
-        session_id=session.id,
+        session_id=run,
         passed=result.passed,
         output=result.output,
         now=now,

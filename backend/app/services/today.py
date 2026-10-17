@@ -20,12 +20,10 @@ from app.adapters.db.models import (
     ReviewEvent,
     UserSettings,
 )
-from app.adapters.k16s import K16sClient
 from app.contracts.common import ObjectiveRef
 from app.contracts.today import ExamView, PlanBlockView, RecentView, TodayView, WeakObjectiveView
 from app.domain.planning_types import (
     ActiveSession,
-    LabBackend,
     ObjectiveEvidence,
     Plan,
     PlannerInput,
@@ -38,6 +36,7 @@ from app.services.learning_path import path_lecture_candidate
 from app.services.lessons import next_unread_lesson
 from app.services.reviews import due_count, reviewed_today
 from app.services.sessions import active_view, get_active_session, load_item_rows
+from app.services.verifier_clients import VerifierClients, backend_state
 
 
 async def objective_evidence(
@@ -104,14 +103,6 @@ async def objective_evidence(
     )
 
 
-def lab_backend_state(verifier: K16sClient | None) -> LabBackend:
-    """From the client's background snapshot only: the planner never waits on the cluster."""
-    if verifier is None:
-        return "unconfigured"
-    snapshot = verifier.snapshot
-    return "ready" if snapshot is not None and snapshot.reachable else "unreachable"
-
-
 async def build_plan(
     db: AsyncSession,
     *,
@@ -120,7 +111,7 @@ async def build_plan(
     now: datetime,
     minutes: int,
     objective_map: dict[str, ObjectiveRef],
-    verifier: K16sClient | None = None,
+    verifiers: VerifierClients | None = None,
 ) -> tuple[Plan, ActiveSession | None]:
     active_row = await get_active_session(db)
     active: ActiveSession | None = None
@@ -135,6 +126,9 @@ async def build_plan(
     evidence = await objective_evidence(db, exam.id)
     done_today = await reviewed_today(db, now=now, tz=settings.timezone)
     facts = await lab_facts(db, exam_version_id=exam.id)
+    lab = pick_lab_candidate(facts, evidence) if facts else None
+    # The plan waits on the backend that grades this lab, from its snapshot only.
+    lab_client = (verifiers or {}).get(lab.backend) if lab is not None else None
     plan = plan_session(
         PlannerInput(
             minutes=minutes,
@@ -147,8 +141,8 @@ async def build_plan(
             next_lesson=await next_unread_lesson(
                 db, exam_version_id=exam.id, settings=settings, objective_map=objective_map
             ),
-            verified_lab=pick_lab_candidate(facts, evidence) if facts else None,
-            lab_backend=lab_backend_state(verifier),
+            verified_lab=lab,
+            lab_backend=backend_state(lab_client),
             next_lecture=await path_lecture_candidate(db, exam, evidence),
         )
     )
@@ -234,7 +228,7 @@ async def build_today(
     now: datetime,
     minutes: int,
     objective_map: dict[str, ObjectiveRef],
-    verifier: K16sClient | None = None,
+    verifiers: VerifierClients | None = None,
 ) -> TodayView:
     plan, active = await build_plan(
         db,
@@ -243,7 +237,7 @@ async def build_today(
         now=now,
         minutes=minutes,
         objective_map=objective_map,
-        verifier=verifier,
+        verifiers=verifiers,
     )
     recent = await _recent(db, exam=exam, now=now, tz=settings.timezone)
     done_today = await reviewed_today(db, now=now, tz=settings.timezone)

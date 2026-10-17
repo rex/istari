@@ -26,5 +26,5 @@ async def progress(
         exam=exam,
         now=clock.now(),
         objective_map=objective_map,
-        verifier=request.app.state.k16s,
+        verifiers=request.app.state.verifiers,
     )

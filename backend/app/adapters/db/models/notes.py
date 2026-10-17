@@ -64,6 +64,8 @@ class LabAttempt(Base):
     backend: Mapped[str] = mapped_column(String(16))
     profile: Mapped[str] = mapped_column(String(64))
     question_id: Mapped[str] = mapped_column(String(100))
+    # The backend's run for this attempt: the K16S session, or the LocalEmu run whose id names
+    # the attempt's resources (the check grades that run). The name predates LocalEmu.
     k16s_session_id: Mapped[str | None] = mapped_column(String(64), default=None)
     setup_at: Mapped[datetime | None] = mapped_column(default=None)
     checked_at: Mapped[datetime | None] = mapped_column(default=None, index=True)

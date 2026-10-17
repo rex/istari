@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.adapters.db.engine import create_engine, dispose_engine
 from app.adapters.db.session import session_factory
 from app.adapters.k16s import K16sClient
+from app.adapters.localemu import ROOT_ACCESS_KEY_ID, LocalEmuClient
 from app.buildinfo import load_build_info
 from app.config import settings
 from app.contracts.common import ErrorBody
@@ -48,6 +49,7 @@ from app.routes import (
     track,
 )
 from app.services.catalog import CatalogCache
+from app.services.verifier_clients import VerifierClients
 
 log = logging.getLogger("istari.app")
 
@@ -115,6 +117,16 @@ def _k16s_from_settings() -> K16sClient | None:
     return K16sClient(settings.k16s_base_url, public_url=settings.k16s_public_url)
 
 
+def _localemu_from_settings() -> LocalEmuClient | None:
+    if not settings.localemu_base_url:
+        return None
+    return LocalEmuClient(
+        settings.localemu_base_url,
+        region=settings.localemu_region,
+        access_key_id=settings.localemu_access_key_id or ROOT_ACCESS_KEY_ID,
+    )
+
+
 def create_app(
     *,
     engine: AsyncEngine | None = None,
@@ -122,6 +134,7 @@ def create_app(
     learning_root: Path | None = None,
     learning_topics: tuple[str, ...] | None = None,
     k16s: K16sClient | None = None,
+    localemu: LocalEmuClient | None = None,
 ) -> FastAPI:
     owns_engine = engine is None
 
@@ -132,16 +145,15 @@ def create_app(
             app.state.session_factory = session_factory(app.state.engine)
         # The share is slow: scan it in the background so the first page load is instant.
         app.state.catalog_task = app.state.catalog.start_background_refresh()
-        # The lab cluster may be down: poll it in the background so health and the planner
-        # read a snapshot instead of waiting on it.
-        verifier: K16sClient | None = app.state.k16s
-        if verifier is not None:
-            app.state.k16s_task = verifier.start_background_refresh()
+        # The lab cluster and the emulator may be down: poll them in the background so health
+        # and the planner read a snapshot instead of waiting on either.
+        verifiers: VerifierClients = app.state.verifiers
+        app.state.verifier_tasks = [c.start_background_refresh() for c in verifiers.values()]
         try:
             yield
         finally:
-            if verifier is not None:
-                await verifier.aclose()
+            for client in verifiers.values():
+                await client.aclose()
             if owns_engine and app.state.engine is not None:
                 await dispose_engine(app.state.engine)
 
@@ -174,6 +186,13 @@ def create_app(
     app.state.session_factory = session_factory(engine) if engine is not None else None
     app.state.clock = clock or SystemClock()
     app.state.k16s = k16s or _k16s_from_settings()
+    app.state.localemu = localemu or _localemu_from_settings()
+    # Every configured verifier backend by the name a pack's verifier uses.
+    app.state.verifiers = {
+        name: client
+        for name, client in (("k16s", app.state.k16s), ("localemu", app.state.localemu))
+        if client is not None
+    }
     app.state.headlamp_url = settings.headlamp_url.rstrip("/")
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIdMiddleware)

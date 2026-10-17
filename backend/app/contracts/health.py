@@ -11,8 +11,8 @@ from app.contracts.common import ApiModel
 HealthStatus = Literal["ok", "unhealthy"]
 
 
-class K16sHealth(ApiModel):
-    """The verified-labs backend, from the last background poll: never a live call here."""
+class VerifierHealth(ApiModel):
+    """A verified-labs backend, from the last background poll: never a live call here."""
 
     configured: bool
     # None until the first poll has answered.
@@ -32,4 +32,6 @@ class HealthView(ApiModel):
     built_at: str | None
     # When this process started: the closest thing to a deployment time.
     started_at: str
-    k16s: K16sHealth
+    k16s: VerifierHealth
+    # The LocalEmu AWS emulator that grades AWS labs; `mode` is its edition and version.
+    localemu: VerifierHealth

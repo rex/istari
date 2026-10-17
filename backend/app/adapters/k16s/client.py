@@ -45,6 +45,9 @@ DEFAULT_TIMEOUTS = K16sTimeouts()
 
 
 class K16sClient:
+    # One live session on the server, which every check grades.
+    per_attempt_runs = False
+
     def __init__(
         self,
         base_url: str,
@@ -156,7 +159,9 @@ class K16sClient:
         return _session(session)
 
     # ── Setup and check ───────────────────────────────────────────────────
-    async def setup(self, question_id: str) -> SetupResult:
+    # `run` is the attempt's backend run; K16S keeps its own session server-side, so it is
+    # accepted for the shared verifier surface and not sent.
+    async def setup(self, question_id: str, *, run: str = "") -> SetupResult:
         data = await self._request(
             "POST", f"/api/questions/{question_id}/setup", wait_seconds=self.timeouts.setup
         )
@@ -164,7 +169,7 @@ class K16sClient:
             return SetupResult(ok=False, unavailable_reason=str(data.get("reason", "")))
         return SetupResult(ok=bool(data.get("ok", False)), output=str(data.get("output", "")))
 
-    async def check(self, question_id: str) -> CheckResult:
+    async def check(self, question_id: str, *, run: str = "") -> CheckResult:
         data = await self._request(
             "POST", f"/api/questions/{question_id}/check", wait_seconds=self.timeouts.check
         )

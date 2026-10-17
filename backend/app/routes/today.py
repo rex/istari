@@ -34,5 +34,5 @@ async def today_view(
         now=clock.now(),
         minutes=minutes or user_settings.preferred_session_minutes,
         objective_map=objective_map,
-        verifier=request.app.state.k16s,
+        verifiers=request.app.state.verifiers,
     )
