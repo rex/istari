@@ -244,6 +244,7 @@ export interface LessonView extends LessonSummary {
   sources: SourceView[];
   notes: NoteView[];
   figures: FigureView[];
+  labs: LabSummary[];
 }
 
 export type EvidenceLevel = "insufficient" | "weak" | "developing" | "solid";
@@ -356,6 +357,8 @@ export interface LabView extends LabSummary {
   cleanup_md: string;
   sources: SourceView[];
   evidence: EvidenceView[];
+  /** the lessons whose "Do it" step uses this lab */
+  lessons: { key: string; title: string }[];
 }
 
 export interface ContentItemSummary {

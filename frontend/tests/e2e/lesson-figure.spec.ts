@@ -20,6 +20,11 @@ test.describe("a lesson shows its figure", () => {
     // The lesson shows more than one figure; read the caption of this one.
     const figure = page.locator("figure.figure").filter({ has: image });
     await expect(figure.locator("figcaption")).toContainText("Two-tier web app in a VPC.");
+    // And ends with "Do it": the brief it names, steps inline, the lab page a link away.
+    await expect(page.getByRole("heading", { name: "Do it" })).toBeVisible();
+    const doIt = page.locator('[data-do-it="lab-s3-gateway-endpoint-policy"]');
+    await expect(doIt.getByRole("heading", { name: /Lock an S3 bucket/ })).toBeVisible();
+    await expect(doIt.getByRole("heading", { name: "Steps" })).toBeVisible();
     await shot(page, "lesson-figure-vpc", info.project.name);
   });
 
@@ -36,5 +41,9 @@ test.describe("a lesson shows its figure", () => {
     const svg = await page.request.get("/api/figures/fig-one.svg");
     expect(svg.ok()).toBe(true);
     expect(svg.headers()["content-type"]).toContain("image/svg+xml");
+    // "Do it" runs the graded lab inline: the stub cluster's task and its steps.
+    const doIt = page.locator('[data-do-it="lab-verified"]');
+    await expect(doIt.getByRole("heading", { name: "Stub: a pod keeps crashing" })).toBeVisible();
+    await expect(doIt.getByRole("button", { name: /Set up (environment|again)/ })).toBeVisible();
   });
 });

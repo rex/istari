@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.models import ContentItem, ContentRevision, LabAttempt, LabEvidence
 from app.contracts.common import ObjectiveRef
-from app.contracts.lab import EvidenceCreate, EvidenceView, LabSummary, LabView
+from app.contracts.lab import EvidenceCreate, EvidenceView, LabSummary, LabView, LessonRef
 from app.domain.exceptions import NotFoundError
 from app.services.content_query import (
+    content_list,
     content_str,
     get_item,
     list_items,
@@ -103,6 +104,19 @@ async def get_lab(db: AsyncSession, *, key: str, objective_map: dict[str, Object
         attempt_count=(await attempt_counts(db, [item.id])).get(item.id, 0),
         last_attempt=graded.get(item.id),
     )
+    lesson_rows = await db.execute(
+        select(ContentItem, ContentRevision)
+        .join(
+            ContentRevision,
+            (ContentRevision.item_id == ContentItem.id) & ContentRevision.is_current.is_(True),
+        )
+        .where(
+            ContentItem.pack_id == item.pack_id,
+            ContentItem.kind == "lesson",
+            ContentItem.status == "active",
+        )
+        .order_by(ContentItem.item_key)
+    )
     return LabView(
         **summary.model_dump(),
         goals_md=content_str(rev, "goals_md"),
@@ -113,7 +127,42 @@ async def get_lab(db: AsyncSession, *, key: str, objective_map: dict[str, Object
         cleanup_md=content_str(rev, "cleanup_md"),
         sources=revision_sources(rev),
         evidence=[evidence_view(e) for e in evidence],
+        lessons=[
+            LessonRef(key=lesson.item_key, title=content_str(lesson_rev, "title"))
+            for lesson, lesson_rev in lesson_rows.all()
+            if key in content_list(lesson_rev, "labs")
+        ],
     )
+
+
+async def lab_summaries(
+    db: AsyncSession, keys: list[str], objective_map: dict[str, ObjectiveRef]
+) -> list[LabSummary]:
+    """The labs a lesson names, in its order, as the Labs list shows them. A key no pack
+    has shipped is left out rather than breaking the lesson."""
+    summaries: list[LabSummary] = []
+    for key in keys:
+        try:
+            item, rev = await get_item(db, key, kind="lab")
+        except NotFoundError:
+            continue
+        codes = (await objective_codes_for_items(db, [item.id])).get(item.id, [])
+        evidence_count = await db.scalar(
+            select(func.count(LabEvidence.id)).where(LabEvidence.item_id == item.id)
+        )
+        graded = await latest_graded_by_item(db, [item.id])
+        summaries.append(
+            _summary(
+                item,
+                rev,
+                codes,
+                int(evidence_count or 0),
+                objective_map,
+                attempt_count=(await attempt_counts(db, [item.id])).get(item.id, 0),
+                last_attempt=graded.get(item.id),
+            )
+        )
+    return summaries
 
 
 async def add_evidence(db: AsyncSession, *, key: str, req: EvidenceCreate) -> EvidenceView:

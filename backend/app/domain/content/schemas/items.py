@@ -39,6 +39,9 @@ class LessonSpec(ItemBase):
     # The pack's figures this lesson shows, by slug. `body_md` may place one where it belongs
     # with `![alt](figure:slug)`; the rest follow the body.
     figures: list[Key] = Field(default_factory=list)
+    # The pack's labs this lesson's "Do it" step uses, by slug: graded labs run inline,
+    # briefs show their steps. A lab may serve several lessons.
+    labs: list[Key] = Field(default_factory=list)
 
 
 class OptionSpec(StrictModel):

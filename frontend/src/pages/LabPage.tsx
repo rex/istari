@@ -31,6 +31,14 @@ function Eyebrow({ lab }: { lab: LabView }) {
     <p className="card__eyebrow">
       <Link to="/labs">Labs</Link> · {lab.objectives.map((o) => o.code).join(" · ")} · ~
       {lab.estimated_minutes} min
+      {lab.lessons.map((lesson) => (
+        <span key={lesson.key}>
+          {" · "}
+          <Link to="/learn/$key" params={{ key: lesson.key }}>
+            {lesson.title}
+          </Link>
+        </span>
+      ))}
     </p>
   );
 }

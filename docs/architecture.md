@@ -83,7 +83,11 @@ else: a lesson lists the figures it shows and places them in its body with
 the figures of the objectives it is mapped to (`/api/figures/lecture/{course}?path=`,
 pinned and ruled mappings first, excluded ones bringing nothing; the player's "See it"
 rail). Nothing in a figure knows which course or lecture shows it, so a per-course
-variant later is another mapping, not another drawing.
+variant later is another mapping, not another drawing. "Do it" is the same shape for
+labs: a lesson lists the labs its do-step uses (`labs[]`), the viewer runs a graded lab
+inline with the task and its three steps and shows a brief's goals, steps and expected
+observations, and the lab page links back to the lessons that use it. The lab stays one
+item, so one lab serves every lesson on its topic.
 
 ### Watch
 

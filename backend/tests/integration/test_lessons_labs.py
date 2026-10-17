@@ -3,6 +3,21 @@ from __future__ import annotations
 from httpx import AsyncClient
 
 
+async def test_a_lesson_carries_its_do_step_labs_and_a_lab_links_back(
+    study_client: AsyncClient,
+) -> None:
+    one = (await study_client.get("/api/lessons/lesson-one")).json()
+    assert [lab["item_key"] for lab in one["labs"]] == ["lab-verified"]
+    assert one["labs"][0]["verifier"]["backend"] == "k16s"
+    two = (await study_client.get("/api/lessons/lesson-two")).json()
+    assert [lab["item_key"] for lab in two["labs"]] == ["lab-one"]
+    assert two["labs"][0]["verifier"] is None
+    # The lab knows which lessons use it; one nobody uses says so.
+    lab = (await study_client.get("/api/labs/lab-one")).json()
+    assert lab["lessons"] == [{"key": "lesson-two", "title": "Lesson Two"}]
+    assert (await study_client.get("/api/labs/lab-verified-two")).json()["lessons"] == []
+
+
 async def test_lesson_reading_progress_bookmarks_and_notes(study_client: AsyncClient) -> None:
     lessons = (await study_client.get("/api/lessons")).json()
     assert [entry["item_key"] for entry in lessons] == ["lesson-one", "lesson-two"]

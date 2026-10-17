@@ -29,6 +29,7 @@ from app.services.content_query import (
     revision_sources,
 )
 from app.services.figures import figure_views
+from app.services.labs import lab_summaries
 
 
 async def get_or_create_progress(db: AsyncSession, item_id: int) -> ItemProgress:
@@ -168,6 +169,9 @@ async def get_lesson(
         sources=revision_sources(rev),
         notes=[note_view(n, item.item_key) for n in notes],
         figures=await figure_views(db, [*declared, *placed], objective_map),
+        labs=await lab_summaries(
+            db, [key for key in content_list(rev, "labs") if isinstance(key, str)], objective_map
+        ),
     )
 
 

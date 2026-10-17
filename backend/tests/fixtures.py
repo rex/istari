@@ -108,6 +108,7 @@ def mini_pack() -> dict[str, object]:
                 "estimated_minutes": 4,
                 "checks": [{"prompt_md": "Why?", "answer_md": "Because."}],
                 "figures": ["fig-one"],
+                "labs": ["lab-verified"],
             },
             {
                 "slug": "lesson-two",
@@ -119,6 +120,7 @@ def mini_pack() -> dict[str, object]:
                 "summary": "Second lesson.",
                 "body_md": lesson_body,
                 "estimated_minutes": 6,
+                "labs": ["lab-one"],
             },
         ],
         "questions": [

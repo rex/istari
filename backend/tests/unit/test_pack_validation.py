@@ -206,6 +206,17 @@ def test_a_lesson_may_only_show_figures_its_pack_ships() -> None:
     ]
 
 
+def test_a_lesson_may_only_use_labs_its_pack_ships() -> None:
+    pack = mini_pack()
+    lessons = pack["lessons"]
+    assert isinstance(lessons, list)
+    lessons[0]["labs"] = ["lab-verified", "lab-missing"]
+    report = validate_pack(parse_pack(pack))
+    assert [(issue.code, issue.item_key) for issue in report.errors] == [
+        ("unknown_lab", "lesson-one")
+    ]
+
+
 def test_an_unloaded_drawing_is_an_error_not_a_crash() -> None:
     pack = mini_pack()
     _figure(pack).update(svg="", file="figures/one.svg")

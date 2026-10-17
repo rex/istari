@@ -42,7 +42,10 @@ Every item carries the shared base fields:
 demand for readers who want groundwork first), `estimated_minutes` (1 to 60), `checks[]` of
 `{prompt_md, answer_md}` self-checks that are revealed, never graded. `figures[]` lists the
 pack's figures the lesson shows, by slug; `body_md` may place one where it belongs with
-`![alt](figure:slug)`, and the rest follow the body.
+`![alt](figure:slug)`, and the rest follow the body. `labs[]` lists the pack's labs the
+lesson's "Do it" step uses, by slug: the viewer runs a graded lab inline (task, set up,
+terminal, check) and shows a brief's goals, steps and expected observations; a lab may serve
+several lessons and links back to each.
 
 ### Questions
 
@@ -111,6 +114,7 @@ objectives borrow it.
 - objectives with no items at all (warning);
 - near-duplicate question stems (warning);
 - a lesson that lists or places a figure the pack does not ship (error);
+- a lesson that lists a lab the pack does not ship (error);
 - a figure with no drawing, because its `file` was never read (error).
 
 The CLI and the `/api/content/import` endpoint both run it; import refuses on errors.

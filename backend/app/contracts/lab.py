@@ -34,6 +34,11 @@ class LabSummary(ApiModel):
     last_attempt: LabAttemptSummary | None = None
 
 
+class LessonRef(ApiModel):
+    key: str
+    title: str
+
+
 class LabView(LabSummary):
     goals_md: str
     prerequisites_md: str
@@ -43,3 +48,5 @@ class LabView(LabSummary):
     cleanup_md: str
     sources: list[SourceView]
     evidence: list[EvidenceView]
+    # The lessons whose "Do it" step uses this lab.
+    lessons: list[LessonRef] = Field(default_factory=list)

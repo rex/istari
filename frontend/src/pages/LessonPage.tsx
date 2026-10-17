@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 
+import { DoIt } from "@/components/feature/DoIt";
 import { NotesPanel } from "@/components/feature/NotesPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -102,6 +103,7 @@ export default function LessonPage() {
             ))}
           </section>
         ) : null}
+        <DoIt labs={data.labs} timeZone={me.settings.timezone} />
         {data.checks.length > 0 ? (
           <section>
             <h2>Check yourself</h2>

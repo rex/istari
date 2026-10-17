@@ -8,6 +8,7 @@ from pydantic import Field
 
 from app.contracts.common import ApiModel, ObjectiveRef, SourceView
 from app.contracts.figure import FigureView
+from app.contracts.lab import LabSummary
 
 
 class ItemProgressView(ApiModel):
@@ -61,6 +62,8 @@ class LessonView(LessonSummary):
     # The figures the lesson shows, in its order: placed in the body with
     # `![alt](figure:slug)` or following it.
     figures: list[FigureView]
+    # The labs of the lesson's "Do it" step, in its order.
+    labs: list[LabSummary]
 
 
 class LessonProgressPatch(ApiModel):

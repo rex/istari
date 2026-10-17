@@ -107,8 +107,14 @@ S3 storage classes and a lifecycle; NAT gateway against a gateway endpoint), eac
 at the head of the section it illustrates, each citing the lesson's checked sources.
 v0.35.0 shipped #82: the player's rail opens with "See it", the figures of the objectives
 the lecture is mapped to (`services/figures.py` `figures_for_objectives` and
-`lecture_figures`, `GET /api/figures/lecture/{course}?path=`, `SeeIt.tsx`). Next in order:
-#83 "Do it" in the lesson, then #84 and #85 (LocalEmu).
+`lecture_figures`, `GET /api/figures/lecture/{course}?path=`, `SeeIt.tsx`). v0.36.0
+shipped #83: a lesson lists the labs its "Do it" step uses (`labs[]`, validated), the
+lesson view carries their summaries, the viewer runs a graded lab inline (`DoIt.tsx`
+reusing `VerifiedLab`) and shows a brief's goals, steps and expected observations, and the
+lab page links back to its lessons (`LabView.lessons`); the two SAA briefs sit in the
+network, availability and cost lessons. Next: #84 LocalEmu in the ring, then #85 its
+verifier backend; both touch the homelab through Arda's prescribed workflows and are the
+point to confirm with Pierce before anything is deployed.
 
 ## Standing user directives
 
@@ -185,7 +191,7 @@ Statuses: `⏸ pending` · `🟡 in-prog` · `✅ done` · `🔴 blocked`
 
 1. Pierce: say the word for one setup → terminal → check round trip on a `cka` lab from the deployed app (K16S is up and `make labs-check` passes; the round trip records a graded attempt, so the agent waits).
 2. Pierce: click "Rebuild index" on the deployed app's Content → Lecture mapping (the SAA transcripts are on the share); then say go for the rest of `Cloud/AWS` and the Kubernetes folders (#36): `make transcribe SRC=<topic dir> ALL=1 SHARE=1 ASR=parakeet`, roughly 1,400 and 1,500 lectures.
-3. Agent (Ready, in order): #83 "Do it" inside the lesson; then #84 LocalEmu in the ring and #85 its verifier backend. Pierce: open the eight SAA lessons and say, per figure, whether it is the thing; review the ten figures on the Content page (`kind: figure`). #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
+3. Agent (Ready, in order): #84 LocalEmu in the ring (a ring app through Arda's prescribed workflow; confirm the host and the Docker-backed engines with Pierce first), then #85 its verifier backend. Pierce: open the eight SAA lessons and say, per figure, whether it is the thing; review the ten figures on the Content page (`kind: figure`). #70's sub-issues (#72–#77) stay parked in Inbox; the decisions already taken there (API consent, hybrid AWS labs with a $0.50 cap, the local-model protocol) stand.
 3. Pierce: review a few courses on `/content/lectures` and a few paths on `/learn/path/<code>`; once a few hundred pins and exclusions exist, grow `corpus/eval/saa-c03.json` from them and re-run `make lectures-eval` (the sample so far is the agent's judgment on 57 lectures).
 3. Pierce: open the deployed app in the new identity, open the track chip on Settings, look at Labs and a lab page, and the phone layout; the design iterates from the system (tokens and rules there, markup here). Review pack items on the Content page.
 4. Agent (Ready now): #26, the related-in-Istari rail beside the player.

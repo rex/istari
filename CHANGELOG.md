@@ -30,6 +30,15 @@ version bumps).
 
 ---
 
+## [0.36.0] — 2026-10-17 — Agent: Claude Fable 5.1
+### Added
+- "Do it" inside the lesson (rex/istari#83): a lesson lists the labs its do-step uses
+  (`labs[]`, checked against the pack), the viewer runs a graded lab inline with its task
+  and the set up, terminal and check steps, and shows a brief's cost warning, goals, steps
+  and expected observations with the lab page a link away. The lab page links back to the
+  lessons that use it. One lab serves every lesson on its topic. The SAA pack's two briefs
+  now sit in the network, availability and cost lessons.
+
 ## [0.35.0] — 2026-10-17 — Agent: Claude Fable 5.1
 ### Added
 - "See it" in the player's rail (rex/istari#82): the pack's figures for the objectives the

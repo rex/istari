@@ -113,11 +113,17 @@ def validate_pack(pack: ContentPackSpec) -> ValidationReport:
                     figure.slug,
                 )
             )
+    lab_slugs = {lab.slug for lab in pack.labs}
     for lesson in pack.lessons:
         for slug in [*lesson.figures, *placed_figures(lesson.body_md)]:
             if slug not in figure_slugs:
                 report.errors.append(
                     Issue("unknown_figure", f"figure {slug} is not in this pack", lesson.slug)
+                )
+        for slug in lesson.labs:
+            if slug not in lab_slugs:
+                report.errors.append(
+                    Issue("unknown_lab", f"lab {slug} is not in this pack", lesson.slug)
                 )
 
     return report
