@@ -30,6 +30,17 @@ version bumps).
 
 ---
 
+## [0.39.2] — 2026-10-17 — Agent: Claude Opus 5.5
+### Changed
+- Docs only: a new README for the public repository. A banner at the top puts the supplied
+  lockup on the design system's night ground, with "Knowledge, earned." and "See it · Do it
+  · Prove it" set in its own fonts. The rest covers the see-do-prove loop with screenshots,
+  what's inside, what Istari refuses to do, the tracks, an architecture diagram, how to run
+  it, and the docs. The old README pointed at a logo path that does not exist, so GitHub
+  showed a broken image.
+- `docs/readme/`: the banner's HTML source (render command in its header) and the PNGs,
+  cropped from the e2e run's screenshots of seeded content.
+
 ## [0.39.1] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Changed
 - Docs only (rex/istari#89): `docs/labs-localemu.md`, the companion to `docs/labs-k16s.md`.

@@ -1,0 +1,155 @@
+<!doctype html>
+<!--
+  The README banner's source. It is the supplied identity (the lockup, never redrawn)
+  on the design system's night ground, set in its own fonts.
+  Render it to banner.png at twice the CSS size, with transparent corners, from frontend/:
+    node -e "require('@playwright/test').chromium.launch().then(async b => {
+      const p = await b.newPage({ deviceScaleFactor: 2, viewport: { width: 1400, height: 600 } });
+      await p.goto('file://' + require('path').resolve('../docs/readme/banner.html'));
+      await p.evaluate(() => document.fonts.ready);
+      await p.locator('.banner').screenshot({ path: '../docs/readme/banner.png', omitBackground: true });
+      await b.close(); })"
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Istari banner</title>
+    <style>
+      @font-face {
+        font-family: "Cormorant Garamond";
+        font-style: italic;
+        font-weight: 300 700;
+        src: url("../../frontend/src/styles/fonts/CormorantGaramond-Italic-latin.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Hanken Grotesk";
+        font-style: normal;
+        font-weight: 100 900;
+        src: url("../../frontend/src/styles/fonts/HankenGrotesk-Roman-latin.woff2") format("woff2");
+      }
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+      }
+      body {
+        padding: 40px;
+      }
+      .banner {
+        position: relative;
+        width: 1280px;
+        height: 440px;
+        border-radius: 22px;
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse 46% 62% at 50% 40%, rgba(220, 181, 87, 0.16), transparent 70%),
+          radial-gradient(ellipse 120% 90% at 50% 120%, rgba(164, 132, 58, 0.14), transparent 60%),
+          linear-gradient(180deg, #1a1612 0%, #120f0c 55%, #0c0a08 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+      }
+      /* A book plate: a hairline frame inset from the edge, with corner ticks. */
+      .frame {
+        position: absolute;
+        inset: 16px;
+        border: 1px solid rgba(220, 181, 87, 0.22);
+        border-radius: 12px;
+        pointer-events: none;
+      }
+      .frame::before,
+      .frame::after {
+        content: "";
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        background: #a4843a;
+        transform: rotate(45deg);
+        top: -5px;
+      }
+      .frame::before {
+        left: calc(50% - 4.5px);
+      }
+      .frame::after {
+        top: auto;
+        bottom: -5px;
+        left: calc(50% - 4.5px);
+      }
+      /* Faint stars, placed by hand so the render is the same every time. */
+      .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background: #efe6d2;
+      }
+      .lockup {
+        width: 760px;
+        height: auto;
+        filter: drop-shadow(0 0 28px rgba(220, 181, 87, 0.18));
+        /* The lockup carries transparent padding; pull the rule up to meet it. */
+        margin: 10px 0 -34px;
+      }
+      .rule {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: #a4843a;
+      }
+      .rule span {
+        display: block;
+        width: 120px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(220, 181, 87, 0.55));
+      }
+      .rule span:last-child {
+        background: linear-gradient(90deg, rgba(220, 181, 87, 0.55), transparent);
+      }
+      .rule i {
+        width: 7px;
+        height: 7px;
+        background: #dcb557;
+        transform: rotate(45deg);
+      }
+      .tagline {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-style: italic;
+        font-weight: 500;
+        font-size: 40px;
+        letter-spacing: 0.01em;
+        color: #efe6d2;
+        margin: -4px 0 0;
+      }
+      .kicker {
+        font-family: "Hanken Grotesk", system-ui, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: #9a8e77;
+        margin: -8px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="banner">
+      <div class="frame"></div>
+      <i class="star" style="left: 96px; top: 74px; opacity: 0.35"></i>
+      <i class="star" style="left: 188px; top: 318px; opacity: 0.2"></i>
+      <i class="star" style="left: 262px; top: 142px; opacity: 0.28"></i>
+      <i class="star" style="left: 152px; top: 214px; opacity: 0.16"></i>
+      <i class="star" style="left: 1066px; top: 92px; opacity: 0.3"></i>
+      <i class="star" style="left: 1172px; top: 248px; opacity: 0.22"></i>
+      <i class="star" style="left: 1010px; top: 352px; opacity: 0.18"></i>
+      <i class="star" style="left: 1214px; top: 128px; opacity: 0.14"></i>
+      <i class="star" style="left: 342px; top: 380px; opacity: 0.16"></i>
+      <i class="star" style="left: 930px; top: 58px; opacity: 0.2"></i>
+      <img class="lockup" src="../../frontend/public/brand/istari-lockup.webp" alt="Istari" />
+      <div class="rule" aria-hidden="true"><span></span><i></i><span></span></div>
+      <p class="tagline">Knowledge, earned.</p>
+      <p class="kicker">See it &nbsp;·&nbsp; Do it &nbsp;·&nbsp; Prove it</p>
+    </div>
+  </body>
+</html>
