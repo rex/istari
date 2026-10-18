@@ -30,6 +30,15 @@ version bumps).
 
 ---
 
+## [0.39.4] — 2026-10-18 — Agent: Claude Opus 5.5
+### Added
+- `LICENSE`: the MIT License, copyright 2026 Pierce Moore, in its standard unmodified text.
+  `backend/pyproject.toml` and `frontend/package.json` declare `MIT`; both lockfiles are
+  unchanged.
+- README: an MIT badge, and a License section that names what keeps its own terms: the
+  fonts (SIL Open Font License), the SAA-C03 exam guide statements quoted in the pack
+  (Amazon Web Services), and the AWS service icons in the figures.
+
 ## [0.39.3] — 2026-10-17 — Agent: Claude Opus 5.5
 ### Fixed
 - Docs only: the banner's source draws the lockup from the root `brand/` folder, the

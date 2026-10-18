@@ -9,6 +9,7 @@
   <img alt="PostgreSQL 18" src="https://img.shields.io/badge/PostgreSQL-18-dcb557?style=flat-square&labelColor=1a1612">
   <img alt="Spaced repetition: FSRS" src="https://img.shields.io/badge/review-FSRS-dcb557?style=flat-square&labelColor=1a1612">
   <img alt="Readiness score: never" src="https://img.shields.io/badge/readiness%20score-never-9cc38f?style=flat-square&labelColor=1a1612">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-dcb557?style=flat-square&labelColor=1a1612"></a>
 </p>
 
 <p align="center">
@@ -243,6 +244,17 @@ detect-secrets, gitleaks and the repository gates. The interactive API docs are 
 | [`docs/figures.md`](docs/figures.md) | How the figures are drawn and kept honest |
 | [`docs/corpus.md`](docs/corpus.md) | Purchased course material: a private corpus, never committed |
 | [`docs/deployment.md`](docs/deployment.md) | Running it somewhere |
+
+## License
+
+Istari is released under the [MIT License](LICENSE). Material made by others keeps its own
+terms:
+
+- **Fonts:** licensed under the SIL Open Font License; the texts sit beside the files in
+  `frontend/src/styles/fonts/`.
+- **The SAA-C03 exam guide:** the pack quotes its statements verbatim, and they belong to
+  Amazon Web Services.
+- **AWS service icons:** the figures embed them, and they remain under AWS's terms.
 
 ## Credits
 
